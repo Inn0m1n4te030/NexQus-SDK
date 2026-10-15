@@ -1,6 +1,6 @@
 """Statevector, density-matrix and Monte Carlo trajectory simulation."""
 from collections import Counter, OrderedDict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import copy
 import hashlib
 import time
@@ -37,6 +37,24 @@ class Result:
     metadata: dict
     statevector: object = None
     density_matrix: object = None
+    classical_keys: tuple = ()
+    classical_probabilities: dict = field(default_factory=dict)
+    classical_counts: dict = field(default_factory=dict)
+    joint_counts: dict = field(default_factory=dict)
+
+    def reduced_density(self,wires):
+        """Reduced quantum state, in the supplied wire order; requires retained state."""
+        n=self.metadata['n_qubits']; wires=Circuit(n)._wires(wires)
+        rest=tuple(q for q in range(n) if q not in wires)
+        d=2**len(wires); t=2**len(rest)
+        if self.statevector is not None:
+            matrix=self.statevector.reshape((2,)*n).transpose(wires+rest).reshape(d,t)
+            return matrix@matrix.conj().T
+        if self.density_matrix is not None:
+            axes=wires+rest+tuple(q+n for q in wires+rest)
+            tensor=self.density_matrix.reshape((2,)*(2*n)).transpose(axes).reshape(d,t,d,t)
+            return np.trace(tensor,axis1=1,axis2=3)
+        raise ValueError('Reduced density requires a retained statevector or density matrix')
 
     @property
     def most_likely(self):
@@ -137,7 +155,7 @@ class Simulator:
         for op in snapshot.operations:
             if op.kind=='noise':
                 for k in op.data.kraus: prepare(k)
-            else: prepare(op.data)
+            elif op.kind in ('unitary','diagonal'): prepare(op.data)
         if frozen_noise:
             for _,ch in frozen_noise.rules:
                 for k in ch.kraus: prepare(k)
@@ -168,7 +186,7 @@ class Simulator:
 
     def run(self, circuit, shots=1024, seed=None, noise=None, trajectories=256,
             initial_state=None, retain_state=True, readout_error=0.0, batch_size=1,
-            random_engine='portable', noise_fastpath=True):
+            random_engine='portable', noise_fastpath=True, max_branches=1024):
         prepared=isinstance(circuit,CompiledCircuit)
         prepared_arrays={}
         compile_seconds=0.0
@@ -181,6 +199,14 @@ class Simulator:
             circuit=circuit._circuit
         if not isinstance(circuit, Circuit): raise TypeError("Expected a Circuit")
         if circuit.parameters: raise ValueError('Unbound parameters; use circuit.bind() or run_sweep()')
+        if circuit.dynamic:
+            from .dynamic import run_dynamic
+            return run_dynamic(self,circuit,shots=shots,seed=seed,noise=noise,
+                               trajectories=trajectories,initial_state=initial_state,
+                               retain_state=retain_state,readout_error=readout_error,
+                               batch_size=batch_size,random_engine=random_engine,
+                               max_branches=max_branches,prepared_arrays=prepared_arrays,
+                               compiled=prepared,compile_seconds=compile_seconds)
         if isinstance(shots, bool) or not isinstance(shots, (int, np.integer)) or shots < 0:
             raise ValueError("shots must be a nonnegative integer")
         if noise is not None and not isinstance(noise, NoiseModel):

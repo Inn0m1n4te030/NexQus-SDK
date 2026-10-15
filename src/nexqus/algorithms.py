@@ -9,6 +9,17 @@ def bell():
     return Circuit(2).h(0).cx(0,1)
 
 
+def teleportation():
+    """Teleport q0 to q2 using q1/q2 as a Bell resource and ideal feed-forward.
+
+    Start with arbitrary input on q0 and |00> on q1/q2. Classical keys are
+    alice_z and alice_x; rename with Circuit.compose(classical_map=...).
+    """
+    q=Circuit(3).h(1).cx(1,2).cx(0,1).h(0)
+    q.measure(0,'alice_z').measure(1,'alice_x')
+    return q.x(2).c_if('alice_x',1).z(2).c_if('alice_z',1)
+
+
 def ghz(n_qubits):
     q = Circuit(n_qubits).h(0)
     for target in range(1,n_qubits): q.cx(0,target)

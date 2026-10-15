@@ -24,6 +24,11 @@ def compare_results(reference,candidate,precision='double'):
             raise ValueError('Use portable RNG for cross-backend trajectory parity')
     error=float(np.abs(a-b).max())
     tvd=float(np.abs(a-b).sum()/2)
+    if reference.classical_keys!=candidate.classical_keys: raise AssertionError('Classical key order mismatch')
+    classical_keys=set(reference.classical_probabilities)|set(candidate.classical_probabilities)
+    classical_error=max((abs(reference.classical_probabilities.get(k,0)-candidate.classical_probabilities.get(k,0))
+                         for k in classical_keys),default=0.)
+    if classical_error>atol: raise AssertionError('Classical probability mismatch')
     if error>atol or tvd>tvd_limit:
         raise AssertionError(f'Probability mismatch: max={error}, TVD={tvd}')
     state_error=None
@@ -36,6 +41,7 @@ def compare_results(reference,candidate,precision='double'):
         state_error=float(np.max(abs(reference.density_matrix-candidate.density_matrix)))
     if state_error is not None and state_error>atol: raise AssertionError('Retained state mismatch')
     return dict(max_probability_error=error,total_variation_distance=tvd,
+                max_classical_probability_error=float(classical_error),
                 probability_atol=atol,total_variation_limit=tvd_limit,
                 retained_state_max_error=state_error,check='passed')
 

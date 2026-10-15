@@ -25,6 +25,7 @@ class QuantumFunction:
     """
     def __init__(self,template,observable,simulator=None,noise=None):
         if not isinstance(template,Circuit): raise TypeError('Expected a Circuit template')
+        if template.dynamic: raise ValueError('Dynamic circuits are not supported by QuantumFunction gradients in v0.5')
         if not isinstance(observable,str) or len(observable)!=template.n_qubits or set(observable)-set('IXYZ'):
             raise ValueError('Observable must be a Pauli string in q0-first order')
         self.template=template

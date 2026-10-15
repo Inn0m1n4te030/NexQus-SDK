@@ -24,6 +24,7 @@ class Operation:
     wires: tuple
     data: object
     kind: str = "unitary"
+    condition: object = None
 
 
 class Circuit:
@@ -130,7 +131,7 @@ class Circuit:
                 gate,expression=op.data
                 getattr(out,gate)(expression.evaluate(values),*op.wires)
                 concrete=out.operations[-1]
-                out.operations[-1]=Operation(op.name,concrete.wires,concrete.data,concrete.kind)
+                out.operations[-1]=Operation(op.name,concrete.wires,concrete.data,concrete.kind,op.condition)
             else: out.operations.append(op)
         return out
 
@@ -147,20 +148,64 @@ class Circuit:
         self.operations.append(Operation(channel.name, wires, channel, "noise"))
         return self
 
-    def compose(self, other, wires=None):
+    @property
+    def classical_keys(self):
+        return tuple(dict.fromkeys(op.data for op in self.operations if op.kind=='measure'))
+
+    @property
+    def dynamic(self):
+        return any(op.kind in ('measure','reset') or op.condition is not None for op in self.operations)
+
+    def measure(self,q,key):
+        """Projectively measure one qubit in Z and overwrite a named classical bit."""
+        wires=self._wires(q)
+        if len(wires)!=1: raise ValueError('measure() acts on one qubit at a time')
+        if not isinstance(key,str) or not key.strip(): raise ValueError('Classical key must be a nonempty string')
+        self.operations.append(Operation('MEASURE',wires,key,'measure'))
+        return self
+
+    def reset(self,q):
+        """Reset one qubit to |0>, discarding its previous value."""
+        wires=self._wires(q)
+        if len(wires)!=1: raise ValueError('reset() acts on one qubit at a time')
+        self.operations.append(Operation('RESET',wires,None,'reset'))
+        return self
+
+    def c_if(self,key,value=1):
+        """Condition the immediately preceding gate/reset/noise on a measured bit."""
+        if not self.operations or self.operations[-1].kind not in ('unitary','diagonal','parameterized','reset','noise'):
+            raise ValueError('c_if() must follow a gate, reset, or noise operation')
+        if not isinstance(key,str) or key not in tuple(op.data for op in self.operations[:-1] if op.kind=='measure'):
+            raise ValueError('Condition requires a classical bit measured earlier in the circuit')
+        if isinstance(value,bool) or not isinstance(value,numbers.Integral) or value not in (0,1):
+            raise ValueError('Condition value must be integer 0 or 1')
+        op=self.operations[-1]
+        if op.condition is not None: raise ValueError('Operation already has a condition')
+        self.operations[-1]=Operation(op.name,op.wires,op.data,op.kind,(key,int(value)))
+        return self
+
+    def compose(self, other, wires=None, classical_map=None):
         if not isinstance(other, Circuit):
             raise TypeError("Expected Circuit")
         mapped = self._wires(tuple(range(self.n_qubits)) if wires is None else wires)
         if len(mapped) != other.n_qubits:
             raise ValueError("Mapping length must match the source circuit")
         # Snapshot allows c.compose(c) without growing the iteration indefinitely.
-        self.operations.extend(Operation(op.name, tuple(mapped[q] for q in op.wires), op.data, op.kind)
-                               for op in list(other.operations))
+        classical_map={} if classical_map is None else dict(classical_map)
+        if set(classical_map)-set(other.classical_keys): raise ValueError('Unknown classical key in mapping')
+        if any(not isinstance(v,str) or not v.strip() for v in classical_map.values()):
+            raise ValueError('Mapped classical keys must be nonempty strings')
+        translated=[classical_map.get(key,key) for key in other.classical_keys]
+        if len(set(translated))!=len(translated): raise ValueError('Classical mapping must not merge distinct keys')
+        for op in list(other.operations):
+            data=classical_map.get(op.data,op.data) if op.kind=='measure' else op.data
+            condition=None if op.condition is None else (classical_map.get(op.condition[0],op.condition[0]),op.condition[1])
+            self.operations.append(Operation(op.name,tuple(mapped[q] for q in op.wires),data,op.kind,condition))
         return self
 
     def inverse(self):
-        if any(op.kind == "noise" for op in self.operations):
-            raise ValueError("A noisy circuit has no unitary inverse")
+        if self.dynamic or any(op.kind == "noise" for op in self.operations):
+            raise ValueError("A noisy or dynamic circuit has no unitary inverse")
         out = Circuit(self.n_qubits)
         for op in reversed(self.operations):
             if op.kind == 'parameterized':

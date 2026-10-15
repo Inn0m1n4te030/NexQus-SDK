@@ -1,11 +1,31 @@
-# NexQus SDK 0.4.0
+# NexQus SDK 0.5.0
 
 A working Python prototype with NexQus's own circuit representation, local
 gate application, state evolution, noise channels, and algorithms. NumPy and
 optional PyTorch supply numerical tensors; Qiskit, PennyLane, and other quantum
 SDKs are not execution dependencies.
 
-## New in 0.4 — trainable circuits
+## New in 0.5 — dynamic circuit controls
+
+- Mid-circuit Z measurement into named classical bits.
+- Reset and single-bit conditional gates/reset/noise.
+- Exact density branching for small dynamic circuits, sampled trajectories for
+  larger protocols, and joint classical/quantum counts.
+- Reduced density matrices and a reusable teleportation protocol.
+
+```python
+from nexqus import Circuit, Simulator
+
+q = Circuit(1).h(0).measure(0, 'm').x(0).c_if('m', 1)
+result = Simulator().run(q, seed=42)
+print(result.counts)             # final qubit is always zero
+print(result.classical_counts)   # intermediate measurement is random
+```
+
+Read [docs/V05_GUIDE.md](docs/V05_GUIDE.md) for mode choices, classical-key
+semantics, memory limits and teleportation.
+
+## Retained learning features from 0.4
 
 - `QuantumFunction`: expectation values and analytic parameter-shift gradients.
 - Correct gate-local gradients for shared parameters and arithmetic chain rules.
@@ -128,7 +148,7 @@ still be measured; small tensor operations can remain launch-bound on a GPU.
 
 ## Install
 
-Extract the ZIP, open a terminal in `nexqus-sdk-v0.4.0`, then:
+Extract the ZIP, open a terminal in `nexqus-sdk-v0.5.0`, then:
 
 ```bash
 python -m venv .venv
@@ -178,10 +198,10 @@ order supplied to custom gates and marginals is respected exactly.
 
 | Method | Quantum representation | Noise | Storage scaling |
 |---|---|---|---|
-| `statevector` | Pure state | Rejects quantum noise | O(2^n) |
+| `statevector` | Pure static state | Rejects quantum noise and dynamic controls | O(2^n) |
 | `density_matrix` | Mixed state | Exact channel evolution | O(4^n) |
 | `trajectory` | Independent stochastic pure states | Ensemble estimate | O(B × 2^n), B = batch size |
-| `auto` (default) | Selects statevector / density matrix | Density matrix when noise present | Depends on selected method |
+| `auto` (default) | Static statevector/density; exact branches for dynamic circuits | Exact channels | Depends on selected method and branch count |
 
 “Exact” means deterministic evolution under the specified model, subject to
 floating-point error. Finite-shot counts still fluctuate. Trajectory
@@ -272,10 +292,9 @@ the selected device; final classical shot sampling remains on CPU. Small
 circuits may be faster on CPU.
 
 The current delivery environment has NumPy but no PyTorch or CUDA hardware.
-The user supplied matching v0.3 CPU/GPU benchmarks, including noisy trajectories.
-For v0.4, 81 CPU tests pass locally; eight optional Torch CPU/CUDA tests are
-skipped because PyTorch is not installed here. The new gradient paths include
-their own Torch CPU/CUDA parity tests and need validation on your machine.
+The user confirmed v0.4 GPU validation passed. For v0.5, 101 CPU tests pass
+locally; ten optional Torch CPU/CUDA tests are skipped because PyTorch is not
+installed here. New dynamic-circuit parity tests need validation on your machine.
 
 ## Algorithms
 
@@ -400,12 +419,11 @@ or use trajectory mode for noisy circuits that would need large density matrices
 
 Working prototype: synchronous local simulation, terminal measurement, batched
 trajectories, custom unitary gates, reusable algorithms, and Burmese comments in
-selected examples. It has no mid-circuit measurement/feed-forward, reset,
-distributed execution, fused CUDA kernels, native compiler, Torch autograd,
+selected examples. It has no distributed execution, fused CUDA kernels, native compiler, Torch autograd,
 cloud hardware connector, or production performance guarantee.
 
-Next development candidates: a Torch neural-network interface, mid-circuit
-measurement, more algorithms, and a curated Burmese tutorial series. These are
+Next development candidates: tested beginner notebooks, a Torch neural-network
+interface, more algorithms, and a curated Burmese tutorial series. These are
 future work, not shipped features.
 
 No distribution license was selected for this private prototype. Choose the

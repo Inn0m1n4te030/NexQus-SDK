@@ -1,4 +1,18 @@
-# NexQus SDK 0.4 စတင်အသုံးပြုနည်း
+# NexQus SDK 0.5 စတင်အသုံးပြုနည်း
+
+v0.5 တွင် circuit အလယ်၌ measure လုပ်ခြင်း၊ qubit ကို |0> သို့ reset လုပ်ခြင်းနှင့်
+classical bit အလိုက် gate လုပ်ဆောင်ခြင်းတို့ ပါဝင်ပါသည်။
+
+```python
+from nexqus import Circuit, Simulator
+q = Circuit(1).h(0).measure(0, 'm').x(0).c_if('m', 1)
+result = Simulator().run(q)
+print(result.counts)
+print(result.classical_counts)
+```
+
+`python examples/teleportation.py` ဖြင့် teleportation ကို စမ်းသပ်နိုင်ပါသည်။
+အသေးစိတ်ကို `V05_GUIDE.md` တွင် ကြည့်ပါ။
 
 v0.4 တွင် circuit parameter များ၏ gradient ကို parameter-shift နည်းလမ်းဖြင့်
 တွက်ချက်ပြီး Adam သို့မဟုတ် SGD ဖြင့် train နိုင်ပါသည်။
@@ -41,7 +55,7 @@ README တွင် ကြည့်ပါ။
 
 ## ၁။ Install လုပ်ပါ
 
-ZIP file ကို ဖြည်ပြီး `nexqus-sdk-v0.4.0` folder ထဲတွင် terminal ဖွင့်ပါ။
+ZIP file ကို ဖြည်ပြီး `nexqus-sdk-v0.5.0` folder ထဲတွင် terminal ဖွင့်ပါ။
 
 ```bash
 python -m pip install -e .
