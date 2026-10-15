@@ -1,11 +1,33 @@
-# NexQus SDK 0.3.0
+# NexQus SDK 0.4.0
 
 A working Python prototype with NexQus's own circuit representation, local
 gate application, state evolution, noise channels, and algorithms. NumPy and
 optional PyTorch supply numerical tensors; Qiskit, PennyLane, and other quantum
 SDKs are not execution dependencies.
 
-## New in 0.3
+## New in 0.4 — trainable circuits
+
+- `QuantumFunction`: expectation values and analytic parameter-shift gradients.
+- Correct gate-local gradients for shared parameters and arithmetic chain rules.
+- Deterministic noiseless and exact noisy (density matrix) differentiation.
+- Explicit Adam and SGD optimizers.
+- `QuantumRegressor` and `QuantumBinaryClassifier` for small learning workflows.
+- Runnable sine-regression, binary-classification and two-qubit VQE examples,
+  with Burmese comments.
+
+```python
+from nexqus import Circuit, Parameter, QuantumFunction
+
+theta = Parameter('theta')
+function = QuantumFunction(Circuit(1).ry(theta, 0), 'Z')
+value, gradient = function.value_and_grad({'theta': 0.4})
+print(value, gradient)
+```
+
+Start with [docs/V04_GUIDE.md](docs/V04_GUIDE.md). These are analytic
+parameter-shift APIs, not PyTorch autograd or a `torch.nn.Module` interface.
+
+## Retained simulation features from 0.3
 
 - Device-local noise branch sampling, including CUDA-side RNG.
 - Fast Pauli mixture and analytic amplitude/phase damping paths.
@@ -106,7 +128,7 @@ still be measured; small tensor operations can remain launch-bound on a GPU.
 
 ## Install
 
-Extract the ZIP, open a terminal in `nexqus-sdk-v0.3.0`, then:
+Extract the ZIP, open a terminal in `nexqus-sdk-v0.4.0`, then:
 
 ```bash
 python -m venv .venv
@@ -145,8 +167,8 @@ print(result.expectation("ZZ"))
 
 The function builds a circuit; `Simulator.run()` executes it. Ordinary Python
 loops, helper functions and parameters work. Gates chain: `q.h(0).cx(0, 1)`.
-Parameters may be concrete real scalars or named symbolic expressions; this release does not expose autograd
-or a differentiable QNN interface.
+Parameters may be concrete real scalars or named symbolic expressions. Use
+QuantumFunction for analytic gradients; Torch autograd is not exposed.
 
 **Bit order:** q0 is the LEFTMOST, most significant bit. `Circuit(2).x(0)` returns
 `10`, not `01`. This convention differs from some quantum frameworks. Wire
@@ -250,10 +272,10 @@ the selected device; final classical shot sampling remains on CPU. Small
 circuits may be faster on CPU.
 
 The current delivery environment has NumPy but no PyTorch or CUDA hardware.
-The user reported v0.2 CPU/GPU benchmarks with matching probabilities. For v0.3,
-63 NumPy tests pass here; six optional Torch CPU/CUDA tests are skipped because
-PyTorch is not installed. The changed device sampling paths need validation on
-your GPU. Previous-version GPU results do not validate these new paths.
+The user supplied matching v0.3 CPU/GPU benchmarks, including noisy trajectories.
+For v0.4, 81 CPU tests pass locally; eight optional Torch CPU/CUDA tests are
+skipped because PyTorch is not installed here. The new gradient paths include
+their own Torch CPU/CUDA parity tests and need validation on your machine.
 
 ## Algorithms
 
@@ -379,11 +401,10 @@ or use trajectory mode for noisy circuits that would need large density matrices
 Working prototype: synchronous local simulation, terminal measurement, batched
 trajectories, custom unitary gates, reusable algorithms, and Burmese comments in
 selected examples. It has no mid-circuit measurement/feed-forward, reset,
-distributed execution, fused CUDA kernels, native compiler, automatic quantum
-gradients, cloud hardware connector, or production performance guarantee.
+distributed execution, fused CUDA kernels, native compiler, Torch autograd,
+cloud hardware connector, or production performance guarantee.
 
-Next development candidates: run new GPU parity tests/benchmarks on NexQus hardware,
-add differentiable parameter handling, mid-circuit
+Next development candidates: a Torch neural-network interface, mid-circuit
 measurement, more algorithms, and a curated Burmese tutorial series. These are
 future work, not shipped features.
 

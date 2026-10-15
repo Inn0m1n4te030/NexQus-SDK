@@ -3,7 +3,10 @@ from .circuit import Circuit, circuit
 from .noise import Noise, NoiseModel
 from .simulator import Simulator, Result, CompiledCircuit
 from .parameters import Parameter
+from .gradients import QuantumFunction
+from .optimizers import Adam, SGD
+from .learning import QuantumRegressor, QuantumBinaryClassifier
 from . import algorithms
 
-__version__ = "0.3.0"
-__all__ = ["Circuit", "circuit", "Parameter", "Noise", "NoiseModel", "Simulator", "Result", "CompiledCircuit", "algorithms"]
+__version__ = "0.4.0"
+__all__ = ["Circuit", "circuit", "Parameter", "Noise", "NoiseModel", "Simulator", "Result", "CompiledCircuit", "QuantumFunction", "QuantumRegressor", "QuantumBinaryClassifier", "Adam", "SGD", "algorithms"]

@@ -1,4 +1,15 @@
-# NexQus SDK 0.3 စတင်အသုံးပြုနည်း
+# NexQus SDK 0.4 စတင်အသုံးပြုနည်း
+
+v0.4 တွင် circuit parameter များ၏ gradient ကို parameter-shift နည်းလမ်းဖြင့်
+တွက်ချက်ပြီး Adam သို့မဟုတ် SGD ဖြင့် train နိုင်ပါသည်။
+
+```bash
+python examples/gradients.py
+python examples/train_sine.py
+python examples/train_classifier.py
+```
+
+အသုံးပြုပုံနှင့် ကန့်သတ်ချက်များကို `V04_GUIDE.md` တွင် ကြည့်ပါ။
 
 v0.3 တွင် noise sampling ကို ရွေးချယ်ထားသော CPU သို့မဟုတ် GPU ပေါ်တွင်
 တိုက်ရိုက်လုပ်ဆောင်ပါသည်။ Performance နှင့် validation command အသစ်များအတွက်
@@ -30,7 +41,7 @@ README တွင် ကြည့်ပါ။
 
 ## ၁။ Install လုပ်ပါ
 
-ZIP file ကို ဖြည်ပြီး `nexqus-sdk-v0.3.0` folder ထဲတွင် terminal ဖွင့်ပါ။
+ZIP file ကို ဖြည်ပြီး `nexqus-sdk-v0.4.0` folder ထဲတွင် terminal ဖွင့်ပါ။
 
 ```bash
 python -m pip install -e .

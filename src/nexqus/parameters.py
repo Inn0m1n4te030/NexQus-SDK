@@ -23,6 +23,22 @@ class Expression:
         else: raise ValueError('Unknown parameter expression')
         return real_scalar(value)
 
+    def value_and_derivatives(self,values):
+        """Exact scalar chain rule for the supported arithmetic expressions."""
+        if self.operation=='parameter':
+            return real_scalar(values[self.args[0]]),{self.args[0]:1.0}
+        pairs=[a.value_and_derivatives(values) if isinstance(a,Expression) else (a,{}) for a in self.args]
+        (a,da),(b,db)=pairs
+        keys=set(da)|set(db)
+        if self.operation=='add':
+            value=a+b; derivatives={k:da.get(k,0)+db.get(k,0) for k in keys}
+        elif self.operation=='mul':
+            value=a*b; derivatives={k:da.get(k,0)*b+a*db.get(k,0) for k in keys}
+        elif self.operation=='div':
+            value=a/b; derivatives={k:(da.get(k,0)*b-a*db.get(k,0))/(b*b) for k in keys}
+        else: raise ValueError('Unknown parameter expression')
+        return real_scalar(value),{k:real_scalar(v) for k,v in derivatives.items()}
+
     def __add__(self, other): return Expression('add',(self,operand(other)))
     def __radd__(self, other): return self+other
     def __neg__(self): return self * -1
