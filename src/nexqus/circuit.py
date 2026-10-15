@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from functools import wraps
 import numbers
 import numpy as np
+from .parameters import Expression, bindings_dict, real_scalar
 
 I = np.eye(2, dtype=complex)
 X = np.array([[0, 1], [1, 0]], dtype=complex)
@@ -72,9 +73,13 @@ class Circuit:
     def t(self, q): return self.phase(np.pi / 4, q)
 
     def phase(self, theta, q):
+        if isinstance(theta,Expression): return self._parameter_gate('phase',theta,q)
+        theta=real_scalar(theta)
         return self.diagonal([1, np.exp(1j * theta)], q, "P")
 
     def _rotation(self, theta, q, pauli, name):
+        if isinstance(theta,Expression): return self._parameter_gate(name.lower(),theta,q)
+        theta=real_scalar(theta)
         u = np.cos(theta / 2) * I - 1j * np.sin(theta / 2) * pauli
         return self.unitary(u, q, name)
 
@@ -93,7 +98,41 @@ class Circuit:
     def cx(self, control, target): return self.controlled(X, control, target, "CX")
     def cz(self, control, target): return self.diagonal([1, 1, 1, -1], (control, target), "CZ")
     def cp(self, theta, control, target):
+        if isinstance(theta,Expression): return self._parameter_gate('cp',theta,(control,target))
+        theta=real_scalar(theta)
         return self.diagonal([1, 1, 1, np.exp(1j * theta)], (control, target), "CP")
+
+    def _parameter_gate(self, gate, expression, wires):
+        wires=self._wires(wires)
+        expected=2 if gate=='cp' else 1
+        if len(wires)!=expected: raise ValueError('Incorrect number of gate wires')
+        name='P' if gate=='phase' else gate.upper()
+        self.operations.append(Operation(name,wires,(gate,expression),'parameterized'))
+        return self
+
+    @property
+    def parameters(self):
+        names=set()
+        for op in self.operations:
+            if op.kind=='parameterized': names.update(op.data[1].names)
+        return tuple(sorted(names))
+
+    def bind(self, values):
+        """Return a new concrete circuit; missing/unknown parameter names are errors."""
+        values=bindings_dict(values)
+        required=set(self.parameters)
+        if set(values)!=required:
+            raise ValueError(f'Missing bindings: {sorted(required-set(values))}; '
+                             f'unknown bindings: {sorted(set(values)-required)}')
+        out=Circuit(self.n_qubits)
+        for op in self.operations:
+            if op.kind=='parameterized':
+                gate,expression=op.data
+                getattr(out,gate)(expression.evaluate(values),*op.wires)
+                concrete=out.operations[-1]
+                out.operations[-1]=Operation(op.name,concrete.wires,concrete.data,concrete.kind)
+            else: out.operations.append(op)
+        return out
 
     def swap(self, a, b):
         return self.unitary([[1,0,0,0],[0,0,1,0],[0,1,0,0],[0,0,0,1]], (a,b), "SWAP")
@@ -124,6 +163,10 @@ class Circuit:
             raise ValueError("A noisy circuit has no unitary inverse")
         out = Circuit(self.n_qubits)
         for op in reversed(self.operations):
+            if op.kind == 'parameterized':
+                gate,expression=op.data
+                out.operations.append(Operation(op.name+'†',op.wires,(gate,-expression),op.kind))
+                continue
             data = op.data.conj() if op.kind == "diagonal" else op.data.conj().T
             out.operations.append(Operation(op.name + "†", op.wires, data, op.kind))
         return out

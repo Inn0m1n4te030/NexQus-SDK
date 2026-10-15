@@ -1,13 +1,100 @@
-# NexQus SDK 0.1.0
+# NexQus SDK 0.2.0
 
 A working Python prototype with NexQus's own circuit representation, local
 gate application, state evolution, noise channels, and algorithms. NumPy and
 optional PyTorch supply numerical tensors; Qiskit, PennyLane, and other quantum
 SDKs are not execution dependencies.
 
+## New in 0.2
+
+- Named scalar parameters and arithmetic expressions: bind values without
+  rebuilding your circuit's Python structure.
+- Reproducible ordered parameter sweeps, plus a streaming sweep iterator.
+- Prepared circuit/noise snapshots for repeated execution.
+- Bounded content-keyed gate tensor cache shared across runs and sweep points.
+- Configurable batched noisy trajectories on the NumPy and Torch paths.
+- Matched CPU/GPU benchmark runner with environment details and probability
+  comparisons against the NumPy reference.
+- Backward-compatible v0.1 examples and qubit ordering.
+
+### Bind once, sweep many values
+
+```python
+import numpy as np
+from nexqus import Circuit, Parameter, Simulator
+
+theta = Parameter('theta')
+template = Circuit(2).ry(theta, 0).cx(0, 1).rz(2*theta, 1)
+sim = Simulator()
+bound = template.bind({'theta': 0.8})
+result = sim.run(bound, seed=42)
+
+results = sim.run_sweep(
+    template, [{'theta': x} for x in np.linspace(0, np.pi, 10)],
+    shots=1000, seed=42,
+)
+for result in results:
+    print(result.metadata['bindings'], result.counts)
+```
+
+`Parameter` supports `+`, `-`, `*`, `/`, and unary minus. Bindings must be finite
+real scalars. RX/RY/RZ/P/CP gates support symbolic angles. `bind()` checks missing
+and unknown names and returns a new concrete circuit. The template is unchanged.
+Both string and `Parameter` keys work; repeated names refer to the same value.
+Custom unitary matrices and control flow are not symbolically parameterized.
+
+Sweeps return results in input order and spawn independent reproducible child
+seeds from the supplied base seed. `retain_state=False` is the sweep default;
+set it explicitly to True for Pauli expectations. Use `iter_sweep()` to process
+large sweeps one result at a time. Sweeps execute sequentially; they are not
+batched differentiable training or parallel job scheduling.
+
+### Prepare repeated runs
+
+```python
+prepared = sim.compile(bound)
+for seed in range(10):
+    result = prepared.run(shots=1000, seed=seed)
+print(sim.cache_info())
+```
+
+`compile()` snapshots the circuit and optional noise model and prepares its
+numerical tensors on the selected device. It is not a native compiler, gate
+fusion, or CUDA kernel generator. Modifying the source circuit/noise does not
+alter a compiled object. A compiled object belongs to the Simulator that made
+it. Bind symbolic parameters before compilation; recompile to change noise.
+
+Ordinary runs also reuse cached gate tensors. `gate_cache_mb=64` is the default
+LRU cache budget; `gate_cache_mb=0` disables the persistent cache. Use
+`sim.clear_cache()` to drop cached references. Compiled objects retain their own
+tensor references, which are not released by clearing the simulator cache.
+
+### Batch noisy trajectories
+
+```python
+from nexqus import Noise, NoiseModel, algorithms
+
+sim = Simulator(method='trajectory')
+prepared = sim.compile(
+    algorithms.ghz(6), noise=NoiseModel(Noise.depolarizing(0.03)),
+)
+result = prepared.run(trajectories=1000, batch_size=32, seed=42)
+```
+
+`batch_size=1` preserves sequential v0.1 behavior. Higher values apply shared
+gate operations to batches of independent trajectory states. They increase
+working storage roughly in proportion to batch size. A final partial batch is
+handled automatically. Reduce batch size on memory-constrained machines.
+
+Reproducibility requires the same seed, batch size, method and numeric setup.
+Changing batch size changes random draw ordering, so stochastic outcomes need
+not match exactly. Quantum-channel statistics should agree within sampling
+error. Branch weights/choices remain on the CPU, so GPU batching still has host
+synchronization; speedup must be measured, not assumed.
+
 ## Install
 
-Extract the ZIP, open a terminal in `nexqus-sdk`, then:
+Extract the ZIP, open a terminal in `nexqus-sdk-v0.2.0`, then:
 
 ```bash
 python -m venv .venv
@@ -15,7 +102,7 @@ python -m venv .venv
 source .venv/bin/activate
 # Windows PowerShell instead:
 # .venv\Scripts\Activate.ps1
-python -m pip install -e .
+python -m pip install --upgrade -e .
 python examples/quickstart.py
 ```
 
@@ -46,7 +133,7 @@ print(result.expectation("ZZ"))
 
 The function builds a circuit; `Simulator.run()` executes it. Ordinary Python
 loops, helper functions and parameters work. Gates chain: `q.h(0).cx(0, 1)`.
-These parameters are Python/NumPy values; this release does not expose autograd
+Parameters may be concrete real scalars or named symbolic expressions; this release does not expose autograd
 or a differentiable QNN interface.
 
 **Bit order:** q0 is the LEFTMOST, most significant bit. `Circuit(2).x(0)` returns
@@ -59,7 +146,7 @@ order supplied to custom gates and marginals is respected exactly.
 |---|---|---|---|
 | `statevector` | Pure state | Rejects quantum noise | O(2^n) |
 | `density_matrix` | Mixed state | Exact channel evolution | O(4^n) |
-| `trajectory` | Independent stochastic pure states | Ensemble estimate | O(2^n), sequential trajectories |
+| `trajectory` | Independent stochastic pure states | Ensemble estimate | O(B × 2^n), B = batch size |
 | `auto` (default) | Selects statevector / density matrix | Density matrix when noise present | Depends on selected method |
 
 “Exact” means deterministic evolution under the specified model, subject to
@@ -136,7 +223,12 @@ Confirm before running:
 ```bash
 python -c "import torch; print(torch.cuda.is_available())"
 python examples/gpu.py
+python examples/validate_gpu.py
 ```
+
+`validate_gpu.py` fails if PyTorch/CUDA is absent or any discovered test is
+skipped. It explicitly exercises the v0.2 CUDA batched/prepared/sweep paths,
+then runs the full test suite. This avoids mistaking a skipped GPU test for a pass.
 
 CUDA execution applies NexQus's tensor operations on the selected GPU. An
 unavailable GPU raises an error; it does not silently switch to CPU. Only CPU
@@ -146,9 +238,9 @@ shot sampling use a CPU random generator, so GPU trajectories incur host
 synchronization. Small circuits may be faster on CPU.
 
 The current delivery environment has NumPy but no PyTorch or CUDA hardware.
-CPU numerical tests passed; optional Torch CPU and CUDA parity tests are
-included but skipped here. Run those tests on your intended machine before
-relying on GPU results.
+The user reported successful v0.1 CPU and GPU runs. For v0.2, 44 NumPy tests pass
+here; four optional Torch CPU/CUDA tests are included but skipped. The new
+batching and prepared execution paths need those tests rerun on your GPU.
 
 ## Algorithms
 
@@ -227,6 +319,23 @@ memory or GPU utilization. Use system profilers if those metrics are needed.
 
 ## Benchmarks and memory
 
+The v0.2 matched-device runner (CUDA is skipped explicitly if unavailable):
+
+```bash
+python examples/benchmark_v2.py --compare --qubits 16 --output benchmark_ideal.json
+python examples/benchmark_v2.py --compare --method density_matrix --qubits 6 --noise 0.01 --output benchmark_density.json
+python examples/benchmark_v2.py --compare --method trajectory --qubits 10 --noise 0.01 --trajectories 512 --batch-size 32 --output benchmark_trajectory.json
+```
+
+Use `--uncompiled` to benchmark ordinary runs with the gate cache. Both modes
+perform warmup and use the same circuit, seed, precision and batch layout.
+Results include median full-run wall time, evolution time, process CPU time,
+reference probability differences, device details and CUDA allocator peak when
+available. This is not GPU-utilization monitoring. Timing is hardware-dependent.
+Probability checks do not replace the amplitude/density parity tests.
+
+The original single-configuration benchmark remains available:
+
 ```bash
 python examples/benchmark.py --qubits 16 --repeat 3
 python examples/benchmark.py --qubits 6 --noise 0.01 --method density_matrix
@@ -245,21 +354,23 @@ the script performs a warmup and reports median repeated evolution time.
 | 20 | 16 MiB | 16 TiB |
 
 This table describes the main state only, not all working memory. Default
-`max_memory_mb=1024` checks a conservative six-state working estimate before
+`max_memory_mb=1024` checks a conservative six-state working estimate (multiplied
+by effective trajectory batch size) before
 simulation. It is not a hard process/GPU allocator limit and excludes circuit
-data, custom operator caches, and retained host arrays. Increase it deliberately
+data, the separately bounded gate cache, compiled tensor references, custom
+operator caches, and retained host arrays. Increase it deliberately
 or use trajectory mode for noisy circuits that would need large density matrices.
 
 ## Current scope and next engineering work
 
-Working prototype: synchronous local simulation, terminal measurement, sequential
+Working prototype: synchronous local simulation, terminal measurement, batched
 trajectories, custom unitary gates, reusable algorithms, and Burmese comments in
 selected examples. It has no mid-circuit measurement/feed-forward, reset,
 distributed execution, fused CUDA kernels, native compiler, automatic quantum
 gradients, cloud hardware connector, or production performance guarantee.
 
-Next development candidates: validate/benchmark GPU parity on NexQus hardware,
-add differentiable parameter handling, batched trajectories, mid-circuit
+Next development candidates: run new GPU parity tests/benchmarks on NexQus hardware,
+add differentiable parameter handling, mid-circuit
 measurement, more algorithms, and a curated Burmese tutorial series. These are
 future work, not shipped features.
 

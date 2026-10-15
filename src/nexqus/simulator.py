@@ -1,11 +1,32 @@
 """Statevector, density-matrix and Monte Carlo trajectory simulation."""
-from collections import Counter
+from collections import Counter, OrderedDict
 from dataclasses import dataclass
+import copy
+import hashlib
 import time
 import numpy as np
 from .backend import Backend
 from .circuit import Circuit, positive_integer, I, X, Y, Z
 from .noise import NoiseModel
+
+
+class CompiledCircuit:
+    """A circuit/noise snapshot with device tensors prepared for one Simulator.
+
+    This is execution preparation, not native CUDA code generation. Source
+    circuit edits do not affect the compiled snapshot. Call .run() repeatedly.
+    """
+    def __init__(self, owner, circuit, noise, arrays, seconds):
+        self._owner=owner
+        self._circuit=circuit
+        self._noise=noise
+        self._arrays=arrays
+        self.compile_seconds=seconds
+
+    @property
+    def n_qubits(self): return self._circuit.n_qubits
+
+    def run(self, **kwargs): return self._owner.run(self, **kwargs)
 
 
 @dataclass
@@ -52,11 +73,11 @@ class Simulator:
     """device='cpu' by default; CUDA is opt-in via backend='torch'.
 
     method='auto': statevector without noise, density_matrix with noise.
-    method='trajectory': finite-sample noisy ensemble, one trajectory at a time.
+    method='trajectory': finite-sample noisy ensemble, configurable batch size.
     max_memory_mb limits estimated core working storage, not process RAM.
     """
     def __init__(self, backend="numpy", device="cpu", method="auto", precision="double",
-                 max_memory_mb=1024):
+                 max_memory_mb=1024, gate_cache_mb=64):
         if method not in ("auto", "statevector", "density_matrix", "trajectory"):
             raise ValueError("Unknown simulation method")
         if not np.isfinite(max_memory_mb) or max_memory_mb <= 0:
@@ -65,10 +86,99 @@ class Simulator:
         self.method = method
         self.precision = precision
         self.max_memory_mb = float(max_memory_mb)
+        if not np.isfinite(gate_cache_mb) or gate_cache_mb < 0:
+            raise ValueError('gate_cache_mb must be nonnegative')
+        self._cache_limit=int(gate_cache_mb*1024**2)
+        self._gate_cache=OrderedDict()
+        self._cache_bytes=0
+        self._cache_hits=self._cache_misses=0
+
+    def _prepare_array(self, data):
+        contiguous=np.ascontiguousarray(data)
+        key=(contiguous.shape,contiguous.dtype.str,
+             hashlib.blake2b(contiguous.tobytes(),digest_size=16).digest())
+        if key in self._gate_cache:
+            self._cache_hits+=1
+            self._gate_cache.move_to_end(key)
+            return self._gate_cache[key][0]
+        self._cache_misses+=1
+        native=self.backend.array(data)
+        size=int(contiguous.size)*self.backend.itemsize
+        if size <= self._cache_limit:
+            while self._cache_bytes+size > self._cache_limit:
+                _,(_,removed)=self._gate_cache.popitem(last=False)
+                self._cache_bytes-=removed
+            self._gate_cache[key]=(native,size)
+            self._cache_bytes+=size
+        return native
+
+    def clear_cache(self):
+        """Drop simulator cache references; live compiled objects still own tensors."""
+        self._gate_cache.clear()
+        self._cache_bytes=0
+        self._cache_hits=self._cache_misses=0
+
+    def cache_info(self):
+        return dict(entries=len(self._gate_cache),bytes=self._cache_bytes,
+                    limit_bytes=self._cache_limit,hits=self._cache_hits,misses=self._cache_misses)
+
+    def compile(self, circuit, noise=None):
+        """Snapshot a concrete circuit and prepare/deduplicate its device tensors."""
+        started=time.perf_counter()
+        if not isinstance(circuit,Circuit): raise TypeError('Expected Circuit')
+        if circuit.parameters: raise ValueError('Bind circuit parameters before compilation')
+        if noise is not None and not isinstance(noise,NoiseModel): raise TypeError('Expected NoiseModel')
+        snapshot=copy.deepcopy(circuit)
+        frozen_noise=copy.deepcopy(noise)
+        arrays={}
+        def prepare(data):
+            if id(data) not in arrays: arrays[id(data)]=self._prepare_array(data)
+        for op in snapshot.operations:
+            if op.kind=='noise':
+                for k in op.data.kraus: prepare(k)
+            else: prepare(op.data)
+        if frozen_noise:
+            for _,ch in frozen_noise.rules:
+                for k in ch.kraus: prepare(k)
+        self.backend.sync()
+        return CompiledCircuit(self,snapshot,frozen_noise,arrays,time.perf_counter()-started)
+
+    def run_sweep(self, template, bindings, seed=None, **run_options):
+        """Run bindings in input order, with independent reproducible child seeds.
+
+        Results are accumulated in a list. For large sweeps, use iter_sweep().
+        State retention defaults to False to avoid storing every full state.
+        """
+        return list(self.iter_sweep(template,bindings,seed=seed,**run_options))
+
+    def iter_sweep(self, template, bindings, seed=None, **run_options):
+        if not isinstance(template,Circuit): raise TypeError('Expected parameterized Circuit')
+        sequence=np.random.SeedSequence(seed)
+        options=dict(run_options)
+        options.setdefault('retain_state',False)
+        for index,values in enumerate(bindings):
+            bound=template.bind(values)
+            child_seed=int(sequence.spawn(1)[0].generate_state(1)[0])
+            result=self.run(bound,seed=child_seed,**options)
+            from .parameters import bindings_dict
+            result.metadata['sweep_index']=index
+            result.metadata['bindings']=bindings_dict(values)
+            yield result
 
     def run(self, circuit, shots=1024, seed=None, noise=None, trajectories=256,
-            initial_state=None, retain_state=True, readout_error=0.0):
+            initial_state=None, retain_state=True, readout_error=0.0, batch_size=1):
+        prepared=isinstance(circuit,CompiledCircuit)
+        prepared_arrays={}
+        compile_seconds=0.0
+        if prepared:
+            if circuit._owner is not self: raise ValueError('CompiledCircuit belongs to another Simulator')
+            if noise is not None: raise ValueError('Noise is frozen at compile time; recompile to change it')
+            noise=circuit._noise
+            prepared_arrays=circuit._arrays
+            compile_seconds=circuit.compile_seconds
+            circuit=circuit._circuit
         if not isinstance(circuit, Circuit): raise TypeError("Expected a Circuit")
+        if circuit.parameters: raise ValueError('Unbound parameters; use circuit.bind() or run_sweep()')
         if isinstance(shots, bool) or not isinstance(shots, (int, np.integer)) or shots < 0:
             raise ValueError("shots must be a nonnegative integer")
         if noise is not None and not isinstance(noise, NoiseModel):
@@ -81,9 +191,13 @@ class Simulator:
             raise ValueError("Noise requires density_matrix, trajectory, or auto")
         n = circuit.n_qubits
         size = 2**n
+        batch_size=positive_integer(batch_size,'batch_size')
+        if method=='trajectory':
+            trajectories=positive_integer(trajectories,'trajectories')
+        effective_batch=min(batch_size,trajectories) if method=='trajectory' else 1
         base_bytes = self.backend.itemsize * (size**2 if method == "density_matrix" else size)
         # Working tensor, result, transpose/matmul temporaries; not a hard allocator cap.
-        working_bytes = base_bytes * 6
+        working_bytes = base_bytes * 6 * effective_batch
         if working_bytes > self.max_memory_mb * 1024**2:
             raise MemoryError(f"Estimated working tensors need {working_bytes/1024**2:.1f} MiB; "
                               "increase max_memory_mb or use fewer qubits/trajectory mode")
@@ -95,10 +209,10 @@ class Simulator:
                 raise ValueError("initial_state must be a finite normalized statevector")
         rng = np.random.default_rng(seed)
         b = self.backend
-        cache = {}
+        cache = dict(prepared_arrays)
         def array(data):
             key = id(data)
-            if key not in cache: cache[key] = b.array(data)
+            if key not in cache: cache[key] = self._prepare_array(data)
             return cache[key]
 
         def transform(state, data, wires, density=False, diagonal=False):
@@ -137,17 +251,54 @@ class Simulator:
                         for q in op.wires: state = channel(state, ch, q, density)
             return state
 
+        def batch_channel(state,ch,q):
+            count=state.shape[0]
+            weights=[]
+            for k in ch.kraus:
+                v=b.apply_batch(state,array(k),(q,)).reshape(count,-1)
+                weights.append(b.numpy((v.conj()*v).real.sum(axis=1)))
+            weights=np.maximum(np.stack(weights,axis=1).astype(float),0)
+            totals=weights.sum(axis=1)
+            if np.any(totals<=0): raise RuntimeError('Invalid quantum trajectory weights')
+            choices=np.array([rng.choice(len(ch.kraus),p=row/total)
+                              for row,total in zip(weights,totals)])
+            out=b.zeros(state.shape)
+            for index,k in enumerate(ch.kraus):
+                # One Kraus candidate at a time bounds temporary batch storage.
+                v=b.apply_batch(state,array(k),(q,))
+                scales=np.zeros(count,float)
+                mask=choices==index
+                scales[mask]=1/np.sqrt(weights[mask,index])
+                out=out+v*b.array(scales).reshape((count,)+(1,)*n)
+            return out
+
+        def evolve_batch(count):
+            state=b.array(np.broadcast_to(psi,(count,size))).reshape((count,)+(2,)*n)
+            for op in circuit.operations:
+                if op.kind=='noise':
+                    state=batch_channel(state,op.data,op.wires[0])
+                    continue
+                state=b.apply_batch(state,array(op.data),op.wires,op.kind=='diagonal')
+                if noise:
+                    for ch in noise.channels_for(op.name):
+                        for q in op.wires: state=batch_channel(state,ch,q)
+            return state
+
         b.sync()
         started = time.perf_counter()
         cpu_started = time.process_time()
         saved_psi = saved_rho = None
         if method == "trajectory":
-            trajectories = positive_integer(trajectories, "trajectories")
             probs = np.zeros(size, float)
             # လမ်းကြောင်းတစ်ခုချင်းစီကို သီးခြား simulation လုပ်ပြီး ပျမ်းမျှယူပါ။
-            for _ in range(trajectories):
-                state = evolve(False).reshape(size)
-                probs += b.numpy((state.conj()*state).real)
+            for offset in range(0,trajectories,effective_batch):
+                count=min(effective_batch,trajectories-offset)
+                if effective_batch==1:
+                    state=evolve(False).reshape(size)
+                    probs+=b.numpy((state.conj()*state).real)
+                else:
+                    state=evolve_batch(count).reshape(count,size)
+                    probs+=b.numpy((state.conj()*state).real.sum(axis=0))
             probs /= trajectories
         elif method == "density_matrix":
             state = evolve(True).reshape(size, size)
@@ -163,7 +314,7 @@ class Simulator:
         cpu_seconds = time.process_time() - cpu_started
         if not np.isfinite(probs).all() or np.min(probs) < -1e-5 or abs(probs.sum()-1) > 1e-3:
             raise RuntimeError("Probability normalization failed")
-        probs = np.maximum(probs, 0); probs /= probs.sum()
+        probs = np.maximum(np.asarray(probs,dtype=float), 0); probs /= probs.sum()
         # Readout errors affect observed probabilities/counts, never the quantum state.
         if readout_error:
             p = probs.reshape((2,)*n)
@@ -177,6 +328,8 @@ class Simulator:
                         simulation_seconds=elapsed, process_cpu_seconds=cpu_seconds,
                         state_storage_bytes=base_bytes, estimated_working_bytes=working_bytes,
                         readout_error=readout_error, operations=len(circuit.operations),
+                        batch_size=effective_batch,compiled=prepared,compile_seconds=compile_seconds,
+                        gate_cache_bytes=self._cache_bytes,
                         probability_kind="trajectory_estimate" if method=="trajectory" else "exact")
         if b.torch and b.device.startswith("cuda"):
             metadata["cuda_allocated_bytes_at_end"] = b.torch.cuda.memory_allocated(b.device)

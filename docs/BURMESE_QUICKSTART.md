@@ -1,11 +1,32 @@
-# NexQus SDK စတင်အသုံးပြုနည်း
+# NexQus SDK 0.2 စတင်အသုံးပြုနည်း
+
+## v0.2 တွင် parameter များကို ပြောင်းလဲစမ်းသပ်ပါ
+
+```python
+from nexqus import Circuit, Parameter, Simulator
+
+theta = Parameter('theta')
+template = Circuit(2).ry(theta, 0).cx(0, 1)
+sim = Simulator()
+results = sim.run_sweep(template, [{'theta': 0.2}, {'theta': 0.8}], seed=42)
+for result in results:
+    print(result.metadata['bindings'], result.counts)
+```
+
+Circuit ကို တစ်ကြိမ်ရေးပြီး parameter တန်ဖိုးများကို ပြောင်းလဲအသုံးပြုနိုင်ပါသည်။
+`sim.compile(template.bind({'theta': 0.8}))` ဖြင့် device tensor များကို
+ကြိုတင်ပြင်ဆင်ထားနိုင်ပါသည်။ ရရှိလာသော object ၏ `.run()` ကို ပြန်လည်ခေါ်နိုင်ပါသည်။
+
+Noisy trajectory များကို တစ်စုစီတွက်ရန် `batch_size=32` ကို သုံးနိုင်ပါသည်။
+Batch size ကြီးလျှင် memory ပိုလိုအပ်ပါသည်။ အသေးစိတ်နှင့် benchmark command များကို
+README တွင် ကြည့်ပါ။
 
 ဤ SDK ဖြင့် မိမိကွန်ပျူတာပေါ်တွင် quantum circuit များကို simulation လုပ်နိုင်ပါသည်။
 စတင်အသုံးပြုရန် quantum hardware မလိုအပ်ပါ။
 
 ## ၁။ Install လုပ်ပါ
 
-ZIP file ကို ဖြည်ပြီး `nexqus-sdk` folder ထဲတွင် terminal ဖွင့်ပါ။
+ZIP file ကို ဖြည်ပြီး `nexqus-sdk-v0.2.0` folder ထဲတွင် terminal ဖွင့်ပါ။
 
 ```bash
 python -m pip install -e .

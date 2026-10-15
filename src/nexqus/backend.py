@@ -59,3 +59,13 @@ class Backend:
         out = data[:, None] * front if diagonal else data @ front
         restore = tuple(int(i) for i in np.argsort(axes))
         return self.permute(out.reshape((2,) * tensor.ndim), restore)
+
+    def apply_batch(self, tensor, data, targets, diagonal=False):
+        """Apply a shared gate to B statevectors with shape (B, 2, ..., 2)."""
+        target_axes=tuple(q+1 for q in targets)
+        axes=(0,)+target_axes+tuple(i for i in range(1,tensor.ndim) if i not in target_axes)
+        shape=tensor.shape
+        front=self.permute(tensor,axes).reshape(shape[0],2**len(targets),-1)
+        out=data[None,:,None]*front if diagonal else data @ front
+        restore=tuple(int(i) for i in np.argsort(axes))
+        return self.permute(out.reshape(tuple(shape[i] for i in axes)),restore)
