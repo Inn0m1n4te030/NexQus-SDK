@@ -1,0 +1,19 @@
+{
+  "n_qubits": 12,
+  "method": "statevector",
+  "backend": "numpy",
+  "device": "cpu",
+  "precision": "double",
+  "seed": 17,
+  "shots": 0,
+  "trajectories": null,
+  "simulation_seconds": 0.00033726700030456414,
+  "process_cpu_seconds": 0.00033711999999996856,
+  "state_storage_bytes": 65536,
+  "estimated_working_bytes": 393216,
+  "readout_error": 0.0,
+  "operations": 12,
+  "probability_kind": "exact",
+  "median_seconds": 0.0003452690002632153,
+  "repeats": 3
+}
