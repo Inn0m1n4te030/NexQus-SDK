@@ -1,11 +1,37 @@
-# NexQus SDK 0.5.0
+# NexQus SDK 0.6.0
 
 A working Python prototype with NexQus's own circuit representation, local
 gate application, state evolution, noise channels, and algorithms. NumPy and
 optional PyTorch supply numerical tensors; Qiskit, PennyLane, and other quantum
 SDKs are not execution dependencies.
 
-## New in 0.5 — dynamic circuit controls
+## New in 0.6 — bilingual beginner notebooks
+
+Seven notebooks progress from first circuit to noise, parameter sweeps, CPU/GPU
+selection, analytic gradients, learning, dynamic protocols and a reproducible
+experiment. Every lesson includes runnable examples, expected-result assertions,
+Burmese explanations and exercises. Five plots and executed CPU outputs are saved.
+
+```bash
+python -m pip install --upgrade -e '.[tutorial]'
+python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)"
+jupyter lab notebooks
+```
+
+Start at [notebooks/00_start_here.ipynb](notebooks/00_start_here.ipynb), or read
+[notebooks/README.md](notebooks/README.md) for the full learning path.
+The runtime engine is unchanged from v0.5 apart from its version identifier.
+
+Execution evidence: all 35 plain Python code cells passed in fresh per-notebook
+subprocesses using the bundled standalone runner. A real Jupyter kernel was not
+available in this delivery environment; the optional CUDA cell was skipped.
+To repeat through Jupyter on your machine:
+
+```bash
+python scripts/run_notebooks.py --engine jupyter --kernel nexqus
+```
+
+## Retained controls from 0.5
 
 - Mid-circuit Z measurement into named classical bits.
 - Reset and single-bit conditional gates/reset/noise.
@@ -148,7 +174,7 @@ still be measured; small tensor operations can remain launch-bound on a GPU.
 
 ## Install
 
-Extract the ZIP, open a terminal in `nexqus-sdk-v0.5.0`, then:
+Extract the ZIP, open a terminal in `nexqus-sdk-v0.6.0`, then:
 
 ```bash
 python -m venv .venv
@@ -292,9 +318,11 @@ the selected device; final classical shot sampling remains on CPU. Small
 circuits may be faster on CPU.
 
 The current delivery environment has NumPy but no PyTorch or CUDA hardware.
-The user confirmed v0.4 GPU validation passed. For v0.5, 101 CPU tests pass
-locally; ten optional Torch CPU/CUDA tests are skipped because PyTorch is not
-installed here. New dynamic-circuit parity tests need validation on your machine.
+The user confirmed all 111 v0.5 CPU/GPU tests passed with no skips, and matching
+CPU/CUDA teleportation outputs. v0.6 retains that simulation engine. Locally,
+101 CPU tests pass and ten optional Torch tests are skipped because PyTorch is
+absent. New tutorial cells passed through the standalone Python runner; Jupyter
+kernel and optional CUDA tutorial execution remain to be checked on your machine.
 
 ## Algorithms
 
@@ -422,8 +450,8 @@ trajectories, custom unitary gates, reusable algorithms, and Burmese comments in
 selected examples. It has no distributed execution, fused CUDA kernels, native compiler, Torch autograd,
 cloud hardware connector, or production performance guarantee.
 
-Next development candidates: tested beginner notebooks, a Torch neural-network
-interface, more algorithms, and a curated Burmese tutorial series. These are
+Next development candidates: a Torch neural-network interface, additional
+algorithms, and deeper Burmese lessons. These are
 future work, not shipped features.
 
 No distribution license was selected for this private prototype. Choose the

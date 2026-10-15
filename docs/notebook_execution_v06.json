@@ -1,0 +1,65 @@
+{
+  "engine": "python",
+  "python": "3.12.14",
+  "notebooks": [
+    {
+      "notebook": "00_start_here.ipynb",
+      "engine": "standalone_python",
+      "status": "passed",
+      "code_cells": 4,
+      "optional_skips": 0,
+      "seconds": 0.11700686099993618
+    },
+    {
+      "notebook": "01_qubits_and_gates.ipynb",
+      "engine": "standalone_python",
+      "status": "passed",
+      "code_cells": 5,
+      "optional_skips": 0,
+      "seconds": 0.10885376800001723
+    },
+    {
+      "notebook": "02_noise_and_methods.ipynb",
+      "engine": "standalone_python",
+      "status": "passed",
+      "code_cells": 5,
+      "optional_skips": 0,
+      "seconds": 0.1128105930001766
+    },
+    {
+      "notebook": "03_functions_sweeps_and_devices.ipynb",
+      "engine": "standalone_python",
+      "status": "passed",
+      "code_cells": 5,
+      "optional_skips": 1,
+      "seconds": 0.02756121900006292
+    },
+    {
+      "notebook": "04_gradients_and_learning.ipynb",
+      "engine": "standalone_python",
+      "status": "passed",
+      "code_cells": 5,
+      "optional_skips": 0,
+      "seconds": 1.322981185000117
+    },
+    {
+      "notebook": "05_measurement_reset_teleportation.ipynb",
+      "engine": "standalone_python",
+      "status": "passed",
+      "code_cells": 6,
+      "optional_skips": 0,
+      "seconds": 0.03957559799982846
+    },
+    {
+      "notebook": "06_your_first_experiment.ipynb",
+      "engine": "standalone_python",
+      "status": "passed",
+      "code_cells": 5,
+      "optional_skips": 0,
+      "seconds": 0.1822990559999198
+    }
+  ],
+  "all_passed": true,
+  "gpu_required": false,
+  "execution_note": "Standalone engine tests plain Python cells; use Jupyter engine to validate an actual kernel"
+}

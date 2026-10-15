@@ -1,0 +1,116 @@
+test_amplitude_damping (test_sdk.SDKTests.test_amplitude_damping) ... ok
+test_arbitrary_wire_order_against_dense (test_sdk.SDKTests.test_arbitrary_wire_order_against_dense) ... ok
+test_bell_state_and_correlations (test_sdk.SDKTests.test_bell_state_and_correlations) ... ok
+test_bv_and_marginals (test_sdk.SDKTests.test_bv_and_marginals) ... ok
+test_depolarizing_convention (test_sdk.SDKTests.test_depolarizing_convention) ... ok
+test_deutsch_jozsa (test_sdk.SDKTests.test_deutsch_jozsa) ... ok
+test_diagonal_wire_order (test_sdk.SDKTests.test_diagonal_wire_order) ... ok
+test_function_decorator_and_composition (test_sdk.SDKTests.test_function_decorator_and_composition) ... ok
+test_ghz (test_sdk.SDKTests.test_ghz) ... ok
+test_grover (test_sdk.SDKTests.test_grover) ... ok
+test_invalid_inputs (test_sdk.SDKTests.test_invalid_inputs) ... ok
+test_memory_guard (test_sdk.SDKTests.test_memory_guard) ... ok
+test_noise_endpoints_trajectories (test_sdk.SDKTests.test_noise_endpoints_trajectories) ... ok
+test_noise_on_entangled_state_dense_reference (test_sdk.SDKTests.test_noise_on_entangled_state_dense_reference) ... ok
+test_noise_rule_selection (test_sdk.SDKTests.test_noise_rule_selection) ... ok
+test_phase_damping (test_sdk.SDKTests.test_phase_damping) ... ok
+test_phase_estimation (test_sdk.SDKTests.test_phase_estimation) ... ok
+test_qaoa_against_direct_cost_and_mixer (test_sdk.SDKTests.test_qaoa_against_direct_cost_and_mixer) ... ok
+test_qft_all_basis_states (test_sdk.SDKTests.test_qft_all_basis_states) ... ok
+test_qft_inverse_random_state (test_sdk.SDKTests.test_qft_inverse_random_state) ... ok
+test_readout_keeps_state (test_sdk.SDKTests.test_readout_keeps_state) ... ok
+test_rotations_and_inverse (test_sdk.SDKTests.test_rotations_and_inverse) ... ok
+test_seeded_counts (test_sdk.SDKTests.test_seeded_counts) ... ok
+test_single_precision (test_sdk.SDKTests.test_single_precision) ... ok
+test_trajectory_converges_to_exact (test_sdk.SDKTests.test_trajectory_converges_to_exact) ... ok
+test_torch_cpu (test_sdk.TorchTests.test_torch_cpu) ... skipped 'Optional PyTorch not installed'
+test_torch_cuda (test_sdk.TorchTests.test_torch_cuda) ... skipped 'Optional PyTorch not installed'
+test_batch_determinism_and_partial_batch (test_v02.BatchTests.test_batch_determinism_and_partial_batch) ... ok
+test_batch_noise_endpoints (test_v02.BatchTests.test_batch_noise_endpoints) ... ok
+test_batched_against_exact (test_v02.BatchTests.test_batched_against_exact) ... ok
+test_custom_three_kraus (test_v02.BatchTests.test_custom_three_kraus) ... ok
+test_memory_and_input_guards (test_v02.BatchTests.test_memory_and_input_guards) ... ok
+test_noiseless_batch_wire_order (test_v02.BatchTests.test_noiseless_batch_wire_order) ... ok
+test_single_precision_batch (test_v02.BatchTests.test_single_precision_batch) ... ok
+test_cache_disabled (test_v02.CompilationTests.test_cache_disabled) ... ok
+test_cache_hits_clear_and_bounds (test_v02.CompilationTests.test_cache_hits_clear_and_bounds) ... ok
+test_compiled_all_methods (test_v02.CompilationTests.test_compiled_all_methods) ... ok
+test_owner_and_frozen_noise_errors (test_v02.CompilationTests.test_owner_and_frozen_noise_errors) ... ok
+test_snapshot_matrix_mutation (test_v02.CompilationTests.test_snapshot_matrix_mutation) ... ok
+test_snapshot_of_source_and_noise (test_v02.CompilationTests.test_snapshot_of_source_and_noise) ... ok
+test_bind_arithmetic (test_v02.ParameterTests.test_bind_arithmetic) ... ok
+test_binding_errors (test_v02.ParameterTests.test_binding_errors) ... ok
+test_decorated_template (test_v02.ParameterTests.test_decorated_template) ... ok
+test_sweep_order_seeds_and_retention (test_v02.ParameterTests.test_sweep_order_seeds_and_retention) ... ok
+test_sweep_with_noise (test_v02.ParameterTests.test_sweep_with_noise) ... ok
+test_symbolic_inverse_and_compose (test_v02.ParameterTests.test_symbolic_inverse_and_compose) ... ok
+test_torch_cpu_v02 (test_v02.TorchV02Tests.test_torch_cpu_v02) ... skipped 'Optional PyTorch not installed'
+test_torch_cuda_v02 (test_v02.TorchV02Tests.test_torch_cuda_v02) ... skipped 'Optional PyTorch not installed'
+test_density_complex_noise_local_vs_general (test_v03.KernelTests.test_density_complex_noise_local_vs_general) ... ok
+test_diagonal_unsorted_axes_and_batches (test_v03.KernelTests.test_diagonal_unsorted_axes_and_batches) ... ok
+test_local_one_all_axes_against_matrix_kernel (test_v03.KernelTests.test_local_one_all_axes_against_matrix_kernel) ... ok
+test_damping_channels_paired_with_generic (test_v03.NoiseFastpathTests.test_damping_channels_paired_with_generic) ... ok
+test_fast_noise_converges_to_exact (test_v03.NoiseFastpathTests.test_fast_noise_converges_to_exact) ... ok
+test_generic_custom_channel_and_no_host_reads (test_v03.NoiseFastpathTests.test_generic_custom_channel_and_no_host_reads) ... ok
+test_pauli_channels_paired_with_generic (test_v03.NoiseFastpathTests.test_pauli_channels_paired_with_generic) ... ok
+test_pauli_y_relative_phases (test_v03.NoiseFastpathTests.test_pauli_y_relative_phases) ... ok
+test_specializations_do_not_trust_name (test_v03.NoiseFastpathTests.test_specializations_do_not_trust_name) ... ok
+test_counter_stream_independent_of_chunking (test_v03.RandomTests.test_counter_stream_independent_of_chunking) ... ok
+test_distribution_sanity (test_v03.RandomTests.test_distribution_sanity) ... ok
+test_engine_and_limit_errors (test_v03.RandomTests.test_engine_and_limit_errors) ... ok
+test_integer_hash_independent_scalar_reference (test_v03.RandomTests.test_integer_hash_independent_scalar_reference) ... ok
+test_native_seed_reproduction (test_v03.RandomTests.test_native_seed_reproduction) ... ok
+test_torch_cpu_v03 (test_v03.TorchV03Tests.test_torch_cpu_v03) ... skipped 'Optional PyTorch not installed'
+test_torch_cuda_v03 (test_v03.TorchV03Tests.test_torch_cuda_v03) ... skipped 'Optional PyTorch not installed'
+test_hoeffding_bound_decreases (test_v03.ValidationTests.test_hoeffding_bound_decreases) ... ok
+test_phase_error_rejected_and_global_phase_allowed (test_v03.ValidationTests.test_phase_error_rejected_and_global_phase_allowed) ... ok
+test_probability_mismatch_rejected (test_v03.ValidationTests.test_probability_mismatch_rejected) ... ok
+test_tvd_accumulated_errors_rejected (test_v03.ValidationTests.test_tvd_accumulated_errors_rejected) ... ok
+test_unpaired_trajectory_rejected (test_v03.ValidationTests.test_unpaired_trajectory_rejected) ... ok
+test_all_gate_rules (test_v04.GradientTests.test_all_gate_rules) ... ok
+test_constant_function (test_v04.GradientTests.test_constant_function) ... ok
+test_inverse_and_composition_gradients (test_v04.GradientTests.test_inverse_and_composition_gradients) ... ok
+test_noise_gate_names_preserved (test_v04.GradientTests.test_noise_gate_names_preserved) ... ok
+test_noisy_exact_gradient (test_v04.GradientTests.test_noisy_exact_gradient) ... ok
+test_nonlinear_expression_chain_rule (test_v04.GradientTests.test_nonlinear_expression_chain_rule) ... ok
+test_shared_parameter_gate_local_rule (test_v04.GradientTests.test_shared_parameter_gate_local_rule) ... ok
+test_single_rotation_known_answer (test_v04.GradientTests.test_single_rotation_known_answer) ... ok
+test_subset_wrt_inputs_fixed (test_v04.GradientTests.test_subset_wrt_inputs_fixed) ... ok
+test_validation_errors (test_v04.GradientTests.test_validation_errors) ... ok
+test_binary_classifier (test_v04.LearningTests.test_binary_classifier) ... ok
+test_multiple_input_columns (test_v04.LearningTests.test_multiple_input_columns) ... ok
+test_sine_learning (test_v04.LearningTests.test_sine_learning) ... ok
+test_training_validation (test_v04.LearningTests.test_training_validation) ... ok
+test_adam_first_step_and_reset (test_v04.OptimizerTests.test_adam_first_step_and_reset) ... ok
+test_adam_quadratic (test_v04.OptimizerTests.test_adam_quadratic) ... ok
+test_optimizer_errors (test_v04.OptimizerTests.test_optimizer_errors) ... ok
+test_sgd_one_step (test_v04.OptimizerTests.test_sgd_one_step) ... ok
+test_torch_cpu_v04 (test_v04.TorchV04Tests.test_torch_cpu_v04) ... skipped 'Optional PyTorch not installed'
+test_torch_cuda_v04 (test_v04.TorchV04Tests.test_torch_cuda_v04) ... skipped 'Optional PyTorch not installed'
+test_branch_memory_guard (test_v05.DynamicTests.test_branch_memory_guard) ... ok
+test_classical_validation_errors (test_v05.DynamicTests.test_classical_validation_errors) ... ok
+test_composition_classical_mapping (test_v05.DynamicTests.test_composition_classical_mapping) ... ok
+test_conditional_gate_noise_only_on_executed_branches (test_v05.DynamicTests.test_conditional_gate_noise_only_on_executed_branches) ... ok
+test_conditional_reset (test_v05.DynamicTests.test_conditional_reset) ... ok
+test_deterministic_measurement (test_v05.DynamicTests.test_deterministic_measurement) ... ok
+test_dynamic_compiled_snapshot_and_parameter_bind (test_v05.DynamicTests.test_dynamic_compiled_snapshot_and_parameter_bind) ... ok
+test_dynamic_noisy_trajectory_converges (test_v05.DynamicTests.test_dynamic_noisy_trajectory_converges) ... ok
+test_feed_forward_both_condition_values (test_v05.DynamicTests.test_feed_forward_both_condition_values) ... ok
+test_joint_classical_quantum_correlations (test_v05.DynamicTests.test_joint_classical_quantum_correlations) ... ok
+test_overwritten_bit_merges_branches (test_v05.DynamicTests.test_overwritten_bit_merges_branches) ... ok
+test_projective_measurement_removes_coherence (test_v05.DynamicTests.test_projective_measurement_removes_coherence) ... ok
+test_reduced_density_wire_order (test_v05.DynamicTests.test_reduced_density_wire_order) ... ok
+test_repeated_measurement_is_repeatable (test_v05.DynamicTests.test_repeated_measurement_is_repeatable) ... ok
+test_reset_entangled_qubit (test_v05.DynamicTests.test_reset_entangled_qubit) ... ok
+test_reset_trajectory (test_v05.DynamicTests.test_reset_trajectory) ... ok
+test_sampling_reproducible_partial_batch (test_v05.DynamicTests.test_sampling_reproducible_partial_batch) ... ok
+test_teleportation_corrections_are_necessary (test_v05.DynamicTests.test_teleportation_corrections_are_necessary) ... ok
+test_teleportation_random_complex_states (test_v05.DynamicTests.test_teleportation_random_complex_states) ... ok
+test_terminal_readout_does_not_flip_classical_control (test_v05.DynamicTests.test_terminal_readout_does_not_flip_classical_control) ... ok
+test_torch_cpu_v05 (test_v05.TorchV05Tests.test_torch_cpu_v05) ... skipped 'Optional PyTorch not installed'
+test_torch_cuda_v05 (test_v05.TorchV05Tests.test_torch_cuda_v05) ... skipped 'Optional PyTorch not installed'
+
+----------------------------------------------------------------------
+Ran 111 tests in 1.609s
+
+OK (skipped=10)
