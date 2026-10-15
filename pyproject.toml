@@ -4,13 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nexqus-sdk"
-version = "0.2.0"
+version = "0.3.0"
 description = "NexQus quantum circuit simulation SDK"
 requires-python = ">=3.10"
 dependencies = ["numpy>=1.24"]
 
 [project.optional-dependencies]
 gpu = ["torch>=2.2"]
+benchmark = ["threadpoolctl>=3.1"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

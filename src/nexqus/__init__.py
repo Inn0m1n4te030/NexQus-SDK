@@ -5,5 +5,5 @@ from .simulator import Simulator, Result, CompiledCircuit
 from .parameters import Parameter
 from . import algorithms
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __all__ = ["Circuit", "circuit", "Parameter", "Noise", "NoiseModel", "Simulator", "Result", "CompiledCircuit", "algorithms"]

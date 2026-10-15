@@ -1,11 +1,23 @@
-# NexQus SDK 0.2.0
+# NexQus SDK 0.3.0
 
 A working Python prototype with NexQus's own circuit representation, local
 gate application, state evolution, noise channels, and algorithms. NumPy and
 optional PyTorch supply numerical tensors; Qiskit, PennyLane, and other quantum
 SDKs are not execution dependencies.
 
-## New in 0.2
+## New in 0.3
+
+- Device-local noise branch sampling, including CUDA-side RNG.
+- Fast Pauli mixture and analytic amplitude/phase damping paths.
+- Direct NumPy single-qubit kernels and broadcast diagonal gates.
+- Initial-state transfer once per run and device-side trajectory accumulation.
+- Strict probability/total-variation and retained-state validation.
+- CPU BLAS/Torch thread controls in benchmarks.
+
+See [docs/V03_GUIDE.md](docs/V03_GUIDE.md) for upgrade commands, reproducibility
+changes, diagnostic switches and matched CPU/GPU benchmark instructions.
+
+## Retained features from 0.2
 
 - Named scalar parameters and arithmetic expressions: bind values without
   rebuilding your circuit's Python structure.
@@ -81,7 +93,7 @@ prepared = sim.compile(
 result = prepared.run(trajectories=1000, batch_size=32, seed=42)
 ```
 
-`batch_size=1` preserves sequential v0.1 behavior. Higher values apply shared
+`batch_size=1` uses one trajectory at a time. Higher values apply shared
 gate operations to batches of independent trajectory states. They increase
 working storage roughly in proportion to batch size. A final partial batch is
 handled automatically. Reduce batch size on memory-constrained machines.
@@ -89,12 +101,12 @@ handled automatically. Reduce batch size on memory-constrained machines.
 Reproducibility requires the same seed, batch size, method and numeric setup.
 Changing batch size changes random draw ordering, so stochastic outcomes need
 not match exactly. Quantum-channel statistics should agree within sampling
-error. Branch weights/choices remain on the CPU, so GPU batching still has host
-synchronization; speedup must be measured, not assumed.
+error. Branch weights and choices stay on the selected device. Speedup must
+still be measured; small tensor operations can remain launch-bound on a GPU.
 
 ## Install
 
-Extract the ZIP, open a terminal in `nexqus-sdk-v0.2.0`, then:
+Extract the ZIP, open a terminal in `nexqus-sdk-v0.3.0`, then:
 
 ```bash
 python -m venv .venv
@@ -227,20 +239,21 @@ python examples/validate_gpu.py
 ```
 
 `validate_gpu.py` fails if PyTorch/CUDA is absent or any discovered test is
-skipped. It explicitly exercises the v0.2 CUDA batched/prepared/sweep paths,
+skipped. It exercises the current CUDA batched/prepared/sweep paths,
 then runs the full test suite. This avoids mistaking a skipped GPU test for a pass.
 
 CUDA execution applies NexQus's tensor operations on the selected GPU. An
 unavailable GPU raises an error; it does not silently switch to CPU. Only CPU
 and NVIDIA CUDA devices are supported in this release. Result arrays are copied
-to CPU NumPy arrays for a consistent API. Trajectory branch selection and final
-shot sampling use a CPU random generator, so GPU trajectories incur host
-synchronization. Small circuits may be faster on CPU.
+to CPU NumPy arrays for a consistent API. Trajectory branch sampling stays on
+the selected device; final classical shot sampling remains on CPU. Small
+circuits may be faster on CPU.
 
 The current delivery environment has NumPy but no PyTorch or CUDA hardware.
-The user reported successful v0.1 CPU and GPU runs. For v0.2, 44 NumPy tests pass
-here; four optional Torch CPU/CUDA tests are included but skipped. The new
-batching and prepared execution paths need those tests rerun on your GPU.
+The user reported v0.2 CPU/GPU benchmarks with matching probabilities. For v0.3,
+63 NumPy tests pass here; six optional Torch CPU/CUDA tests are skipped because
+PyTorch is not installed. The changed device sampling paths need validation on
+your GPU. Previous-version GPU results do not validate these new paths.
 
 ## Algorithms
 
@@ -319,7 +332,7 @@ memory or GPU utilization. Use system profilers if those metrics are needed.
 
 ## Benchmarks and memory
 
-The v0.2 matched-device runner (CUDA is skipped explicitly if unavailable):
+The matched-device runner (CUDA is skipped explicitly if unavailable):
 
 ```bash
 python examples/benchmark_v2.py --compare --qubits 16 --output benchmark_ideal.json

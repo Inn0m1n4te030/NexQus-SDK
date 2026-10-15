@@ -1,4 +1,8 @@
-# NexQus SDK 0.2 စတင်အသုံးပြုနည်း
+# NexQus SDK 0.3 စတင်အသုံးပြုနည်း
+
+v0.3 တွင် noise sampling ကို ရွေးချယ်ထားသော CPU သို့မဟုတ် GPU ပေါ်တွင်
+တိုက်ရိုက်လုပ်ဆောင်ပါသည်။ Performance နှင့် validation command အသစ်များအတွက်
+`V03_GUIDE.md` ကို ကြည့်ပါ။
 
 ## v0.2 တွင် parameter များကို ပြောင်းလဲစမ်းသပ်ပါ
 
@@ -26,7 +30,7 @@ README တွင် ကြည့်ပါ။
 
 ## ၁။ Install လုပ်ပါ
 
-ZIP file ကို ဖြည်ပြီး `nexqus-sdk-v0.2.0` folder ထဲတွင် terminal ဖွင့်ပါ။
+ZIP file ကို ဖြည်ပြီး `nexqus-sdk-v0.3.0` folder ထဲတွင် terminal ဖွင့်ပါ။
 
 ```bash
 python -m pip install -e .

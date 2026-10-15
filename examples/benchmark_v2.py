@@ -3,6 +3,7 @@
 python examples/benchmark_v2.py --compare --qubits 12 --output benchmark.json
 """
 import argparse
+from contextlib import ExitStack
 import datetime
 import json
 import os
@@ -12,9 +13,10 @@ import statistics
 import time
 import numpy as np
 from nexqus import __version__, Circuit, Simulator, Noise, NoiseModel, algorithms
+from nexqus.validation import compare_results
 
 
-def main():
+def _main(stack):
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--qubits',type=int,default=12)
     p.add_argument('--circuit',choices=['ghz','layered','qft'],default='layered')
@@ -31,9 +33,22 @@ def main():
     p.add_argument('--max-memory-mb',type=float,default=1024)
     p.add_argument('--seed',type=int,default=42)
     p.add_argument('--uncompiled',action='store_true')
+    p.add_argument('--cpu-threads',type=int,help='Set BLAS and Torch intra-op thread limits')
+    p.add_argument('--random-engine',choices=['portable','native'],default='portable')
+    p.add_argument('--no-fast-noise',action='store_true')
+    p.add_argument('--no-local-gates',action='store_true')
     p.add_argument('--output',type=Path)
     args=p.parse_args()
     if args.repeat<1 or args.depth<1 or args.qubits<1: p.error('repeat, depth and qubits must be positive')
+    thread_info=None
+    if args.cpu_threads is not None:
+        if args.cpu_threads<1: p.error('--cpu-threads must be positive')
+        try:
+            from threadpoolctl import threadpool_limits,threadpool_info
+        except ImportError:
+            p.error('Thread controls require: python -m pip install threadpoolctl')
+        stack.enter_context(threadpool_limits(limits=args.cpu_threads,user_api='blas'))
+        thread_info=threadpool_info
     rng=np.random.default_rng(123)
     if args.circuit=='ghz': q=algorithms.ghz(args.qubits)
     elif args.circuit=='qft': q=algorithms.qft(args.qubits)
@@ -44,7 +59,8 @@ def main():
             for j in range(args.qubits-1): q.cx(j,j+1)
     noise=NoiseModel(Noise.depolarizing(args.noise)) if args.noise else None
     kw=dict(shots=0,seed=args.seed,noise=noise,trajectories=args.trajectories,
-            batch_size=args.batch_size,retain_state=False)
+            batch_size=args.batch_size,retain_state=False,noise_fastpath=not args.no_fast_noise,
+            random_engine=args.random_engine)
     configs=[(args.backend,args.device)]
     skipped=[]
     torch=None
@@ -52,6 +68,10 @@ def main():
         import torch
     except ImportError:
         pass
+    if torch is not None and args.cpu_threads is not None:
+        previous_threads=torch.get_num_threads()
+        stack.callback(torch.set_num_threads,previous_threads)
+        torch.set_num_threads(args.cpu_threads)
     if args.compare:
         configs=[('numpy','cpu')]
         if torch is None:
@@ -60,11 +80,13 @@ def main():
             configs.append(('torch','cpu'))
             if torch.cuda.is_available(): configs.append(('torch','cuda:0'))
             else: skipped.append('CUDA: unavailable')
-    reference=Simulator(method=args.method,precision=args.precision,max_memory_mb=args.max_memory_mb).run(q,**kw)
+    validation_kw=dict(kw,random_engine='portable',retain_state=True)
+    reference=Simulator(method=args.method,precision=args.precision,max_memory_mb=args.max_memory_mb,
+                        local_gates=False).run(q,**validation_kw)
     records=[]
     for backend,device in configs:
         sim=Simulator(backend=backend,device=device,method=args.method,precision=args.precision,
-                      max_memory_mb=args.max_memory_mb)
+                      max_memory_mb=args.max_memory_mb,local_gates=not args.no_local_gates)
         workload=q if args.uncompiled else sim.compile(q,noise)
         options=dict(kw)
         if not args.uncompiled: options.pop('noise')
@@ -77,23 +99,25 @@ def main():
             result=sim.run(workload,**options)
             wall.append(time.perf_counter()-start)
             rows.append(result.metadata)
-        difference=float(np.abs(reference.probabilities-result.probabilities).max())
-        # Same seed and batch layout should select matching trajectories. A
-        # tolerance leaves room for backend arithmetic and rare branch-boundary
-        # differences in stochastic mode; it is not proof of statevector parity.
-        stochastic=result.metadata['method']=='trajectory'
-        tolerance=max(2e-5,5/np.sqrt(args.trajectories)) if stochastic else (2e-5 if args.precision=='single' else 1e-9)
-        if difference>tolerance:
-            raise AssertionError(f'{backend}/{device}: reference probability mismatch {difference}')
+        measured_peak=None
+        if backend=='torch' and device.startswith('cuda'):
+            measured_peak=torch.cuda.max_memory_allocated(device)
+        # A separate untimed portable run validates paired trajectories even
+        # when timing the backend's faster native RNG. Retain ideal/density
+        # states to catch phase errors invisible in terminal probabilities.
+        validation_options=dict(options,random_engine='portable',retain_state=True)
+        checked=sim.run(workload,**validation_options)
+        parity=compare_results(reference,checked,precision=args.precision)
         record=dict(result.metadata)
         record.update(median_simulation_seconds=statistics.median(r['simulation_seconds'] for r in rows),
                       median_run_wall_seconds=statistics.median(wall),
                       median_process_cpu_seconds=statistics.median(r['process_cpu_seconds'] for r in rows),
-                      repeat=args.repeat,max_probability_error_vs_numpy=difference,
-                      comparison_tolerance=tolerance,reference_probability_check='passed',cache=sim.cache_info())
+                      repeat=args.repeat,max_probability_error_vs_numpy=parity['max_probability_error'],
+                      comparison_tolerance=parity['probability_atol'],reference_probability_check='passed',
+                      validation=parity,validation_rng='portable',cache=sim.cache_info())
         if backend=='torch' and device.startswith('cuda'):
             record['cuda_device_name']=torch.cuda.get_device_name(device)
-            record['cuda_peak_allocated_bytes']=torch.cuda.max_memory_allocated(device)
+            record['cuda_peak_allocated_bytes']=measured_peak
         records.append(record)
     reference_time=records[0]['median_run_wall_seconds']
     for record in records:
@@ -102,6 +126,8 @@ def main():
                 environment=dict(python=platform.python_version(),numpy=np.__version__,platform=platform.platform(),
                                  logical_cpus=os.cpu_count(),torch=None if torch is None else torch.__version__,
                                  cuda_runtime=None if torch is None else torch.version.cuda,
+                                 torch_intraop_threads=None if torch is None else torch.get_num_threads(),
+                                 blas_threadpools=None if thread_info is None else thread_info(),
                                  thread_environment={k:os.environ.get(k) for k in
                                                      ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS']}),
                 settings={k:str(v) if isinstance(v,Path) else v for k,v in vars(args).items()},
@@ -109,6 +135,11 @@ def main():
     payload=json.dumps(report,indent=2)
     if args.output: args.output.write_text(payload+'\n',encoding='utf-8')
     print(payload)
+
+
+def main():
+    with ExitStack() as stack:
+        _main(stack)
 
 
 if __name__=='__main__': main()

@@ -8,6 +8,7 @@ import numpy as np
 from .backend import Backend
 from .circuit import Circuit, positive_integer, I, X, Y, Z
 from .noise import NoiseModel
+from .random import DeviceRandom
 
 
 class CompiledCircuit:
@@ -77,12 +78,12 @@ class Simulator:
     max_memory_mb limits estimated core working storage, not process RAM.
     """
     def __init__(self, backend="numpy", device="cpu", method="auto", precision="double",
-                 max_memory_mb=1024, gate_cache_mb=64):
+                 max_memory_mb=1024, gate_cache_mb=64, local_gates=True):
         if method not in ("auto", "statevector", "density_matrix", "trajectory"):
             raise ValueError("Unknown simulation method")
         if not np.isfinite(max_memory_mb) or max_memory_mb <= 0:
             raise ValueError("max_memory_mb must be positive")
-        self.backend = Backend(backend, device, precision)
+        self.backend = Backend(backend, device, precision, local_gates=local_gates)
         self.method = method
         self.precision = precision
         self.max_memory_mb = float(max_memory_mb)
@@ -166,7 +167,8 @@ class Simulator:
             yield result
 
     def run(self, circuit, shots=1024, seed=None, noise=None, trajectories=256,
-            initial_state=None, retain_state=True, readout_error=0.0, batch_size=1):
+            initial_state=None, retain_state=True, readout_error=0.0, batch_size=1,
+            random_engine='portable', noise_fastpath=True):
         prepared=isinstance(circuit,CompiledCircuit)
         prepared_arrays={}
         compile_seconds=0.0
@@ -209,38 +211,46 @@ class Simulator:
                 raise ValueError("initial_state must be a finite normalized statevector")
         rng = np.random.default_rng(seed)
         b = self.backend
+        device_rng=DeviceRandom(b,seed,random_engine)
+        channel_cache={}
+        damping_cache={}
+        def prepare_channel(ch):
+            if id(ch) not in channel_cache:
+                weights=ch.pauli_weights() if noise_fastpath else None
+                channel_cache[id(ch)]=None if weights is None else b.real_array(weights)
+                damping_cache[id(ch)]=ch.damping_spec() if noise_fastpath and weights is None else None
+        for op in circuit.operations:
+            if op.kind=='noise': prepare_channel(op.data)
+        if noise:
+            for _,ch in noise.rules: prepare_channel(ch)
         cache = dict(prepared_arrays)
+        cx_matrix=np.array([[1,0,0,0],[0,1,0,0],[0,0,0,1],[0,0,1,0]],complex)
+        cx_data={id(op.data) for op in circuit.operations if b.local_gates and
+                 op.kind=='unitary' and len(op.wires)==2 and np.array_equal(op.data,cx_matrix)}
         def array(data):
             key = id(data)
             if key not in cache: cache[key] = self._prepare_array(data)
             return cache[key]
 
         def transform(state, data, wires, density=False, diagonal=False):
+            if id(data) in cx_data:
+                state=b.apply_cx(state,wires[0],wires[1])
+                if density: state=b.apply_cx(state,n+wires[0],n+wires[1])
+                return state
             state = b.apply(state, array(data), wires, diagonal)
             if density:
                 state = b.apply(state, array(data).conj(), tuple(n+q for q in wires), diagonal)
             return state
 
         def channel(state, ch, q, density):
-            if density:
-                total = b.zeros(state.shape)
-                for k in ch.kraus: total = total + transform(state, k, (q,), True)
-                return total
-            # Two passes keep trajectory temporary storage independent of Kraus rank.
-            weights = []
-            for k in ch.kraus:
-                v = b.apply(state, array(k), (q,))
-                weights.append(float(b.numpy((v.conj()*v).real.sum())))
-            weights = np.maximum(weights, 0)
-            total = weights.sum()
-            if total <= 0: raise RuntimeError("Invalid zero-probability quantum trajectory")
-            idx = int(rng.choice(len(weights), p=weights/total))
-            v = b.apply(state, array(ch.kraus[idx]), (q,))
-            return v / np.sqrt(weights[idx])
+            if not density: raise RuntimeError('Quantum noise needs density or trajectory mode')
+            total = b.zeros(state.shape)
+            for k in ch.kraus: total += transform(state, k, (q,), True)
+            return total
 
         def evolve(density):
-            start = np.outer(psi, psi.conj()) if density else psi
-            state = b.array(start).reshape((2,)*(2*n if density else n))
+            start=initial_vector[:,None]*initial_vector.conj()[None,:] if density else initial_vector
+            state=start.reshape((2,)*(2*n if density else n))
             for op in circuit.operations:
                 if op.kind == "noise":
                     state = channel(state, op.data, op.wires[0], density)
@@ -252,33 +262,68 @@ class Simulator:
             return state
 
         def batch_channel(state,ch,q):
+            """Branch weights, inverse-CDF sampling and selection stay on device."""
             count=state.shape[0]
+            u=device_rng.uniform(count)
+            pauli=channel_cache[id(ch)]
+            if pauli is not None:
+                cumulative=b.cumulative(pauli,0)
+                choices=(u[:,None]>=cumulative[None,:-1]).sum(axis=1)
+                # Skip identity application and all Kraus norm calculations.
+                x=state.reshape(count,2**q,2,2**(n-q-1))
+                flip=((choices==1)|(choices==2)).reshape(count,1,1)
+                a=b.where(flip,x[:,:,1,:],x[:,:,0,:])
+                d=b.where(flip,x[:,:,0,:],x[:,:,1,:])
+                y=(choices==2).reshape(count,1,1)
+                z=(choices==3).reshape(count,1,1)
+                a=b.where(y,-1j*a,a)
+                d=b.where(y,1j*d,b.where(z,-d,d))
+                return b.stack([a,d],axis=2).reshape(state.shape)
+            damping=damping_cache[id(ch)]
+            if damping is not None:
+                kind,gamma=damping
+                x=state.reshape(count,2**q,2,2**(n-q-1))
+                a=x[:,:,0,:]; d=x[:,:,1,:]
+                pop0=(a.conj()*a).real.sum(axis=(1,2))
+                pop1=(d.conj()*d).real.sum(axis=(1,2))
+                nojump=pop0+(1-gamma)*pop1
+                jump=(u>=nojump/b.clamp_min(pop0+pop1,1e-30)).reshape(count,1,1)
+                scale0=1/b.clamp_min(nojump,1e-30)**.5
+                scale1=1/b.clamp_min(pop1,1e-30)**.5
+                first=a*scale0[:,None,None]
+                second=d*np.sqrt(1-gamma)*scale0[:,None,None]
+                if kind=='amplitude':
+                    first=b.where(jump,d*scale1[:,None,None],first)
+                    second=b.where(jump,0,second)
+                else:
+                    first=b.where(jump,0,first)
+                    second=b.where(jump,d*scale1[:,None,None],second)
+                return b.stack([first,second],axis=2).reshape(state.shape)
             weights=[]
             for k in ch.kraus:
                 v=b.apply_batch(state,array(k),(q,)).reshape(count,-1)
-                weights.append(b.numpy((v.conj()*v).real.sum(axis=1)))
-            weights=np.maximum(np.stack(weights,axis=1).astype(float),0)
-            totals=weights.sum(axis=1)
-            if np.any(totals<=0): raise RuntimeError('Invalid quantum trajectory weights')
-            choices=np.array([rng.choice(len(ch.kraus),p=row/total)
-                              for row,total in zip(weights,totals)])
+                weights.append((v.conj()*v).real.sum(axis=1))
+            weights=b.clamp_min(b.stack(weights,axis=1),0)
+            totals=b.clamp_min(weights.sum(axis=1),1e-30)
+            cumulative=b.cumulative(weights/totals[:,None],1)
+            choices=(u[:,None]>=cumulative[:,:-1]).sum(axis=1)
             out=b.zeros(state.shape)
             for index,k in enumerate(ch.kraus):
-                # One Kraus candidate at a time bounds temporary batch storage.
                 v=b.apply_batch(state,array(k),(q,))
-                scales=np.zeros(count,float)
-                mask=choices==index
-                scales[mask]=1/np.sqrt(weights[mask,index])
-                out=out+v*b.array(scales).reshape((count,)+(1,)*n)
+                scales=b.where(choices==index,1/b.clamp_min(weights[:,index],1e-30)**.5,0)
+                out+=v*scales.reshape((count,)+(1,)*n)
             return out
 
         def evolve_batch(count):
-            state=b.array(np.broadcast_to(psi,(count,size))).reshape((count,)+(2,)*n)
+            state=b.expand_state(initial_vector,count).reshape((count,)+(2,)*n)
             for op in circuit.operations:
                 if op.kind=='noise':
                     state=batch_channel(state,op.data,op.wires[0])
                     continue
-                state=b.apply_batch(state,array(op.data),op.wires,op.kind=='diagonal')
+                if id(op.data) in cx_data:
+                    state=b.apply_cx(state,op.wires[0]+1,op.wires[1]+1)
+                else:
+                    state=b.apply_batch(state,array(op.data),op.wires,op.kind=='diagonal')
                 if noise:
                     for ch in noise.channels_for(op.name):
                         for q in op.wires: state=batch_channel(state,ch,q)
@@ -287,28 +332,25 @@ class Simulator:
         b.sync()
         started = time.perf_counter()
         cpu_started = time.process_time()
+        initial_vector=b.array(psi)
         saved_psi = saved_rho = None
         if method == "trajectory":
-            probs = np.zeros(size, float)
+            device_probs = b.real_zeros(size)
             # လမ်းကြောင်းတစ်ခုချင်းစီကို သီးခြား simulation လုပ်ပြီး ပျမ်းမျှယူပါ။
             for offset in range(0,trajectories,effective_batch):
                 count=min(effective_batch,trajectories-offset)
-                if effective_batch==1:
-                    state=evolve(False).reshape(size)
-                    probs+=b.numpy((state.conj()*state).real)
-                else:
-                    state=evolve_batch(count).reshape(count,size)
-                    probs+=b.numpy((state.conj()*state).real.sum(axis=0))
-            probs /= trajectories
+                state=evolve_batch(count).reshape(count,size)
+                device_probs+=(state.conj()*state).real.sum(axis=0)
+            probs=b.numpy(device_probs)/trajectories
         elif method == "density_matrix":
             state = evolve(True).reshape(size, size)
             diag = state.diagonal()
             probs = b.numpy(diag.real).copy()
-            if retain_state: saved_rho = b.numpy(state).copy()
+            if retain_state: saved_rho = b.numpy(state)
         else:
             state = evolve(False).reshape(size)
             probs = b.numpy((state.conj()*state).real).copy()
-            if retain_state: saved_psi = b.numpy(state).copy()
+            if retain_state: saved_psi = b.numpy(state)
         b.sync()
         elapsed = time.perf_counter() - started
         cpu_seconds = time.process_time() - cpu_started
@@ -330,6 +372,9 @@ class Simulator:
                         readout_error=readout_error, operations=len(circuit.operations),
                         batch_size=effective_batch,compiled=prepared,compile_seconds=compile_seconds,
                         gate_cache_bytes=self._cache_bytes,
+                        random_engine=random_engine,noise_fastpath=bool(noise_fastpath),
+                        local_gates=b.local_gates,
+                        trajectory_sampling_device=b.device if method=='trajectory' else None,
                         probability_kind="trajectory_estimate" if method=="trajectory" else "exact")
         if b.torch and b.device.startswith("cuda"):
             metadata["cuda_allocated_bytes_at_end"] = b.torch.cuda.memory_allocated(b.device)

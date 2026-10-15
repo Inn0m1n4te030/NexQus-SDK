@@ -25,6 +25,35 @@ class Noise:
         for k in ks: k.flags.writeable = False
         object.__setattr__(self, "kraus", ks)
 
+    def pauli_weights(self):
+        """Detect scaled Pauli Kraus matrices from their values, never their names.
+
+        Returns one (I,X,Y,Z) probability vector or None for other channels.
+        Branch global phases have no effect on the channel.
+        """
+        weights=np.zeros(4)
+        for k in self.kraus:
+            for index,pauli in enumerate((I,X,Y,Z)):
+                coefficient=np.trace(pauli.conj().T@k)/2
+                if np.allclose(k,coefficient*pauli,atol=1e-13,rtol=1e-13):
+                    weights[index]+=abs(coefficient)**2
+                    break
+            else: return None
+        return weights/weights.sum()
+
+    def damping_spec(self):
+        """Detect canonical amplitude/phase damping from actual Kraus values."""
+        if len(self.kraus)!=2: return None
+        a,b=self.kraus
+        for kind,location in [('amplitude',(0,1)),('phase',(1,1))]:
+            gamma=float(abs(b[location])**2)
+            if gamma>1+1e-13: continue
+            gamma=min(gamma,1)
+            expected=np.zeros((2,2),complex); expected[location]=np.sqrt(gamma)
+            if np.allclose(a,np.diag([1,np.sqrt(1-gamma)]),atol=1e-13,rtol=1e-13) and np.allclose(b,expected,atol=1e-13,rtol=1e-13):
+                return kind,gamma
+        return None
+
     @classmethod
     def bit_flip(cls, p):
         p = _probability(p)

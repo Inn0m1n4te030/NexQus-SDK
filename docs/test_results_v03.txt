@@ -1,0 +1,74 @@
+test_amplitude_damping (test_sdk.SDKTests.test_amplitude_damping) ... ok
+test_arbitrary_wire_order_against_dense (test_sdk.SDKTests.test_arbitrary_wire_order_against_dense) ... ok
+test_bell_state_and_correlations (test_sdk.SDKTests.test_bell_state_and_correlations) ... ok
+test_bv_and_marginals (test_sdk.SDKTests.test_bv_and_marginals) ... ok
+test_depolarizing_convention (test_sdk.SDKTests.test_depolarizing_convention) ... ok
+test_deutsch_jozsa (test_sdk.SDKTests.test_deutsch_jozsa) ... ok
+test_diagonal_wire_order (test_sdk.SDKTests.test_diagonal_wire_order) ... ok
+test_function_decorator_and_composition (test_sdk.SDKTests.test_function_decorator_and_composition) ... ok
+test_ghz (test_sdk.SDKTests.test_ghz) ... ok
+test_grover (test_sdk.SDKTests.test_grover) ... ok
+test_invalid_inputs (test_sdk.SDKTests.test_invalid_inputs) ... ok
+test_memory_guard (test_sdk.SDKTests.test_memory_guard) ... ok
+test_noise_endpoints_trajectories (test_sdk.SDKTests.test_noise_endpoints_trajectories) ... ok
+test_noise_on_entangled_state_dense_reference (test_sdk.SDKTests.test_noise_on_entangled_state_dense_reference) ... ok
+test_noise_rule_selection (test_sdk.SDKTests.test_noise_rule_selection) ... ok
+test_phase_damping (test_sdk.SDKTests.test_phase_damping) ... ok
+test_phase_estimation (test_sdk.SDKTests.test_phase_estimation) ... ok
+test_qaoa_against_direct_cost_and_mixer (test_sdk.SDKTests.test_qaoa_against_direct_cost_and_mixer) ... ok
+test_qft_all_basis_states (test_sdk.SDKTests.test_qft_all_basis_states) ... ok
+test_qft_inverse_random_state (test_sdk.SDKTests.test_qft_inverse_random_state) ... ok
+test_readout_keeps_state (test_sdk.SDKTests.test_readout_keeps_state) ... ok
+test_rotations_and_inverse (test_sdk.SDKTests.test_rotations_and_inverse) ... ok
+test_seeded_counts (test_sdk.SDKTests.test_seeded_counts) ... ok
+test_single_precision (test_sdk.SDKTests.test_single_precision) ... ok
+test_trajectory_converges_to_exact (test_sdk.SDKTests.test_trajectory_converges_to_exact) ... ok
+test_torch_cpu (test_sdk.TorchTests.test_torch_cpu) ... skipped 'Optional PyTorch not installed'
+test_torch_cuda (test_sdk.TorchTests.test_torch_cuda) ... skipped 'Optional PyTorch not installed'
+test_batch_determinism_and_partial_batch (test_v02.BatchTests.test_batch_determinism_and_partial_batch) ... ok
+test_batch_noise_endpoints (test_v02.BatchTests.test_batch_noise_endpoints) ... ok
+test_batched_against_exact (test_v02.BatchTests.test_batched_against_exact) ... ok
+test_custom_three_kraus (test_v02.BatchTests.test_custom_three_kraus) ... ok
+test_memory_and_input_guards (test_v02.BatchTests.test_memory_and_input_guards) ... ok
+test_noiseless_batch_wire_order (test_v02.BatchTests.test_noiseless_batch_wire_order) ... ok
+test_single_precision_batch (test_v02.BatchTests.test_single_precision_batch) ... ok
+test_cache_disabled (test_v02.CompilationTests.test_cache_disabled) ... ok
+test_cache_hits_clear_and_bounds (test_v02.CompilationTests.test_cache_hits_clear_and_bounds) ... ok
+test_compiled_all_methods (test_v02.CompilationTests.test_compiled_all_methods) ... ok
+test_owner_and_frozen_noise_errors (test_v02.CompilationTests.test_owner_and_frozen_noise_errors) ... ok
+test_snapshot_matrix_mutation (test_v02.CompilationTests.test_snapshot_matrix_mutation) ... ok
+test_snapshot_of_source_and_noise (test_v02.CompilationTests.test_snapshot_of_source_and_noise) ... ok
+test_bind_arithmetic (test_v02.ParameterTests.test_bind_arithmetic) ... ok
+test_binding_errors (test_v02.ParameterTests.test_binding_errors) ... ok
+test_decorated_template (test_v02.ParameterTests.test_decorated_template) ... ok
+test_sweep_order_seeds_and_retention (test_v02.ParameterTests.test_sweep_order_seeds_and_retention) ... ok
+test_sweep_with_noise (test_v02.ParameterTests.test_sweep_with_noise) ... ok
+test_symbolic_inverse_and_compose (test_v02.ParameterTests.test_symbolic_inverse_and_compose) ... ok
+test_torch_cpu_v02 (test_v02.TorchV02Tests.test_torch_cpu_v02) ... skipped 'Optional PyTorch not installed'
+test_torch_cuda_v02 (test_v02.TorchV02Tests.test_torch_cuda_v02) ... skipped 'Optional PyTorch not installed'
+test_density_complex_noise_local_vs_general (test_v03.KernelTests.test_density_complex_noise_local_vs_general) ... ok
+test_diagonal_unsorted_axes_and_batches (test_v03.KernelTests.test_diagonal_unsorted_axes_and_batches) ... ok
+test_local_one_all_axes_against_matrix_kernel (test_v03.KernelTests.test_local_one_all_axes_against_matrix_kernel) ... ok
+test_damping_channels_paired_with_generic (test_v03.NoiseFastpathTests.test_damping_channels_paired_with_generic) ... ok
+test_fast_noise_converges_to_exact (test_v03.NoiseFastpathTests.test_fast_noise_converges_to_exact) ... ok
+test_generic_custom_channel_and_no_host_reads (test_v03.NoiseFastpathTests.test_generic_custom_channel_and_no_host_reads) ... ok
+test_pauli_channels_paired_with_generic (test_v03.NoiseFastpathTests.test_pauli_channels_paired_with_generic) ... ok
+test_pauli_y_relative_phases (test_v03.NoiseFastpathTests.test_pauli_y_relative_phases) ... ok
+test_specializations_do_not_trust_name (test_v03.NoiseFastpathTests.test_specializations_do_not_trust_name) ... ok
+test_counter_stream_independent_of_chunking (test_v03.RandomTests.test_counter_stream_independent_of_chunking) ... ok
+test_distribution_sanity (test_v03.RandomTests.test_distribution_sanity) ... ok
+test_engine_and_limit_errors (test_v03.RandomTests.test_engine_and_limit_errors) ... ok
+test_integer_hash_independent_scalar_reference (test_v03.RandomTests.test_integer_hash_independent_scalar_reference) ... ok
+test_native_seed_reproduction (test_v03.RandomTests.test_native_seed_reproduction) ... ok
+test_torch_cpu_v03 (test_v03.TorchV03Tests.test_torch_cpu_v03) ... skipped 'Optional PyTorch not installed'
+test_torch_cuda_v03 (test_v03.TorchV03Tests.test_torch_cuda_v03) ... skipped 'Optional PyTorch not installed'
+test_hoeffding_bound_decreases (test_v03.ValidationTests.test_hoeffding_bound_decreases) ... ok
+test_phase_error_rejected_and_global_phase_allowed (test_v03.ValidationTests.test_phase_error_rejected_and_global_phase_allowed) ... ok
+test_probability_mismatch_rejected (test_v03.ValidationTests.test_probability_mismatch_rejected) ... ok
+test_tvd_accumulated_errors_rejected (test_v03.ValidationTests.test_tvd_accumulated_errors_rejected) ... ok
+test_unpaired_trajectory_rejected (test_v03.ValidationTests.test_unpaired_trajectory_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 69 tests in 0.744s
+
+OK (skipped=6)

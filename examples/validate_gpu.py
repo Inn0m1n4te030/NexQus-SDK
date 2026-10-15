@@ -1,4 +1,4 @@
-"""Fail, rather than skip, if v0.2 CUDA validation cannot run.
+"""Fail, rather than skip, if v0.3 CUDA validation cannot run.
 
 Run from the extracted SDK root after installation:
 python examples/validate_gpu.py

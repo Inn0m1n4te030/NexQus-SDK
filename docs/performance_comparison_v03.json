@@ -1,0 +1,43 @@
+{
+  "workload": "NumPy CPU, 6 qubits, layered depth4, depolarizing .01, 512 trajectories, batch32, double precision, BLAS threads1",
+  "notes": "Same channel semantics; SDK versions use different seeded trajectory streams",
+  "results": [
+    {
+      "version": "0.2.0",
+      "median_run_wall_seconds": 0.7653550949999044,
+      "environment": {
+        "python": "3.12.14",
+        "numpy": "2.3.5",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+        "logical_cpus": 9,
+        "torch": null,
+        "cuda_runtime": null,
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1"
+        }
+      }
+    },
+    {
+      "version": "0.3.0",
+      "median_run_wall_seconds": 0.10797740500038344,
+      "environment": {
+        "python": "3.12.14",
+        "numpy": "2.3.5",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+        "logical_cpus": 9,
+        "torch": null,
+        "cuda_runtime": null,
+        "torch_intraop_threads": null,
+        "blas_threadpools": null,
+        "thread_environment": {
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1"
+        }
+      }
+    }
+  ],
+  "observed_speedup": 7.088104173249825
+}
