@@ -35,14 +35,30 @@ creation, so its local standalone notebook results do not certify those checks.
 ## Index staging and stable release
 
 The intended distribution name is nexqus-sdk and the import is nexqus.
-TestPyPI staging requires a signed-in TestPyPI account or configured Trusted
-Publisher for Inn0m1n4te030/NexQus-SDK, publish.yml, environment testpypi.
-Production uses the separate pypi environment and publisher.
+**TestPyPI staging completed on 2026-10-16.** Version 1.0.0rc1 is available at
+https://test.pypi.org/project/nexqus-sdk/1.0.0rc1/.
+The approved Trusted Publisher uses Inn0m1n4te030/NexQus-SDK, publish.yml and
+environment testpypi. Uploading used GitHub OIDC and digital attestations.
 
-Use the manual publish workflow from the reviewed commit after the required
-checks. Stage 1.0.0rc1 on TestPyPI, verify a clean index installation, and retain
-the artifact hashes. Promote to 1.0.0 only after candidate GPU/Jupyter validation
-and the review are complete. RELEASING.md contains the full sequence.
+The publishing run passed all 20 verification jobs, its build job and its upload:
+https://github.com/Inn0m1n4te030/NexQus-SDK/actions/runs/38869118243.
+It published source commit ada02f8cfcd9a759e6178fc7560afb01107c3ea1.
 
-No uploaded index release is implied by this document; verify the index page and
-the corresponding successful publishing workflow before announcing publication.
+A fresh NumPy-only environment installed the wheel from TestPyPI. Its SHA-256
+matched the publishing job. All 121 applicable tests passed; 12 optional Torch
+tests were explicitly skipped. Bell sampling, analytic noise, trajectories,
+feed-forward and parameter-shift gradient smoke checks also passed. See
+testpypi_validation_rc1.json for versions, hashes and evidence scope.
+
+The resolved Linux CPU environment passed a strict advisory audit of 126
+packages across core, official CPU Torch, benchmark, full JupyterLab/tutorial
+and release extras, including nested dependency extras. No packages were
+skipped and no known vulnerabilities were reported. Exact lookup versions are
+in dependency_audit_requirements_rc1.txt; results are in
+dependency_audit_optional_rc1.json. CUDA-specific dependency packages need a
+separate audit on the CUDA host.
+
+Stable 1.0.0 is not published to production PyPI. Remaining work is fresh CUDA
+and GPU-required Jupyter validation, production account/publisher setup, and
+building and checking the stable artifacts. Production uses the separate pypi
+environment and publisher. RELEASING.md contains the full sequence.

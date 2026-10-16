@@ -12,7 +12,17 @@ See `docs/RELEASING.md` for the TestPyPI/PyPI procedure.
 
 ## Install the candidate
 
-From the extracted source folder, in an activated Python 3.10+ environment:
+Version 1.0.0rc1 is staged on
+[TestPyPI](https://test.pypi.org/project/nexqus-sdk/1.0.0rc1/). In an activated
+Python 3.10+ virtual environment, install dependencies from the normal index,
+then retrieve only the SDK from TestPyPI:
+
+```bash
+python -m pip install 'numpy>=1.24,<3'
+python -m pip install --no-deps --index-url https://test.pypi.org/simple/ nexqus-sdk==1.0.0rc1
+```
+
+Alternatively, from the extracted source folder:
 
 ```bash
 python -m pip install .
