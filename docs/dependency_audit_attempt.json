@@ -1,0 +1,7 @@
+{
+  "status": "incomplete",
+  "scope": "NumPy 2.3.5 core runtime dependency only",
+  "tool": "pip-audit",
+  "reason": "PyPI advisory-service request timed out",
+  "clean_audit_claimed": false
+}

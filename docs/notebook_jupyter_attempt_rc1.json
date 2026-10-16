@@ -1,0 +1,94 @@
+{
+  "engine": "jupyter",
+  "python": "3.12.14",
+  "sdk_version": "1.0.0rc1",
+  "notebooks": [
+    {
+      "notebook": "00_start_here.ipynb",
+      "engine": "jupyter",
+      "status": "failed",
+      "transport": "ipc",
+      "sdk_version": null,
+      "code_cells": 4,
+      "optional_skips": 0,
+      "seconds": 2.0459113270007947,
+      "expected_sdk_version": "1.0.0rc1",
+      "error": "Notebook kernel did not report the expected SDK version"
+    },
+    {
+      "notebook": "01_qubits_and_gates.ipynb",
+      "engine": "jupyter",
+      "status": "failed",
+      "transport": "ipc",
+      "sdk_version": null,
+      "code_cells": 5,
+      "optional_skips": 0,
+      "seconds": 2.016392120999626,
+      "expected_sdk_version": "1.0.0rc1",
+      "error": "Notebook kernel did not report the expected SDK version"
+    },
+    {
+      "notebook": "02_noise_and_methods.ipynb",
+      "engine": "jupyter",
+      "status": "failed",
+      "transport": "ipc",
+      "sdk_version": null,
+      "code_cells": 5,
+      "optional_skips": 0,
+      "seconds": 2.017076127999644,
+      "expected_sdk_version": "1.0.0rc1",
+      "error": "Notebook kernel did not report the expected SDK version"
+    },
+    {
+      "notebook": "03_functions_sweeps_and_devices.ipynb",
+      "engine": "jupyter",
+      "status": "failed",
+      "transport": "ipc",
+      "sdk_version": null,
+      "code_cells": 5,
+      "optional_skips": 0,
+      "seconds": 2.017672695999863,
+      "expected_sdk_version": "1.0.0rc1",
+      "error": "Notebook kernel did not report the expected SDK version"
+    },
+    {
+      "notebook": "04_gradients_and_learning.ipynb",
+      "engine": "jupyter",
+      "status": "failed",
+      "transport": "ipc",
+      "sdk_version": null,
+      "code_cells": 5,
+      "optional_skips": 0,
+      "seconds": 2.0157325310001397,
+      "expected_sdk_version": "1.0.0rc1",
+      "error": "Notebook kernel did not report the expected SDK version"
+    },
+    {
+      "notebook": "05_measurement_reset_teleportation.ipynb",
+      "engine": "jupyter",
+      "status": "failed",
+      "transport": "ipc",
+      "sdk_version": null,
+      "code_cells": 6,
+      "optional_skips": 0,
+      "seconds": 2.015665343999899,
+      "expected_sdk_version": "1.0.0rc1",
+      "error": "Notebook kernel did not report the expected SDK version"
+    },
+    {
+      "notebook": "06_your_first_experiment.ipynb",
+      "engine": "jupyter",
+      "status": "failed",
+      "transport": "ipc",
+      "sdk_version": null,
+      "code_cells": 5,
+      "optional_skips": 0,
+      "seconds": 2.0194083819997104,
+      "expected_sdk_version": "1.0.0rc1",
+      "error": "Notebook kernel did not report the expected SDK version"
+    }
+  ],
+  "all_passed": false,
+  "gpu_required": false,
+  "execution_note": "Jupyter kernel execution; see per-notebook status and SDK version"
+}

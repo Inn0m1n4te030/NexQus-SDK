@@ -1,0 +1,15 @@
+include README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md
+recursive-include src *.py
+recursive-include tests *.py
+recursive-include examples *.py
+recursive-include scripts *.py *.sh
+recursive-include docs *.md *.json *.txt *.csv
+recursive-include notebooks *.md *.ipynb
+recursive-include .github *.yml *.yaml
+exclude docs/distribution_validation.json
+global-exclude *.py[cod]
+global-exclude .DS_Store
+prune build
+prune dist
+prune .venv
+prune .ipynb_checkpoints

@@ -1,7 +1,6 @@
 """Trajectory-vs-exact check, separate from paired CPU/GPU numerical parity."""
 import argparse
 import json
-import numpy as np
 from nexqus import Circuit, Simulator, Noise, NoiseModel
 from nexqus.validation import trajectory_confidence_bound
 

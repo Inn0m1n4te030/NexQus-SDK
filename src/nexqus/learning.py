@@ -6,6 +6,12 @@ from .parameters import bindings_dict,real_scalar
 from .circuit import positive_integer
 
 
+def _real_array(values, name):
+    if np.iscomplexobj(values):
+        raise ValueError(f'{name} must be real; complex values are not supported')
+    return np.asarray(values,dtype=float)
+
+
 class QuantumRegressor:
     """Train circuit parameters with analytic gradients; one scalar target/sample.
 
@@ -26,7 +32,7 @@ class QuantumRegressor:
         self.history=[]
 
     def _inputs(self,X):
-        X=np.asarray(X,dtype=float)
+        X=_real_array(X,'X')
         if X.ndim==1 and len(self.input_names)==1: X=X[:,None]
         if X.ndim!=2 or X.shape[1]!=len(self.input_names) or not len(X) or not np.isfinite(X).all():
             raise ValueError('X must be finite with shape (samples, input parameters)')
@@ -39,7 +45,7 @@ class QuantumRegressor:
         return np.array([self.function(self._bindings(row)) for row in self._inputs(X)])
 
     def fit(self,X,y,epochs=60,optimizer=None,callback=None):
-        X=self._inputs(X); y=np.asarray(y,dtype=float)
+        X=self._inputs(X); y=_real_array(y,'y')
         epochs=positive_integer(epochs,'epochs')
         if y.shape!=(len(X),) or not np.isfinite(y).all(): raise ValueError('y must be finite with one target per sample')
         if np.any(abs(y)>1+1e-12): raise ValueError('Scale targets to [-1,1] for a Pauli-expectation regressor')
@@ -57,7 +63,7 @@ class QuantumRegressor:
             # history records the loss before this step, at the listed parameters.
             record=dict(epoch=epoch,loss=real_scalar(loss),parameters=dict(self.parameters))
             self.history.append(record)
-            if callback is not None: callback(record.copy())
+            if callback is not None: callback(dict(record,parameters=dict(record['parameters'])))
             self.parameters=opt.step(self.parameters,gradients)
         return self
 
@@ -70,7 +76,7 @@ class QuantumBinaryClassifier(QuantumRegressor):
     and multiclass training are not implemented.
     """
     def fit(self,X,y,epochs=60,optimizer=None,callback=None):
-        labels=np.asarray(y)
+        labels=_real_array(y,'y')
         if labels.ndim!=1 or not np.isin(labels,[0,1]).all():
             raise ValueError('Binary classifier labels must be 0 or 1')
         return super().fit(X,2*labels.astype(float)-1,epochs,optimizer,callback)

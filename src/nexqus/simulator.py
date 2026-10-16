@@ -1,6 +1,7 @@
 """Statevector, density-matrix and Monte Carlo trajectory simulation."""
 from collections import Counter, OrderedDict
 from dataclasses import dataclass, field
+from math import sqrt
 import copy
 import hashlib
 import time
@@ -9,6 +10,22 @@ from .backend import Backend
 from .circuit import Circuit, positive_integer, I, X, Y, Z
 from .noise import NoiseModel
 from .random import DeviceRandom
+
+
+def _initial_vector(initial_state, size):
+    """Validate once for static and dynamic modes, then remove roundoff in norm."""
+    if initial_state is None:
+        psi = np.zeros(size, complex)
+        psi[0] = 1
+        return psi
+    psi = np.asarray(initial_state, dtype=complex)
+    if psi.shape != (size,) or not np.isfinite(psi).all():
+        raise ValueError("initial_state must be a finite normalized statevector")
+    with np.errstate(over='ignore', invalid='ignore'):
+        norm = np.vdot(psi, psi).real
+    if not np.isfinite(norm) or not np.isclose(norm, 1, atol=1e-10, rtol=0):
+        raise ValueError("initial_state squared norm must equal 1 within 1e-10")
+    return psi / np.sqrt(norm)
 
 
 class CompiledCircuit:
@@ -62,8 +79,7 @@ class Result:
 
     def marginal(self, wires):
         n = self.metadata["n_qubits"]
-        wires = tuple(wires)
-        Circuit(n)._wires(wires)
+        wires = Circuit(n)._wires(wires)
         axes = wires + tuple(q for q in range(n) if q not in wires)
         return self.probabilities.reshape((2,)*n).transpose(axes).reshape(2**len(wires), -1).sum(axis=1)
 
@@ -73,7 +89,7 @@ class Result:
         Requires retain_state=True. Trajectory runs do not retain a mixed state.
         """
         n = self.metadata["n_qubits"]
-        if len(pauli) != n or any(p not in "IXYZ" for p in pauli):
+        if not isinstance(pauli, str) or len(pauli) != n or any(p not in "IXYZ" for p in pauli):
             raise ValueError("Provide one I/X/Y/Z character per qubit")
         if self.statevector is None and self.density_matrix is None:
             raise ValueError("Expectation requires a retained statevector or density matrix")
@@ -229,12 +245,7 @@ class Simulator:
         if working_bytes > self.max_memory_mb * 1024**2:
             raise MemoryError(f"Estimated working tensors need {working_bytes/1024**2:.1f} MiB; "
                               "increase max_memory_mb or use fewer qubits/trajectory mode")
-        if initial_state is None:
-            psi = np.zeros(size, complex); psi[0] = 1
-        else:
-            psi = np.asarray(initial_state, dtype=complex)
-            if psi.shape != (size,) or not np.isfinite(psi).all() or not np.isclose(np.vdot(psi,psi).real,1):
-                raise ValueError("initial_state must be a finite normalized statevector")
+        psi = _initial_vector(initial_state, size)
         rng = np.random.default_rng(seed)
         b = self.backend
         device_rng=DeviceRandom(b,seed,random_engine)
@@ -317,7 +328,9 @@ class Simulator:
                 scale0=1/b.clamp_min(nojump,1e-30)**.5
                 scale1=1/b.clamp_min(pop1,1e-30)**.5
                 first=a*scale0[:,None,None]
-                second=d*np.sqrt(1-gamma)*scale0[:,None,None]
+                # A Python scalar preserves complex64. A NumPy float64 scalar
+                # promotes this whole batch to complex128 under NumPy 2.x.
+                second=d*sqrt(1-gamma)*scale0[:,None,None]
                 if kind=='amplitude':
                     first=b.where(jump,d*scale1[:,None,None],first)
                     second=b.where(jump,0,second)

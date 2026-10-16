@@ -2,6 +2,7 @@
 import math
 import numpy as np
 from .circuit import Circuit, positive_integer
+from .simulator import _initial_vector
 
 
 def bell():
@@ -108,9 +109,7 @@ def phase_estimation(unitary, counting_qubits=3, target_state=None):
     n = positive_integer(counting_qubits,"counting_qubits")
     u = np.asarray(unitary,dtype=complex)
     Circuit(1).unitary(u,0) # Validate the target unitary.
-    psi = np.array([0,1],complex) if target_state is None else np.asarray(target_state,dtype=complex)
-    if psi.shape != (2,) or not np.isfinite(psi).all() or not np.isclose(np.vdot(psi,psi).real,1):
-        raise ValueError("target_state must be a normalized two-element vector")
+    psi = np.array([0,1],complex) if target_state is None else _initial_vector(target_state,2)
     prepare = np.column_stack([psi,[-psi[1].conjugate(),psi[0].conjugate()]])
     q = Circuit(n+1).unitary(prepare,n,"prepare_target")
     for j in range(n):

@@ -25,7 +25,7 @@ class QuantumFunction:
     """
     def __init__(self,template,observable,simulator=None,noise=None):
         if not isinstance(template,Circuit): raise TypeError('Expected a Circuit template')
-        if template.dynamic: raise ValueError('Dynamic circuits are not supported by QuantumFunction gradients in v0.5')
+        if template.dynamic: raise ValueError('Dynamic circuits are not supported by QuantumFunction gradients')
         if not isinstance(observable,str) or len(observable)!=template.n_qubits or set(observable)-set('IXYZ'):
             raise ValueError('Observable must be a Pauli string in q0-first order')
         self.template=template
@@ -40,6 +40,10 @@ class QuantumFunction:
         return self._evaluate(self.template.bind(bindings))
 
     def _evaluate(self,circuit):
+        if circuit.dynamic:
+            raise ValueError('Dynamic circuits are not supported by QuantumFunction gradients')
+        if self.simulator.method=='trajectory':
+            raise ValueError('Analytic gradients do not support trajectories')
         return self.simulator.run(circuit,noise=self.noise,shots=0,retain_state=True).expectation(self.observable)
 
     def gradient(self,bindings,wrt=None):
@@ -49,6 +53,8 @@ class QuantumFunction:
         return self._compute(bindings,wrt,include_value=True)
 
     def _compute(self,bindings,wrt,include_value):
+        if self.template.dynamic:
+            raise ValueError('Dynamic circuits are not supported by QuantumFunction gradients')
         values=bindings_dict(bindings)
         bound=self.template.bind(values) # Validates missing and unknown bindings.
         names=_names(wrt,self.template.parameters)

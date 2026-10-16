@@ -8,5 +8,5 @@ from .optimizers import Adam, SGD
 from .learning import QuantumRegressor, QuantumBinaryClassifier
 from . import algorithms
 
-__version__ = "0.6.0"
+__version__ = "1.0.0rc1"
 __all__ = ["Circuit", "circuit", "Parameter", "Noise", "NoiseModel", "Simulator", "Result", "CompiledCircuit", "QuantumFunction", "QuantumRegressor", "QuantumBinaryClassifier", "Adam", "SGD", "algorithms"]

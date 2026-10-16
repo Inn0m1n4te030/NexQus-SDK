@@ -1,0 +1,100 @@
+{
+  "sdk_version": "1.0.0rc1",
+  "all_passed": true,
+  "examples": [
+    {
+      "example": "batched_noise.py",
+      "status": "passed",
+      "seconds": 0.15830882899990684
+    },
+    {
+      "example": "benchmark.py",
+      "status": "passed",
+      "seconds": 0.11626865000016551
+    },
+    {
+      "example": "benchmark_v2.py",
+      "status": "passed",
+      "seconds": 1.607026544999826
+    },
+    {
+      "example": "benchmark_v3.py",
+      "status": "passed",
+      "seconds": 1.7776260170003297
+    },
+    {
+      "example": "compiled_circuit.py",
+      "status": "passed",
+      "seconds": 0.12668195599962928
+    },
+    {
+      "example": "custom_function.py",
+      "status": "passed",
+      "seconds": 0.11199551899971993
+    },
+    {
+      "example": "dynamic_trajectories.py",
+      "status": "passed",
+      "seconds": 0.16860907899990707
+    },
+    {
+      "example": "gradients.py",
+      "status": "passed",
+      "seconds": 0.11737531700055115
+    },
+    {
+      "example": "measurement_reset.py",
+      "status": "passed",
+      "seconds": 0.11108120399967447
+    },
+    {
+      "example": "noise_comparison.py",
+      "status": "passed",
+      "seconds": 0.8259355949994642
+    },
+    {
+      "example": "parameter_sweep.py",
+      "status": "passed",
+      "seconds": 0.12532293000003847
+    },
+    {
+      "example": "qft.py",
+      "status": "passed",
+      "seconds": 0.11939302300015697
+    },
+    {
+      "example": "quickstart.py",
+      "status": "passed",
+      "seconds": 0.13544704400010232
+    },
+    {
+      "example": "teleportation.py",
+      "status": "passed",
+      "seconds": 0.12074564999966242
+    },
+    {
+      "example": "train_classifier.py",
+      "status": "passed",
+      "seconds": 1.021177500999329
+    },
+    {
+      "example": "train_sine.py",
+      "status": "passed",
+      "seconds": 1.1886923089996344
+    },
+    {
+      "example": "validate_noise.py",
+      "status": "passed",
+      "seconds": 0.24050062899914337
+    },
+    {
+      "example": "vqe_two_qubits.py",
+      "status": "passed",
+      "seconds": 0.8838590270006534
+    }
+  ],
+  "not_run": [
+    "gpu.py: CUDA unavailable",
+    "validate_gpu.py: CUDA unavailable"
+  ]
+}

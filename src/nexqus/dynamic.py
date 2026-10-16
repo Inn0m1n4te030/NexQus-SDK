@@ -7,7 +7,7 @@ trajectory; intermediate quantum/control decisions stay on the selected device.
 from collections import Counter
 import time
 import numpy as np
-from .circuit import positive_integer, X
+from .circuit import positive_integer
 from .noise import NoiseModel
 from .random import DeviceRandom
 
@@ -15,7 +15,7 @@ from .random import DeviceRandom
 def run_dynamic(sim,circuit,*,shots,seed,noise,trajectories,initial_state,retain_state,
                 readout_error,batch_size,random_engine,max_branches,prepared_arrays,
                 compiled,compile_seconds):
-    from .simulator import Result
+    from .simulator import Result, _initial_vector
     if isinstance(shots,bool) or not isinstance(shots,(int,np.integer)) or shots<0:
         raise ValueError('shots must be a nonnegative integer')
     if noise is not None and not isinstance(noise,NoiseModel): raise TypeError('Expected NoiseModel')
@@ -27,7 +27,6 @@ def run_dynamic(sim,circuit,*,shots,seed,noise,trajectories,initial_state,retain
     method='trajectory' if sim.method=='trajectory' else 'branch_density'
     if method=='trajectory': trajectories=positive_integer(trajectories,'trajectories')
     n=circuit.n_qubits; size=2**n; keys=circuit.classical_keys
-    key_index={key:i for i,key in enumerate(keys)}
     seen=set()
     for op in circuit.operations:
         if op.condition is not None and op.condition[0] not in seen:
@@ -38,12 +37,7 @@ def run_dynamic(sim,circuit,*,shots,seed,noise,trajectories,initial_state,retain
     base=b.itemsize*(size if method=='trajectory' else size*size)
     peak_working=base*6*effective_batch
     if peak_working>budget: raise MemoryError('Dynamic simulation exceeds estimated working-memory budget')
-    if initial_state is None:
-        psi=np.zeros(size,complex); psi[0]=1
-    else:
-        psi=np.asarray(initial_state,complex)
-        if psi.shape!=(size,) or not np.isfinite(psi).all() or not np.isclose(np.vdot(psi,psi).real,1):
-            raise ValueError('initial_state must be a finite normalized statevector')
+    psi=_initial_vector(initial_state,size)
     rng=np.random.default_rng(seed); device_rng=DeviceRandom(b,seed,random_engine)
     cache=dict(prepared_arrays)
     def native(data):
@@ -149,7 +143,9 @@ def run_dynamic(sim,circuit,*,shots,seed,noise,trajectories,initial_state,retain
         # Choose which sampled quantum histories supply requested output shots.
         # At each batch end, sample the quantum outcome conditional on that
         # history's classical register, preserving classical/quantum correlation.
-        history_shots=np.bincount(rng.integers(0,trajectories,size=shots),minlength=trajectories)
+        # Storage follows requested output shots, not the total number of histories.
+        selected,repeats=np.unique(rng.integers(0,trajectories,size=shots),return_counts=True)
+        history_shots=dict(zip(selected.tolist(),repeats.tolist()))
         device_probabilities=b.real_zeros(size); classical_histogram=Counter()
         for offset in range(0,trajectories,effective_batch):
             count=min(effective_batch,trajectories-offset)
@@ -182,7 +178,7 @@ def run_dynamic(sim,circuit,*,shots,seed,noise,trajectories,initial_state,retain
             if shots: host_probabilities=b.numpy(population)
             for index,record in enumerate(records):
                 classical=label(record); classical_histogram[classical]+=1
-                shot_count=int(history_shots[offset+index])
+                shot_count=history_shots.get(offset+index,0)
                 if shot_count:
                     p=observed(np.asarray(host_probabilities[index],float)); p=np.maximum(p,0); p/=p.sum()
                     for qvalue in rng.choice(size,size=shot_count,p=p): count_sample(classical,qvalue)

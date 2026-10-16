@@ -55,7 +55,7 @@ README တွင် ကြည့်ပါ။
 
 ## ၁။ Install လုပ်ပါ
 
-ZIP file ကို ဖြည်ပြီး `nexqus-sdk-v0.5.0` folder ထဲတွင် terminal ဖွင့်ပါ။
+ZIP file ကို ဖြည်ပြီး `nexqus-sdk-v1.0.0rc1` folder ထဲတွင် terminal ဖွင့်ပါ။
 
 ```bash
 python -m pip install -e .
