@@ -60,6 +60,20 @@ class Circuit:
         self.operations.append(Operation(name, wires, u))
         return self
 
+    def permutation(self, mapping, wires, name="permutation"):
+        """Apply |x> -> |mapping[x]> on ordered wires, storing only indices."""
+        wires = self._wires(wires)
+        data = np.asarray(mapping)
+        size = 2 ** len(wires)
+        if (data.shape != (size,) or data.dtype.kind not in 'iu'
+                or np.any(data < 0) or np.any(data >= size)
+                or len(np.unique(data)) != size):
+            raise ValueError('mapping must contain every integer in 0..2**len(wires)-1 exactly once')
+        data = np.array(data, dtype=np.int64, copy=True)
+        data.flags.writeable = False
+        self.operations.append(Operation(name, wires, data, 'permutation'))
+        return self
+
     def diagonal(self, diagonal, wires, name="diagonal"):
         wires = self._wires(wires)
         d = np.array(diagonal, dtype=complex, copy=True)
@@ -177,7 +191,7 @@ class Circuit:
 
     def c_if(self,key,value=1):
         """Condition the immediately preceding gate/reset/noise on a measured bit."""
-        if not self.operations or self.operations[-1].kind not in ('unitary','diagonal','parameterized','reset','noise'):
+        if not self.operations or self.operations[-1].kind not in ('unitary','diagonal','parameterized','permutation','reset','noise'):
             raise ValueError('c_if() must follow a gate, reset, or noise operation')
         if not isinstance(key,str) or key not in tuple(op.data for op in self.operations[:-1] if op.kind=='measure'):
             raise ValueError('Condition requires a classical bit measured earlier in the circuit')
@@ -216,9 +230,20 @@ class Circuit:
                 gate,expression=op.data
                 out.operations.append(Operation(op.name+'†',op.wires,(gate,-expression),op.kind))
                 continue
+            if op.kind == 'permutation':
+                out.permutation(np.argsort(op.data), op.wires, op.name + '†')
+                continue
             data = op.data.conj() if op.kind == "diagonal" else op.data.conj().T
             out.operations.append(Operation(op.name + "†", op.wires, data, op.kind))
         return out
+
+    def draw(self, output='text', *, filename=None, fold=12):
+        """Return a native text/SVG circuit diagram; optionally save it."""
+        from .drawing import draw
+        return draw(self, output=output, filename=filename, fold=fold)
+
+    def _repr_svg_(self):
+        return str(self.draw('svg'))
 
     def __repr__(self):
         return f"Circuit(n_qubits={self.n_qubits}, operations={len(self.operations)})"

@@ -1,6 +1,6 @@
 # NexQus public API reference
 
-Applies to NexQus SDK 1.0. Read API_STABILITY.md for the supported 1.x
+Applies to NexQus SDK 1.x; additions for 1.1 are marked below. Read API_STABILITY.md for the supported 1.x
 contract. Internal tensor adapters and direct operation-list mutation are not
 supported public APIs.
 
@@ -20,6 +20,7 @@ records operations; it does not execute a quantum state.
 | swap(a,b) | Swap two distinct qubits |
 | unitary(matrix,wires,name='U') | Finite 2^k square validated unitary |
 | diagonal(values,wires,name='diagonal') | 2^k unit-modulus entries; tolerance atol=rtol=1e-10 |
+| permutation(mapping,wires,name='permutation') | 1.1: basis map x → mapping[x], storing 2^k integer indices |
 | controlled(matrix,control,target,name='controlled-U') | Controlled single-qubit 2×2 unitary |
 | noise(channel,q) | Insert a one-qubit Noise channel at this point |
 | measure(q,key) | Ideal Z measurement, overwriting a named classical bit |
@@ -194,6 +195,88 @@ uses a one-qubit target; inspect the leading counting register with marginal().
 QAOA builds an unweighted MaxCut ansatz and leaves optimization to the caller.
 Teleportation assumes input on q0 and zero q1/q2, with output on q2 and classical
 keys alice_z/alice_x. Rename keys when composing repeated protocol blocks.
+
+### Shor factoring (added in 1.1, unreleased)
+
+`order_finding(base, modulus, counting_qubits=None, *, max_memory_mb=64)` returns
+a Circuit. It requires modulus >= 3 and coprime 1 < base < modulus. The trailing register has
+`(modulus-1).bit_length()` qubits initialized to |1>; the leading counting
+register defaults to twice that width. The initial 31/10-qubit limits are removed.
+Use `result.marginal(range(counting_qubits))` to inspect its phase distribution.
+Each controlled modular multiplier leaves unused basis states >= modulus fixed.
+
+`shor(modulus, *, base=None, shots=32, max_attempts=8, seed=None, simulator=None,
+counting_qubits=None)`
+returns an immutable `ShorResult(modulus, factors, attempts, method, base, order)`.
+The factors are a sorted nontrivial pair whose product is modulus, not necessarily
+prime. `factors=None` with method `failed` means attempts were exhausted, not that
+the input is prime. Methods `even`, `perfect_power`, `prime`, and `gcd` identify
+classical preprocessing; method `quantum` means sampled order finding supplied
+a verified even order. The prime check uses trial division after resource checks.
+
+A supplied base is reused on retries; otherwise a seeded generator selects bases.
+`shots` and `max_attempts` must be positive integers. Zero phases, odd orders,
+and trivial square roots may fail; changing the base or seed can help.
+Continued fractions recover phase denominators, LCM combines them, and modular
+exponentiation verifies candidate orders before GCD factor extraction. There is
+no fallback classical factor search after unsuccessful quantum samples.
+
+The optional simulator uses the normal NexQus execution backend; the default is
+NumPy statevector. A noiseless trajectory simulator uses one trajectory because
+all such histories are identical. Modular gates use integer permutation maps
+and gather amplitudes without constructing dense matrices. They are logical
+operations, not an elementary-gate arithmetic decomposition for quantum hardware.
+
+`shor_resources(modulus, counting_qubits=None, *, precision='double')` returns
+an immutable `ShorResources` with target/counting/total qubits, statevector bytes,
+estimated state working bytes, permutation-map bytes, and estimated construction
+bytes. It allocates no gates or quantum state. The default m=ceil(log2(modulus))
+target qubits and 2m counting qubits require 2^(3m) amplitudes. For 77 this is
+21 qubits, 32 MiB for the double-precision state and 192 MiB estimated state
+working storage, plus gate storage. Density matrices cost substantially more.
+
+`order_finding.max_memory_mb` checks estimated gate-construction storage only.
+`shor` checks state working storage plus construction against the supplied
+Simulator's `max_memory_mb` (default 1024 MiB) before allocating odd-input
+circuits. Even inputs return their trivial factors without allocating a state.
+Estimates are not hard process-RAM caps; increasing the budget does not create
+physical RAM. The implementation also rejects totals above 62 qubits for index
+capacity; practical statevector limits occur much earlier.
+
+Reduce `counting_qubits` to trade phase resolution and factoring success rate for
+lower memory, or explicitly configure a larger simulator budget when sufficient
+RAM is available. Quantum factoring is regression-tested for 15, 21, 35 and 77;
+larger values are resource-dependent rather than guaranteed to finish quickly.
+The existing single-target-qubit `phase_estimation` API is unchanged.
+
+`Circuit.permutation` validates that mapping contains every basis index exactly
+once, copies it, and supports compose, inverse, binding, compilation, classical
+conditions, noise, statevector/density/trajectory modes and NumPy/PyTorch.
+Wire order follows the same MSB-first convention as `unitary`. The stored map
+has one int64 per basis state; prepared kernels use its inverse as gather indices.
+
+Algorithm background: [IBM Quantum, Shor’s algorithm](https://quantum.cloud.ibm.com/docs/en/tutorials/shors-algorithm).
+
+### Circuit drawing (added in 1.1, unreleased)
+
+`Circuit.draw(output='text', *, filename=None, fold=12)` returns a diagram without
+executing the circuit. Use `print(q.draw())` in a terminal, or `q.draw('svg')` in
+Jupyter. Displaying a Circuit as the last notebook expression also renders SVG.
+The SVG result is a string subclass with `_repr_svg_()` support; it needs no
+plotting or quantum SDK dependencies. Save with `filename='circuit.svg'`.
+
+`fold` sets operations per panel; `None` puts all operations in one panel.
+Quantum wires are ordered q0 at the top, and named classical wires appear below.
+CX, CZ and SWAP have standard symbols. Measurements write to classical wires;
+conditional gates connect to their classical bit with an `=0` or `=1` label.
+Noise and resets are labeled explicitly. General multiwire gates use connected
+boxes with `:0`, `:1`, etc. to preserve operand order, including nonadjacent wires.
+Each operation has its own column; the drawer does not reschedule gates.
+
+Symbolic gates show parameter expressions. Concrete gates show their stored
+names; original numerical angle values are not stored in the current circuit
+representation. Custom names are escaped in SVG and flattened to one line.
+Only `text` and `svg` outputs are supported in this release.
 
 ## Numerical validation helpers
 

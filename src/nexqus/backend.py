@@ -52,32 +52,38 @@ class Backend:
         if self.torch and self.device.startswith("cuda"):
             self.torch.cuda.synchronize(self.device)
 
-    def apply(self, tensor, data, targets, diagonal=False):
+    def apply(self, tensor, data, targets, diagonal=False, permutation=False):
         """Move target tensor axes to front; apply a local operator, then restore.
 
         No full 2**n square gate matrix is constructed.
         """
         if self.local_gates and diagonal:
             return tensor*self._broadcast_diagonal(data,targets,tensor.ndim)
-        if self.local_gates and len(targets)==1 and self.torch is None:
+        if self.local_gates and not permutation and len(targets)==1 and self.torch is None:
             return self._local_one(tensor,data,targets[0])
         axes = tuple(targets) + tuple(i for i in range(tensor.ndim) if i not in targets)
         front = self.permute(tensor, axes).reshape(2 ** len(targets), -1)
-        out = data[:, None] * front if diagonal else data @ front
+        if permutation:
+            out = self.torch.index_select(front, 0, data) if self.torch else front[data]
+        else:
+            out = data[:, None] * front if diagonal else data @ front
         restore = tuple(int(i) for i in np.argsort(axes))
         return self.permute(out.reshape((2,) * tensor.ndim), restore)
 
-    def apply_batch(self, tensor, data, targets, diagonal=False):
+    def apply_batch(self, tensor, data, targets, diagonal=False, permutation=False):
         """Apply a shared gate to B statevectors with shape (B, 2, ..., 2)."""
         target_axes=tuple(q+1 for q in targets)
         if self.local_gates and diagonal:
             return tensor*self._broadcast_diagonal(data,target_axes,tensor.ndim)
-        if self.local_gates and len(targets)==1 and self.torch is None:
+        if self.local_gates and not permutation and len(targets)==1 and self.torch is None:
             return self._local_one(tensor,data,target_axes[0])
         axes=(0,)+target_axes+tuple(i for i in range(1,tensor.ndim) if i not in target_axes)
         shape=tensor.shape
         front=self.permute(tensor,axes).reshape(shape[0],2**len(targets),-1)
-        out=data[None,:,None]*front if diagonal else data @ front
+        if permutation:
+            out = self.torch.index_select(front, 1, data) if self.torch else front[:, data, :]
+        else:
+            out=data[None,:,None]*front if diagonal else data @ front
         restore=tuple(int(i) for i in np.argsort(axes))
         return self.permute(out.reshape(tuple(shape[i] for i in axes)),restore)
 
@@ -96,6 +102,12 @@ class Backend:
         out[:,0,:]=data[0,0]*x[:,0,:]+data[0,1]*x[:,1,:]
         out[:,1,:]=data[1,0]*x[:,0,:]+data[1,1]*x[:,1,:]
         return out.reshape(tensor.shape)
+
+    def index_array(self, values):
+        indices = np.array(values, dtype=np.int64, copy=True)
+        if self.torch:
+            return self.torch.from_numpy(indices).to(device=self.device)
+        return indices
 
     def real_array(self,x):
         if self.torch:

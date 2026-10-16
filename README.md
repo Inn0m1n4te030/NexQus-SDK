@@ -5,7 +5,7 @@ with noise channels, reusable algorithms, analytic gradients and Burmese/English
 tutorials. NexQus implements its own circuit representation and evolution kernels;
 other quantum SDKs are not execution dependencies.
 
-**Version 1.0.0 · MIT license.**
+**Stable release: 1.0.0 · Development: 1.1.0.dev0 · MIT license.**
 [Source and issue tracking](https://github.com/Inn0m1n4te030/NexQus-SDK).
 
 ## Install
@@ -187,3 +187,52 @@ code like other Python code: run code from sources you trust.
 
 Homepage: [nexqus.com](https://nexqus.com).
 Licensed under the [MIT License](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/LICENSE).
+
+## Shor factoring (development version)
+
+The source checkout adds quantum order finding and Shor factoring with memory
+checks instead of a fixed 31 limit. Install it with `python -m pip install -e .`;
+these functions are not in the published 1.0.0 package.
+
+```python
+from nexqus import algorithms
+
+print(algorithms.shor_resources(77))  # Inspect storage estimates before running
+result = algorithms.shor(77, base=2, seed=42)
+print(result.factors)  # (7, 11)
+print(result.method)   # quantum
+```
+
+See [the Shor example](examples/shor.py) and [API reference](docs/API.md).
+Modular gates use compact permutation indices instead of dense matrices.
+The statevector still has 2**qubits amplitudes: double-precision order finding
+for 77 uses 21 qubits, a 32 MiB state, and about 192 MiB of estimated state working
+storage, plus gate storage. This is classical simulation, not a quantum speedup
+or an elementary-gate hardware implementation.
+
+## Native circuit drawing (development version)
+
+```python
+from nexqus import algorithms
+
+q = algorithms.teleportation()
+print(q.draw())                       # Terminal diagram
+q.draw('svg', filename='circuit.svg')  # Vector export; displays in Jupyter
+```
+
+The 1.1 development version includes its own dependency-free text/SVG renderer,
+including control gates, measurements, classical conditions, noise, symbolic
+parameters, custom gates, and wrapping. Use `fold=8` to wrap every eight operations.
+
+Any ordinary circuit can be drawn without running a simulation, including idle
+wires and custom sequences (`cx` is CNOT):
+
+```python
+from nexqus import Circuit
+
+q = Circuit(8).rx(0.5, 0).cx(0, 1).ry(0.8, 3).cx(3, 7)
+print(q.draw())
+q.draw('svg', filename='custom_8_qubits.svg')
+```
+
+![Native NexQus teleportation diagram](docs/images/teleportation.svg)

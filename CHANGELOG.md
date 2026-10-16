@@ -1,3 +1,15 @@
+# Unreleased — 1.1.0
+
+- Add native text/SVG circuit drawing, Jupyter display, export, wrapping, and
+  quantum/classical wire support without additional dependencies.
+
+- Add quantum order finding and Shor factorization with resource estimates,
+  explicit result metadata, deterministic seeds, tests, and a runnable example.
+- Replace dense modular matrices and the initial 31 limit with permutation-index
+  gates and memory preflight checks; validate quantum factoring through 77.
+- Add Circuit.permutation across NumPy/PyTorch execution, compilation, inverses,
+  density matrices, trajectories, and dynamic conditions.
+
 # Changelog
 
 ## 1.0.0 — 2026-10-16

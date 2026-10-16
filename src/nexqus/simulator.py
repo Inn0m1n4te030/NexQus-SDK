@@ -128,17 +128,18 @@ class Simulator:
         self._cache_bytes=0
         self._cache_hits=self._cache_misses=0
 
-    def _prepare_array(self, data):
+    def _prepare_array(self, data, permutation=False):
         contiguous=np.ascontiguousarray(data)
-        key=(contiguous.shape,contiguous.dtype.str,
+        key=(permutation,contiguous.shape,contiguous.dtype.str,
              hashlib.blake2b(contiguous.tobytes(),digest_size=16).digest())
         if key in self._gate_cache:
             self._cache_hits+=1
             self._gate_cache.move_to_end(key)
             return self._gate_cache[key][0]
         self._cache_misses+=1
-        native=self.backend.array(data)
-        size=int(contiguous.size)*self.backend.itemsize
+        native=(self.backend.index_array(np.argsort(data)) if permutation
+                else self.backend.array(data))
+        size=int(contiguous.size)*(8 if permutation else self.backend.itemsize)
         if size <= self._cache_limit:
             while self._cache_bytes+size > self._cache_limit:
                 _,(_,removed)=self._gate_cache.popitem(last=False)
@@ -166,12 +167,12 @@ class Simulator:
         snapshot=copy.deepcopy(circuit)
         frozen_noise=copy.deepcopy(noise)
         arrays={}
-        def prepare(data):
-            if id(data) not in arrays: arrays[id(data)]=self._prepare_array(data)
+        def prepare(data, permutation=False):
+            if id(data) not in arrays: arrays[id(data)]=self._prepare_array(data, permutation)
         for op in snapshot.operations:
             if op.kind=='noise':
                 for k in op.data.kraus: prepare(k)
-            elif op.kind in ('unitary','diagonal'): prepare(op.data)
+            elif op.kind in ('unitary','diagonal','permutation'): prepare(op.data, op.kind=='permutation')
         if frozen_noise:
             for _,ch in frozen_noise.rules:
                 for k in ch.kraus: prepare(k)
@@ -264,19 +265,20 @@ class Simulator:
         cx_matrix=np.array([[1,0,0,0],[0,1,0,0],[0,0,0,1],[0,0,1,0]],complex)
         cx_data={id(op.data) for op in circuit.operations if b.local_gates and
                  op.kind=='unitary' and len(op.wires)==2 and np.array_equal(op.data,cx_matrix)}
-        def array(data):
+        def array(data, permutation=False):
             key = id(data)
-            if key not in cache: cache[key] = self._prepare_array(data)
+            if key not in cache: cache[key] = self._prepare_array(data, permutation)
             return cache[key]
 
-        def transform(state, data, wires, density=False, diagonal=False):
+        def transform(state, data, wires, density=False, diagonal=False, permutation=False):
             if id(data) in cx_data:
                 state=b.apply_cx(state,wires[0],wires[1])
                 if density: state=b.apply_cx(state,n+wires[0],n+wires[1])
                 return state
-            state = b.apply(state, array(data), wires, diagonal)
+            native = array(data, permutation)
+            state = b.apply(state, native, wires, diagonal, permutation)
             if density:
-                state = b.apply(state, array(data).conj(), tuple(n+q for q in wires), diagonal)
+                state = b.apply(state, native if permutation else native.conj(), tuple(n+q for q in wires), diagonal, permutation)
             return state
 
         def channel(state, ch, q, density):
@@ -292,7 +294,7 @@ class Simulator:
                 if op.kind == "noise":
                     state = channel(state, op.data, op.wires[0], density)
                     continue
-                state = transform(state, op.data, op.wires, density, op.kind == "diagonal")
+                state = transform(state, op.data, op.wires, density, op.kind == "diagonal", op.kind == "permutation")
                 if noise:
                     for ch in noise.channels_for(op.name):
                         for q in op.wires: state = channel(state, ch, q, density)
@@ -362,7 +364,7 @@ class Simulator:
                 if id(op.data) in cx_data:
                     state=b.apply_cx(state,op.wires[0]+1,op.wires[1]+1)
                 else:
-                    state=b.apply_batch(state,array(op.data),op.wires,op.kind=='diagonal')
+                    state=b.apply_batch(state,array(op.data,op.kind=='permutation'),op.wires,op.kind=='diagonal',op.kind=='permutation')
                 if noise:
                     for ch in noise.channels_for(op.name):
                         for q in op.wires: state=batch_channel(state,ch,q)
