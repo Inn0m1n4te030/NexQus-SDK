@@ -11,6 +11,7 @@ dist/
 *.pem
 *.key
 .pypirc
+.release-artifacts/
 docs/release_validation.json
 docs/distribution_validation.json
 docs/notebook_execution.json

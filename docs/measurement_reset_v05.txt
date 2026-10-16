@@ -1,6 +1,0 @@
-Feed-forward quantum counts: {'0': 1000}
-Measurement counts: {'0': 502, '1': 498}
-Reset on one half of a Bell state: [0.5 0.5 0.  0. ]
-Reset qubit state:
- [[1.+0.j 0.+0.j]
- [0.+0.j 0.+0.j]]

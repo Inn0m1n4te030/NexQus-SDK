@@ -1,55 +1,27 @@
 # Changelog
 
-## 1.0.0rc1 — maintainer review, 2026-10-16 (Asia/Singapore)
+## 1.0.0 — 2026-10-16
 
-This candidate is not a published stable release. It preserves the v0.6 feature
-set and hardens correctness, validation and distribution.
+First stable public release under the MIT license.
 
-### Fixed
+### Features
 
-- A numerical parity check could pass NaN retained states, malformed state
-  shapes, missing retained states or nonfinite classical probabilities. These
-  now fail explicitly. Paired trajectory checks also require a supplied seed.
-- Diagonal validation and initial-state normalization used NumPy's loose default
-  relative tolerance. Both now use explicit tolerances. Input state norm within
-  1e-10 is accepted and rescaled to remove roundoff; larger errors are rejected.
-- Dynamic trajectory shot scheduling allocated one host counter per trajectory,
-  including runs with zero shots. It now stores only histories selected by the
-  requested shots, with O(shots) schedule storage independent of trajectory count.
-- NumPy damping fast paths could promote complex64 trajectory batches to
-  complex128. Their scalar arithmetic now preserves selected state precision,
-  consistent with state-storage reporting; dtype regressions cover the paths.
-- Complex learning inputs/targets no longer silently lose imaginary components.
-- A learning callback cannot mutate stored training-history parameter snapshots.
-- Adam updates are atomic and reject nonfinite moments instead of retaining a
-  partially updated or overflowed optimizer state.
-- QuantumFunction rechecks unsupported dynamic control if its template changes.
-- Result.marginal accepts a scalar wire index consistently with reduced_density.
-- Notebook execution reports describe the actual engine. Failed runs clear stale
-  later-cell outputs; standalone timeouts produce failed report entries.
+- NumPy CPU and optional PyTorch CPU/NVIDIA CUDA simulation.
+- Noiseless statevectors, exact density matrices and batched noisy trajectories.
+- Circuit functions, symbolic parameters, sweeps, prepared execution and built-in algorithms.
+- Parameter-shift gradients, Adam/SGD, small learning models and VQE examples.
+- Mid-circuit measurement, reset, classical feed-forward and teleportation.
+- Seven English/Burmese notebooks, current feature guides and the public 1.x API policy.
 
-### Added
+### Correctness and packaging
 
-- Independent full-matrix reference checks for 40 random static and 24 random
-  dynamic circuits, with complex initial states, channels and feed-forward.
-- Targeted regression and additional CPU/CUDA parity tests: 133 total discovered.
-- Complete project metadata, a single source of version information, explicit
-  source-distribution contents, and a small runtime wheel.
-- Fresh-environment wheel and source-rebuilt-wheel checks, release evidence
-  reports, a multi-OS/Python CI matrix, and manual Trusted Publishing workflows.
-- Public API reference, a proposed 1.x stability policy and release instructions.
+- Reject non-finite or malformed validation results and invalid state/diagonal inputs.
+- Preserve single precision in NumPy damping and bound dynamic shot scheduling memory.
+- Reject complex learning data; isolate training callbacks and keep Adam failures atomic.
+- Keep validation reports and internal audit notes out of public guides and package archives.
+- Validate wheel/source contents, clean installations and notebook execution in CI.
 
-### Compatibility notes
-
-Previously accepted invalid diagonal entries and noticeably unnormalized initial
-states now raise ValueError. The validator requires matching retained-state
-presence/representation. It rejects unseeded trajectory parity, which cannot
-demonstrate paired reproducibility. Valid existing circuit APIs are retained.
-
-The maintainer approved MIT licensing and confirmed PyPI ownership on 2026-10-16.
-The public repository is Inn0m1n4te030/NexQus-SDK; Source/Issues/Documentation
-metadata now point to it. CI execution, fresh CUDA validation and TestPyPI
-installation remain release gates. Build and validation do not perform uploads.
+## Development history
 
 ## 0.6.0
 
@@ -79,6 +51,3 @@ Parameters/sweeps, prepared execution, bounded gate cache and batched trajectori
 
 Own circuit engine, NumPy/optional Torch backends, statevector/density/trajectory
 simulation, single-qubit channels, reusable algorithms and examples.
-
-Historical details and validation limitations are preserved in the versioned
-release notes under docs; they are not claims about this release candidate.

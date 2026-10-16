@@ -10,7 +10,7 @@ on:
         default: testpypi
         required: true
       version:
-        description: Exact source version, for example 1.0.0rc1
+        description: Exact source version, for example 1.0.0
         type: string
         required: true
 

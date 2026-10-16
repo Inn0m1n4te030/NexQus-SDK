@@ -1,12 +1,11 @@
-# v0.5: measurement, reset and classical feed-forward
+# Measurement, reset and classical feed-forward
 
-Priority 5 of the original roadmap is implemented here. Existing static
-simulation, algorithms, learning APIs and v0.3 performance kernels remain.
-Tested beginner notebooks (priority 6) are still outstanding.
+Use classical measurement outcomes to control subsequent circuit operations.
+NexQus 1.0 supports exact and sampled dynamic simulation on CPU and CUDA.
 
 ## Install and run
 
-From the extracted `nexqus-sdk-v1.0.0rc1` folder:
+From the NexQus 1.0 source checkout:
 
 ```bash
 python -m pip install --upgrade -e .
@@ -17,9 +16,6 @@ python examples/teleportation.py
 python examples/teleportation.py --backend torch --device cuda:0
 python examples/dynamic_trajectories.py --backend torch --device cuda:0
 ```
-
-The user confirmed v0.4 GPU validation; v0.5 adds separate optional Torch
-CPU/CUDA protocol tests. Run the strict validator before relying on those paths.
 
 ## Measure and condition
 
@@ -94,7 +90,7 @@ r = sim.run(q, trajectories=2048, batch_size=128, shots=1000, seed=42)
 Sampled dynamic execution keeps quantum states, measurement collapse,
 classical predicates and Kraus branch decisions on the chosen device. Classical
 records and requested output distributions are copied at batch boundaries for
-reporting. Unlike static v0.3 kernels, the first dynamic engine uses generic
+reporting. Dynamic execution uses generic
 Kraus paths for noise and reset; `noise_fastpath` does not select specialized
 dynamic noise kernels. There is no promise that dynamic throughput matches
 static circuits. Inactive conditional rows may consume random draws but their
@@ -158,23 +154,14 @@ Compiled objects still snapshot the source circuit/noise for one simulator.
 
 ## Learning and current limits
 
-v0.4 QuantumFunction/learning remains supported for static unitary and noisy
-circuits. Dynamic QuantumFunctions are explicitly rejected in v0.5; gradients
+QuantumFunction supports static unitary and exact noisy circuits. Dynamic
+QuantumFunctions are explicitly rejected; gradients
 through measurements/reset/feed-forward have not been implemented.
 
 No pulse simulation, physical measurement latency, calibrated measurement/reset
 errors, branching hardware jobs or arbitrary classical programs are implied.
 The implementation covers circuit-level measurement/reset and single-bit
 feed-forward in local simulation.
-
-## Validation
-
-111 tests discovered: 101 CPU tests passed; 10 optional Torch tests skipped
-locally because PyTorch is unavailable. New checks include complex-state
-teleportation, removal of corrections, state collapse, reset of entangled
-states, repeated/overwritten bits, conditional noise, joint sampling, branch
-limits, compilation and classical remapping. Optional CPU/CUDA tests compare
-exact and sampled dynamic execution and check joint-result correlations.
 
 ## Burmese notes
 

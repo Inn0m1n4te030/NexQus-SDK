@@ -3,10 +3,10 @@ recursive-include src *.py
 recursive-include tests *.py
 recursive-include examples *.py
 recursive-include scripts *.py *.sh
-recursive-include docs *.md *.json *.txt *.csv
+recursive-include docs *.md
 recursive-include notebooks *.md *.ipynb
 recursive-include .github *.yml *.yaml
-exclude docs/distribution_validation.json
+prune .release-artifacts
 global-exclude *.py[cod]
 global-exclude .DS_Store
 prune build

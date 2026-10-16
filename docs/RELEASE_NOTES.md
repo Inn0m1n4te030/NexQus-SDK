@@ -1,32 +1,33 @@
-# NexQus SDK 0.1.0 — 14 October 2026
+# NexQus SDK 1.0.0
 
-First functional local simulation prototype created for NexQus.
+NexQus 1.0 provides a Python quantum circuit simulator for education and small
+research experiments, with NumPy CPU and optional PyTorch CPU/NVIDIA CUDA execution.
+The package is distributed under the MIT license.
 
-## Delivered
+## Install
 
-- Own Circuit, decorator API, targeted tensor gate evolution and noise engine.
-- NumPy CPU adapter; optional PyTorch CPU/CUDA adapter.
-- Noiseless statevectors, exact noisy density matrices, sampled trajectories.
-- Five single-qubit noise families, custom Kraus channels and readout bit flips.
-- Bell, GHZ, QFT/iQFT, Grover, Bernstein–Vazirani, Deutsch–Jozsa,
-  single-target phase estimation and QAOA MaxCut ansatz.
-- Python functions/loops, custom unitaries, composition, inverse circuits,
-  initial statevectors, Pauli expectations and marginals.
-- Six example scripts, English documentation and Burmese quickstart/comments.
-- Timing/device/memory metadata, memory estimate guard and benchmark script.
+```bash
+python -m pip install nexqus-sdk==1.0.0
+```
 
-## Validation
+## Included features
 
-- Editable installation completed successfully.
-- 27 discovered tests: **25 passed**, **2 skipped**.
-- Optional Torch CPU/CUDA parity tests skipped because PyTorch is not installed
-  in the build environment. CUDA validation remains outstanding.
-- Mathematical checks include dense basis-enumeration references, all basis
-  states for QFT through four qubits, QAOA against explicit cost/mixer matrices,
-  QPE eigenphases, channel positivity/trace and trajectory convergence.
-- All four CPU demonstration scripts ran successfully.
-- CPU benchmark ran successfully; raw result saved in `cpu_benchmark.json`.
+- Statevector, exact density-matrix and batched noisy trajectory simulation.
+- Reusable circuit functions, symbolic parameters, binding, sweeps and prepared execution.
+- Built-in algorithms including Bell/GHZ, QFT, Grover, phase estimation and teleportation.
+- Parameter-shift gradients, Adam/SGD, regression, binary classification and VQE examples.
+- Mid-circuit measurement, reset, single-bit feed-forward and reduced density matrices.
+- Seven English/Burmese teaching notebooks and a Burmese quick start.
 
-This is a prototype release. Native GPU optimization, gradients/QNN integration,
-mid-circuit measurements, distributed simulation and cloud hardware execution
-are not implemented. No license or public distribution decision has been made.
+## Compatibility and limits
+
+Python 3.10+ and NumPy >=1.24,<3 are required. PyTorch >=2.2,<3 is optional;
+choose a build compatible with the intended CPU/CUDA environment.
+
+The public 1.x compatibility contract is described in [API_STABILITY.md](API_STABILITY.md).
+Qubit capacity depends on memory, simulation method, precision and trajectory batch size.
+Sampled trajectories are approximate. Dynamic-circuit gradients, distributed execution,
+hardware services and pulse simulation are outside this release's scope.
+
+See [API.md](API.md), [LEARNING.md](LEARNING.md), [PERFORMANCE.md](PERFORMANCE.md)
+and [DYNAMIC_CIRCUITS.md](DYNAMIC_CIRCUITS.md) for supported usage and conventions.

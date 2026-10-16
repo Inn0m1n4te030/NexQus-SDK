@@ -27,8 +27,7 @@ def source_version():
 
 
 def public_metadata_errors():
-    # setuptools already validates TOML/SPDX while building; this is an explicit
-    # maintainer gate against publishing the unlicensed private review candidate.
+    # Check the installed public metadata as well as the source license.
     metadata=importlib.metadata.metadata('nexqus-sdk')
     errors=[]
     license_expression=metadata.get('License-Expression','')
@@ -50,7 +49,7 @@ def main():
     parser.add_argument('--require-torch',action='store_true')
     parser.add_argument('--require-gpu',action='store_true')
     parser.add_argument('--public',action='store_true')
-    parser.add_argument('--report',type=Path,default=ROOT/'docs'/'release_validation.json')
+    parser.add_argument('--report',type=Path,default=ROOT/'.release-artifacts'/'release_validation.json')
     args=parser.parse_args()
     path=args.report.resolve(); path.parent.mkdir(parents=True,exist_ok=True)
     path.write_text(json.dumps(dict(all_passed=False,status='running'))+'\n',encoding='utf-8')
@@ -58,7 +57,7 @@ def main():
     expected=source_version()
     errors=[]
     if nexqus.__version__!=expected or importlib.metadata.version('nexqus-sdk')!=expected:
-        errors.append('Installed distribution/source version mismatch; install this candidate first')
+        errors.append('Installed distribution/source version mismatch; install this source release first')
     torch_info=None
     try:
         import torch

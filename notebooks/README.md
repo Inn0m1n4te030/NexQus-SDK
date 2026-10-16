@@ -1,4 +1,4 @@
-# NexQus beginner learning path
+# NexQus SDK 1.0 learning path
 
 Work through these lessons in order. Each notebook starts from its own imports
 and can run independently after installing the SDK. English explanations include
@@ -16,10 +16,11 @@ Burmese summaries/comments; figures use English labels for broad font support.
 
 ## Run with Jupyter
 
-From the SDK root, in the environment where you want to learn:
+Download the source checkout for the notebook files. From its root, activate
+the environment where you want to learn and install the tutorial dependencies:
 
 ```bash
-python -m pip install --upgrade -e '.[tutorial]'
+python -m pip install 'nexqus-sdk[tutorial]==1.0.0'
 python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)"
 jupyter lab notebooks
 ```
@@ -62,28 +63,20 @@ only notebook code you trust, just as you would run a Python script.
 `--engine auto` uses Jupyter when the required libraries are available, otherwise
 the standalone runner. The chosen engine, per-notebook status, cell count and
 optional skips and the SDK version reported by each kernel are recorded in
-`docs/notebook_execution.json` and notebook
+`.release-artifacts/notebook_execution.json` and notebook
 metadata. Explicit `--engine jupyter` never silently falls back.
 The runner rejects an otherwise passing notebook if its kernel imports a
 different SDK version from this source release. `--report PATH` preserves a
 separately named report. On supported Unix hosts `--transport ipc` can use local
 IPC instead of TCP; neither transport is available in every restricted container.
 
-## Validation evidence
+## Checked behavior
 
-- Earlier v0.6 maintainer validation passed all seven notebooks and 35 code
-  cells through Jupyter, with GPU required and zero optional skips.
-- This candidate must be validated for its own SDK version; the v0.6 report
-  is historical evidence, not proof of an unchanged candidate.
-- Current local evidence and limitations are recorded in docs/VALIDATION.md.
-- Five Matplotlib figures accompany the notebooks when execution succeeds.
-- Assertions check state normalization, bit order, rotation identities,
-  entanglement, QFT round trips, noise conventions, channel positivity,
-  gradients, learning loss, measurement/reset, teleportation and method agreement.
-- The audit environment has Jupyter installed but blocks kernel socket creation
-  for both TCP and IPC. These launch failures are retained separately in
-  docs/notebook_jupyter_attempt_rc1.json. They are not passing kernel executions.
-  Use the Jupyter command on a normal host and preserve its new report.
+CI executes all seven notebooks through real Jupyter kernels. Their assertions
+cover state normalization, bit order, gates, entanglement, noise conventions,
+gradients, learning, reset, teleportation and agreement between simulation methods.
+GPU execution is optional for learners; maintainers can require it with the
+command above. Reports remain separate from the public teaching material.
 
 Each lesson includes a **Try it** exercise. Exercises are prompts for changing
 the tested examples; they do not contain intentionally broken code cells.
@@ -92,7 +85,7 @@ the tested examples; they do not contain intentionally broken code cells.
 
 `scripts/build_notebooks.py` is the editable lesson source. Running it regenerates
 all notebooks and clears saved outputs. Re-run the executor afterward. The
-delivered notebooks already contain executed CPU outputs and plots.
+source notebooks start with clean outputs so you can run each lesson yourself.
 
 ## Burmese guidance
 

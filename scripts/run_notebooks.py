@@ -95,7 +95,7 @@ def main():
                    help='Jupyter transport; IPC is useful on Unix hosts without local TCP sockets')
     p.add_argument('--timeout',type=int,default=120,help='Jupyter cell timeout / standalone notebook process timeout')
     p.add_argument('--require-gpu',action='store_true')
-    p.add_argument('--report',type=Path,default=ROOT/'docs'/'notebook_execution.json')
+    p.add_argument('--report',type=Path,default=ROOT/'.release-artifacts'/'notebook_execution.json')
     p.add_argument('--worker',type=Path,help=argparse.SUPPRESS)
     args=p.parse_args()
     if args.worker: return python_worker(args.worker.resolve())

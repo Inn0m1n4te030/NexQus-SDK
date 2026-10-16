@@ -1,7 +1,6 @@
-# Proposed public API policy for NexQus 1.x
+# Public API policy for NexQus 1.x
 
-This policy takes effect when 1.0.0 is actually published. The current rc1 build
-remains a release candidate; fixes may still change before the stable tag.
+This policy covers the documented public API beginning with version 1.0.0.
 
 ## Supported surface
 
@@ -49,8 +48,7 @@ child seeds; streaming sweeps avoid accumulating every result.
 
 The package declares Python >=3.10 and NumPy >=1.24,<3; PyTorch >=2.2,<3 is optional.
 The CI matrix tests selected current versions, not every possible combination.
-Compatibility is an evidence-based claim: consult docs/VALIDATION.md and CI
-results for versions actually executed. CPU and NVIDIA CUDA are the supported
+Consult the repository CI results for versions actually executed. CPU and NVIDIA CUDA are the supported
 device families. There is no implicit fallback from an unavailable device.
 
 An estimated memory guard is not a hard allocator limit. No performance SLA,

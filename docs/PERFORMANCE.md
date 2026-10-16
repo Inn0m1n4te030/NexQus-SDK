@@ -1,8 +1,8 @@
-# v0.3 performance and validation guide
+# Performance and numerical comparison
 
-## Upgrade in your existing environment
+## Install benchmark tools
 
-From the extracted `nexqus-sdk-v1.0.0rc1` folder:
+From the NexQus 1.0 source checkout:
 
 ```bash
 python -m pip install --upgrade -e '.[benchmark]'
@@ -19,7 +19,7 @@ PyTorch/CUDA is missing or a test is skipped.
 ```bash
 python examples/benchmark_v3.py --compare --qubits 20 --cpu-threads 1 --output benchmark_20q_t1.json
 python examples/benchmark_v3.py --compare --qubits 20 --cpu-threads 4 --output benchmark_20q_t4.json
-python examples/benchmark_v3.py --compare --method trajectory --qubits 10 --noise 0.01 --trajectories 512 --batch-size 32 --cpu-threads 1 --random-engine native --output benchmark_noise_v03.json
+python examples/benchmark_v3.py --compare --method trajectory --qubits 10 --noise 0.01 --trajectories 512 --batch-size 32 --cpu-threads 1 --random-engine native --output benchmark_noise.json
 python examples/validate_noise.py --backend torch --device cuda:0 --random-engine native
 ```
 
@@ -31,7 +31,7 @@ The benchmark warms up every configuration and excludes separate validation
 runs from timing. CUDA peak allocation is captured before retained-state
 validation, and includes live cached allocations.
 
-## What changed in execution
+## Execution paths
 
 - Noise probabilities, sampling and branch selection stay on the chosen device.
   The trajectory loop has no per-channel `.cpu()`, `.numpy()` or `.item()` reads.
@@ -67,8 +67,7 @@ on the requested device. Native mode may have lower kernel-launch overhead;
 it is intended for performance experiments. A native CUDA generator draws
 directly on the GPU. Native streams are not paired across backends.
 
-Trajectory bit-for-bit results change from v0.2. The gate/noise semantics and
-existing APIs are retained, but reproducibility requires a fixed SDK version,
+Reproducibility requires a fixed SDK version,
 engine, seed, backend, precision and batch layout. Changing batch size changes
 which draws belong to which trajectory. Final classical shot sampling remains
 on CPU and has its own seeded stream.
@@ -79,8 +78,7 @@ on CPU and has its own seeded stream.
 
 `nexqus.validation.compare_results()` checks max probability error and total
 variation distance. Double precision limits are 1e-9 and 1e-7; single precision
-limits are 2e-5 and 1e-4. These fixed tolerances replace the loose v0.2 Monte
-Carlo allowance. Trajectory results must have matching portable engine, seed,
+limits are 2e-5 and 1e-4. Trajectory results must have matching portable engine, seed,
 trajectory count, batch size and fast-path configuration.
 
 The benchmark performs a separate untimed portable validation run even when it
@@ -121,5 +119,5 @@ CPU သို့ gate တစ်ခုချင်းစီ၏ probability မျ
 `--cpu-threads 1` နှင့် `--cpu-threads 4` ကို သီးခြားစမ်းသပ်ပြီး JSON ရလဒ်များကို
 နှိုင်းယှဉ်ပါ။ GPU ပိုမြန်မည်ဟု ကြိုတင်မယူဆဘဲ မိမိစက်ပေါ်တွင် တိုင်းတာပါ။
 
-v0.2 နှင့် random ရလဒ် အတိအကျ တူမည်မဟုတ်ပါ။ CPU/GPU numerical check အတွက်
+Random ရလဒ်ကို ပြန်လည်စမ်းသပ်ရန် SDK version နှင့် setting များကို မှတ်သားပါ။ CPU/GPU numerical check အတွက်
 `portable` engine ကို သုံးပြီး performance စမ်းသပ်ရာတွင် `native` ကို ရွေးနိုင်ပါသည်။
