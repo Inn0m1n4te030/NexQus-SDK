@@ -227,6 +227,27 @@ The existing single-target-qubit `phase_estimation` API is unchanged.
 
 Algorithm background: [IBM Quantum, Shor’s algorithm](https://quantum.cloud.ibm.com/docs/en/tutorials/shors-algorithm).
 
+### Circuit drawing (added in 1.1, unreleased)
+
+`Circuit.draw(output='text', *, filename=None, fold=12)` returns a diagram without
+executing the circuit. Use `print(q.draw())` in a terminal, or `q.draw('svg')` in
+Jupyter. Displaying a Circuit as the last notebook expression also renders SVG.
+The SVG result is a string subclass with `_repr_svg_()` support; it needs no
+plotting or quantum SDK dependencies. Save with `filename='circuit.svg'`.
+
+`fold` sets operations per panel; `None` puts all operations in one panel.
+Quantum wires are ordered q0 at the top, and named classical wires appear below.
+CX, CZ and SWAP have standard symbols. Measurements write to classical wires;
+conditional gates connect to their classical bit with an `=0` or `=1` label.
+Noise and resets are labeled explicitly. General multiwire gates use connected
+boxes with `:0`, `:1`, etc. to preserve operand order, including nonadjacent wires.
+Each operation has its own column; the drawer does not reschedule gates.
+
+Symbolic gates show parameter expressions. Concrete gates show their stored
+names; original numerical angle values are not stored in the current circuit
+representation. Custom names are escaped in SVG and flattened to one line.
+Only `text` and `svg` outputs are supported in this release.
+
 ## Numerical validation helpers
 
 `nexqus.validation.compare_results(reference,candidate,precision='double')`

@@ -220,6 +220,14 @@ class Circuit:
             out.operations.append(Operation(op.name + "†", op.wires, data, op.kind))
         return out
 
+    def draw(self, output='text', *, filename=None, fold=12):
+        """Return a native text/SVG circuit diagram; optionally save it."""
+        from .drawing import draw
+        return draw(self, output=output, filename=filename, fold=fold)
+
+    def _repr_svg_(self):
+        return str(self.draw('svg'))
+
     def __repr__(self):
         return f"Circuit(n_qubits={self.n_qubits}, operations={len(self.operations)})"
 

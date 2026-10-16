@@ -205,3 +205,19 @@ print(result.method)   # quantum
 See [the Shor example](examples/shor.py) and [API reference](docs/API.md).
 This is classical simulation of quantum circuits with dense logical modular
 gates, intended for teaching rather than large-number factoring.
+
+## Native circuit drawing (development version)
+
+```python
+from nexqus import algorithms
+
+q = algorithms.teleportation()
+print(q.draw())                       # Terminal diagram
+q.draw('svg', filename='circuit.svg')  # Vector export; displays in Jupyter
+```
+
+The 1.1 development version includes its own dependency-free text/SVG renderer,
+including control gates, measurements, classical conditions, noise, symbolic
+parameters, custom gates, and wrapping. Use `fold=8` to wrap every eight operations.
+
+![Native NexQus teleportation diagram](docs/images/teleportation.svg)
