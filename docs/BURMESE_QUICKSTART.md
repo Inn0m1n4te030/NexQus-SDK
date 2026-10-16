@@ -1,38 +1,73 @@
-# NexQus SDK 0.5 စတင်အသုံးပြုနည်း
+# NexQus SDK 1.0 စတင်အသုံးပြုနည်း
 
-v0.5 တွင် circuit အလယ်၌ measure လုပ်ခြင်း၊ qubit ကို |0> သို့ reset လုပ်ခြင်းနှင့်
-classical bit အလိုက် gate လုပ်ဆောင်ခြင်းတို့ ပါဝင်ပါသည်။
+NexQus ဖြင့် noiseless circuit၊ noise ပါသော circuit နှင့် measurement/reset
+protocol များကို မိမိကွန်ပျူတာပေါ်တွင် simulation လုပ်နိုင်ပါသည်။ NumPy CPU ကို
+ပုံမှန်အသုံးပြုပြီး လိုအပ်ပါက PyTorch CPU သို့မဟုတ် NVIDIA CUDA GPU ကို ရွေးနိုင်ပါသည်။
+စတင်လေ့လာရန် quantum hardware သို့မဟုတ် GPU မလိုအပ်ပါ။
+
+## ၁။ Install လုပ်ပါ
+
+Python 3.10 နှင့်အထက်ရှိသော virtual environment တွင် အောက်ပါ command ကို run ပါ။
+
+```bash
+python -m pip install nexqus-sdk==1.0.0
+```
+
+## ၂။ ပထမဆုံး circuit ကို run ပါ
 
 ```python
 from nexqus import Circuit, Simulator
-q = Circuit(1).h(0).measure(0, 'm').x(0).c_if('m', 1)
-result = Simulator().run(q)
+
+# qubit နှစ်ခုကို entangle လုပ်ပါ။
+q = Circuit(2).h(0).cx(0, 1)
+result = Simulator().run(q, shots=1000, seed=42)
+print(result.probabilities)
 print(result.counts)
-print(result.classical_counts)
 ```
 
-`python examples/teleportation.py` ဖြင့် teleportation ကို စမ်းသပ်နိုင်ပါသည်။
-အသေးစိတ်ကို `V05_GUIDE.md` တွင် ကြည့်ပါ။
+Probability သည် [0.5, 0, 0, 0.5] ဖြစ်ပြီး count တွင် 00 နှင့် 11 ကို
+ခန့်မှန်းအားဖြင့် တစ်ဝက်စီရရှိပါမည်။ Count သည် random sampling ကြောင့် အနည်းငယ်ကွာနိုင်ပါသည်။
+Bitstring ကို ဘယ်ဘက်မှ q0, q1, ... အစဉ်ဖြင့် ဖတ်ပါ။ Angle များကို radians ဖြင့် သတ်မှတ်ပါ။
 
-v0.4 တွင် circuit parameter များ၏ gradient ကို parameter-shift နည်းလမ်းဖြင့်
-တွက်ချက်ပြီး Adam သို့မဟုတ် SGD ဖြင့် train နိုင်ပါသည်။
-
-```bash
-python examples/gradients.py
-python examples/train_sine.py
-python examples/train_classifier.py
-```
-
-အသုံးပြုပုံနှင့် ကန့်သတ်ချက်များကို `V04_GUIDE.md` တွင် ကြည့်ပါ။
-
-v0.3 တွင် noise sampling ကို ရွေးချယ်ထားသော CPU သို့မဟုတ် GPU ပေါ်တွင်
-တိုက်ရိုက်လုပ်ဆောင်ပါသည်။ Performance နှင့် validation command အသစ်များအတွက်
-`V03_GUIDE.md` ကို ကြည့်ပါ။
-
-## v0.2 တွင် parameter များကို ပြောင်းလဲစမ်းသပ်ပါ
+## ၃။ ပြန်သုံးနိုင်သော function ရေးပါ
 
 ```python
-from nexqus import Circuit, Parameter, Simulator
+from nexqus import circuit
+
+@circuit(2)
+def bell_pair(q):
+    # ပထမ qubit ကို superposition ဖြစ်စေပါ။
+    q.h(0)
+    q.cx(0, 1)
+
+result = Simulator().run(bell_pair(), shots=1000, seed=42)
+print(result.counts)
+```
+
+## ၄။ Noise ပါသော simulation ကို စမ်းပါ
+
+```python
+from nexqus import Noise, NoiseModel
+
+noise = NoiseModel(Noise.depolarizing(0.02))
+exact = Simulator().run(bell_pair(), noise=noise, shots=0)
+sampled = Simulator(method='trajectory').run(
+    bell_pair(), noise=noise, trajectories=1000,
+    batch_size=32, shots=1000, seed=42,
+)
+print(exact.probabilities)
+print(sampled.probabilities)
+```
+
+Noise ရှိသော default simulation သည် exact density matrix ကို အသုံးပြုပါသည်။
+Trajectory mode သည် sampled estimate ဖြစ်ပြီး exact ရလဒ်နှင့် အနည်းငယ်ကွာနိုင်ပါသည်။
+Trajectory အရေအတွက်များလာလျှင် Monte Carlo error လျော့နိုင်ပါသည်။ Batch size ကြီးလျှင်
+memory ပိုလိုအပ်ပါသည်။ shots တိုးခြင်းသည် trajectory အရေအတွက်ကို မတိုးစေပါ။
+
+## ၅။ Parameter များကို ပြောင်းလဲစမ်းသပ်ပါ
+
+```python
+from nexqus import Parameter
 
 theta = Parameter('theta')
 template = Circuit(2).ry(theta, 0).cx(0, 1)
@@ -42,89 +77,70 @@ for result in results:
     print(result.metadata['bindings'], result.counts)
 ```
 
-Circuit ကို တစ်ကြိမ်ရေးပြီး parameter တန်ဖိုးများကို ပြောင်းလဲအသုံးပြုနိုင်ပါသည်။
-`sim.compile(template.bind({'theta': 0.8}))` ဖြင့် device tensor များကို
-ကြိုတင်ပြင်ဆင်ထားနိုင်ပါသည်။ ရရှိလာသော object ၏ `.run()` ကို ပြန်လည်ခေါ်နိုင်ပါသည်။
-
-Noisy trajectory များကို တစ်စုစီတွက်ရန် `batch_size=32` ကို သုံးနိုင်ပါသည်။
-Batch size ကြီးလျှင် memory ပိုလိုအပ်ပါသည်။ အသေးစိတ်နှင့် benchmark command များကို
-README တွင် ကြည့်ပါ။
-
-ဤ SDK ဖြင့် မိမိကွန်ပျူတာပေါ်တွင် quantum circuit များကို simulation လုပ်နိုင်ပါသည်။
-စတင်အသုံးပြုရန် quantum hardware မလိုအပ်ပါ။
-
-## ၁။ Install လုပ်ပါ
-
-ZIP file ကို ဖြည်ပြီး `nexqus-sdk-v1.0.0rc1` folder ထဲတွင် terminal ဖွင့်ပါ။
-
-```bash
-python -m pip install -e .
-python examples/quickstart.py
-```
-
-## ၂။ Function တစ်ခုရေးပါ
+Circuit ကို တစ်ကြိမ်ရေးပြီး parameter တန်ဖိုးများကို ပြောင်းလဲ run နိုင်ပါသည်။
+ထပ်ခါတလဲလဲ run မည့် circuit အတွက် compile ပြုလုပ်ထားနိုင်ပါသည်။
 
 ```python
-from nexqus import circuit, Simulator
-
-@circuit(2)
-def bell_pair(q):
-    # qubit 0 ကို superposition ဖြစ်စေပါ။
-    q.h(0)
-    # qubit 0 နှင့် qubit 1 ကို entangle လုပ်ပါ။
-    q.cx(0, 1)
-
-result = Simulator().run(bell_pair(), shots=1000, seed=42)
-print(result.counts)
+prepared = sim.compile(template.bind({'theta': 0.8}))
+print(prepared.run(shots=1000, seed=42).counts)
 ```
 
-`@circuit(2)` သည် qubit နှစ်ခုပါသော circuit ကို ဖန်တီးပေးပါသည်။
-`shots=1000` သည် terminal measurement ကို အကြိမ် ၁၀၀၀ sample ယူခြင်းဖြစ်ပါသည်။
-`seed` သတ်မှတ်ထားပါက တူညီသော environment တွင် random ရလဒ်များကို ပြန်လည်စမ်းသပ်နိုင်ပါသည်။
-ဤ circuit တွင် `00` နှင့် `11` ကို ခန့်မှန်းအားဖြင့် တစ်ဝက်စီ ရရှိပါမည်။
-
-Bitstring ကို ဘယ်ဘက်မှ `q0, q1, ...` အစဉ်ဖြင့် ဖတ်ပါ။
-
-## ၃။ Noise ထည့်ပါ
+## ၆။ Gradient နှင့် learning ကို အသုံးပြုပါ
 
 ```python
-from nexqus import Noise, NoiseModel
+from nexqus import QuantumFunction
 
-noise = NoiseModel(Noise.depolarizing(0.02))
-result = Simulator().run(bell_pair(), noise=noise, seed=42)
-print(result.probabilities)
+function = QuantumFunction(Circuit(1).ry(theta, 0), 'Z')
+value, gradients = function.value_and_grad({'theta': 0.4})
+print(value, gradients)
 ```
 
-Noise model ကို unitary gate တစ်ခုစီပြီးနောက် သက်ဆိုင်ရာ qubit တစ်ခုစီတွင် ထည့်ပါသည်။
-Default mode သည် noise ရှိပါက density matrix ကို အသုံးပြုပါသည်။
+QuantumFunction သည် expectation value နှင့် parameter-shift gradient ကို တွက်ပေးပါသည်။
+QuantumRegressor နှင့် QuantumBinaryClassifier ကို Adam သို့မဟုတ် SGD ဖြင့် train နိုင်ပါသည်။
+အသေးစိတ်ကို [Learning guide](LEARNING.md) တွင် ကြည့်ပါ။
 
-Qubit အများအပြားနှင့် noise စမ်းသပ်လိုပါက memory သက်သာသော trajectory mode ကို ရွေးနိုင်ပါသည်။
-၎င်းသည် sampled estimate ဖြစ်ပြီး exact density matrix နှင့် ရလဒ် အနည်းငယ်ကွာနိုင်ပါသည်။
+## ၇။ Measurement၊ reset နှင့် feed-forward
 
 ```python
-result = Simulator(method="trajectory").run(
-    bell_pair(), noise=noise, trajectories=1000, seed=42
-)
+q = Circuit(1).h(0).measure(0, 'm').x(0).c_if('m', 1)
+result = Simulator().run(q, shots=1000, seed=42)
+print(result.counts)             # {'0': 1000}
+print(result.classical_counts)   # intermediate measurement ရလဒ်များ
+
+reset = Simulator().run(Circuit(1).h(0).reset(0), shots=0)
+print(reset.probabilities)       # [1, 0]
 ```
 
-## ၄။ ပြင်ဆင်ပြီးသား algorithm ကို အသုံးပြုပါ
+Measurement ရလဒ်ကို classical bit တွင် သိမ်းပြီး နောက် gate ကို ထိန်းချုပ်နိုင်ပါသည်။
+Reset သည် ရွေးချယ်ထားသော qubit ကို |0> သို့ ပြန်ထားပါသည်။ Teleportation နှင့်
+အသေးစိတ်ကို [Dynamic circuits guide](DYNAMIC_CIRCUITS.md) တွင် ကြည့်ပါ။
+
+## ၈။ Algorithm နှင့် GPU
 
 ```python
 from nexqus import algorithms
 
-result = Simulator().run(algorithms.grover(3, marked="101"), seed=42)
+result = Simulator().run(algorithms.grover(3, marked='101'), seed=42)
 print(result.most_likely)
 ```
 
-QFT, inverse QFT, GHZ, Bernstein–Vazirani, Deutsch–Jozsa, phase estimation နှင့်
-QAOA MaxCut circuit များလည်း ပါဝင်ပါသည်။ အသေးစိတ်ကို README တွင် ကြည့်ပါ။
+Bell၊ GHZ၊ QFT၊ Grover၊ Bernstein–Vazirani၊ Deutsch–Jozsa၊ phase estimation၊
+QAOA MaxCut နှင့် teleportation circuit များ ပါဝင်ပါသည်။
 
-## ၅။ GPU အသုံးပြုပါ
+GPU အသုံးပြုရန် မိမိ CUDA environment နှင့်ကိုက်ညီသော PyTorch ကို
+[တရားဝင် PyTorch လမ်းညွှန်](https://pytorch.org/get-started/locally/) အတိုင်း install လုပ်ပါ။
+ထို့နောက် backend နှင့် device ကို အောက်ပါအတိုင်း ရွေးပါ။
 
 ```python
-sim = Simulator(backend="torch", device="cuda:0", precision="single")
+# CUDA-enabled PyTorch နှင့် NVIDIA GPU ရှိသောစက်တွင်သာ run ပါ။
+gpu = Simulator(backend='torch', device='cuda:0')
+result = gpu.run(Circuit(2).h(0).cx(0, 1), shots=1000, seed=42)
+print(result.counts)
 ```
 
-CUDA အသုံးပြုနိုင်သော PyTorch နှင့် NVIDIA GPU လိုအပ်ပါသည်။
-ဤ release ပြင်ဆင်ရာ environment တွင် GPU စမ်းသပ်မှု မပြုလုပ်နိုင်ခဲ့ပါ။
-မိမိစက်တွင် test များကို အရင် run ပါ။ CPU သုံးရန် `Simulator()` ကိုသာ အသုံးပြုပါ။
+Qubit တိုးလာသည့်အခါ memory လိုအပ်ချက်သည် အဆတိုးလာပါသည်။ GPU သည် circuit
+အားလုံးအတွက် CPU ထက် ပိုမြန်မည်ဟု မယူဆပါနှင့်။ မိမိ workload ကို တိုင်းတာပါ။
+[Performance guide](PERFORMANCE.md) တွင် method၊ memory နှင့် benchmark အသုံးပြုပုံကို ကြည့်နိုင်ပါသည်။
+
+ဆက်လက်လေ့လာရန် [API reference](API.md) နှင့်
+[English/Burmese notebooks](../notebooks/README.md) ကို ဖတ်ပါ။

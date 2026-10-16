@@ -16,7 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import nexqus
 from nexqus import Circuit, Simulator, Parameter, Noise, NoiseModel, algorithms
-assert tuple(map(int, nexqus.__version__.split('.')[:2])) >= (0, 6), 'Install this SDK with: python -m pip install -e .'
+assert nexqus.__version__.split('.')[0] == '1', 'Install NexQus SDK 1.x in this kernel environment'
 print('NexQus SDK:', nexqus.__version__)
 ''')
 
@@ -35,7 +35,7 @@ NexQus ဖြင့် မိမိကွန်ပျူတာပေါ်တွ
 Open a terminal in the extracted SDK folder, activate your environment, and run:
 
 ```bash
-python -m pip install --upgrade -e '.[tutorial]'
+python -m pip install 'nexqus-sdk[tutorial]==1.0.0'
 python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)"
 jupyter lab notebooks
 ```

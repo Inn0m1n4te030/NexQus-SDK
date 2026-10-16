@@ -1,8 +1,8 @@
-# v0.4: trainable quantum circuits
+# Trainable quantum circuits
 
 ## Install and run
 
-From the extracted `nexqus-sdk-v1.0.0rc1` directory, in your existing environment:
+From the NexQus 1.0 source checkout, in your existing environment:
 
 ```bash
 python -m pip install --upgrade -e .
@@ -13,9 +13,6 @@ python examples/train_sine.py
 python examples/train_classifier.py
 python examples/vqe_two_qubits.py
 ```
-
-The old simulation/benchmark entry points remain available. This release adds
-learning functionality and does not require another batch-size tuning sweep.
 
 ## Define an expectation-valued function
 
@@ -164,19 +161,12 @@ energy and sums their gradients. It optimizes H=-ZZ-0.5 XI-0.5 IX, then compares
 against an independent dense eigensolver. This shows how to build a custom
 loss rather than relying only on the built-in MSE models.
 
-## Validation and scope
+## Scope
 
-Local suite: 89 discovered, 81 CPU tests pass, 8 Torch CPU/CUDA tests are skipped
-because PyTorch is absent here. New tests cover every supported gate's shift
-rule, repeated parameters, nonlinear expressions, inverse/composed circuits,
-noisy exact gradients, optimizer arithmetic and synthetic learning. Gate-local
-derivatives are independently checked by finite differences and analytic
-identities. Optional Torch tests cover noiseless and noisy gradient parity.
-
-Previous v0.3 GPU validation does not establish v0.4 gradient correctness on
-your GPU; run the strict validator. This release provides explicit analytic
-gradients, not PyTorch autograd, a `torch.nn.Module`, an automatic hybrid QCNN,
-hardware training, or a claim that current QML outperforms classical learning.
+NexQus 1.0 provides explicit analytic gradients. PyTorch autograd, torch.nn.Module
+integration, trajectory gradients, dynamic-circuit gradients and hardware training
+are outside the supported API. The small learning examples demonstrate circuit
+optimization; they do not establish an advantage over classical learning.
 
 ## Burmese notes
 

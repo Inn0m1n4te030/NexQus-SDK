@@ -1,3 +1,0 @@
-Quantum probabilities: [0.50537109 0.49462891 0.         0.        ]
-Classical probabilities: {'0': 0.501953125, '1': 0.498046875}
-Joint sampled counts: {'0|00': 527, '1|00': 4, '1|01': 469}

@@ -5,34 +5,20 @@ with noise channels, reusable algorithms, analytic gradients and Burmese/English
 tutorials. NexQus implements its own circuit representation and evolution kernels;
 other quantum SDKs are not execution dependencies.
 
-**Current candidate: 1.0.0rc1, licensed under MIT.** Source and issue tracking are
-available in the [NexQus-SDK repository](https://github.com/Inn0m1n4te030/NexQus-SDK).
-Index staging and validation are tracked in `docs/RELEASE_STATUS.md`.
-See `docs/RELEASING.md` for the TestPyPI/PyPI procedure.
+**Version 1.0.0 · MIT license.**
+[Source and issue tracking](https://github.com/Inn0m1n4te030/NexQus-SDK).
 
-## Install the candidate
+## Install
 
-Version 1.0.0rc1 is staged on
-[TestPyPI](https://test.pypi.org/project/nexqus-sdk/1.0.0rc1/). In an activated
-Python 3.10+ virtual environment, install dependencies from the normal index,
-then retrieve only the SDK from TestPyPI:
+In an activated Python 3.10+ virtual environment:
 
 ```bash
-python -m pip install 'numpy>=1.24,<3'
-python -m pip install --no-deps --index-url https://test.pypi.org/simple/ nexqus-sdk==1.0.0rc1
+python -m pip install nexqus-sdk==1.0.0
 ```
 
-Alternatively, from the extracted source folder:
-
-```bash
-python -m pip install .
-python examples/quickstart.py
-```
-
-Use `python -m pip install -e .` for editable development. The intended public
-distribution name is **nexqus-sdk**; the Python import is **nexqus**. Once the
-stable release has actually been uploaded, installation will be
-`python -m pip install nexqus-sdk`.
+The distribution name is **nexqus-sdk**; the Python import is **nexqus**.
+For editable development from a source checkout, use `python -m pip install -e .`.
+Examples and notebooks are available in the source repository and source archive.
 
 ## Your first circuit
 
@@ -152,9 +138,9 @@ states and output-shot storage need additional memory. With the default estimate
 a static complex128 vector can reach 23 qubits and a density 11 qubits; these are
 guard thresholds, not measured performance or hardware guarantees.
 
-Earlier maintainer benchmarks exercised 20-qubit statevectors and 10-qubit noisy
-trajectories on an RTX 2070. Their results do not establish this candidate's
-maximum capacity. See `docs/VALIDATION.md` for provenance and current evidence.
+Benchmark your intended circuit, method and device to determine practical limits.
+See the [performance guide](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/docs/PERFORMANCE.md)
+for memory, batching and CPU/GPU comparison commands.
 
 ## Learn and validate
 
@@ -179,17 +165,20 @@ python scripts/check_release.py --require-gpu
 python scripts/run_notebooks.py --engine jupyter --kernel nexqus --require-gpu
 ```
 
-`--require-gpu` fails on missing CUDA or skipped tests. Earlier v0.5/v0.6 GPU
-passes are historical evidence; changed release candidates need fresh validation.
+`--require-gpu` fails on missing CUDA or skipped tests. Generated reports are
+written to `.release-artifacts/` and excluded from distributed packages.
 
 ## Documentation and scope
 
-- `docs/API.md`: supported public methods, arguments and result conventions.
-- `docs/API_STABILITY.md`: proposed 1.x compatibility policy.
-- `docs/BURMESE_QUICKSTART.md`: Burmese quick start.
-- `docs/V03_GUIDE.md`, `V04_GUIDE.md`, `V05_GUIDE.md`: detailed feature guides.
-- `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md`: changes and maintenance.
-- `docs/RELEASING.md`: TestPyPI/PyPI procedure and remaining owner actions.
+- [API reference](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/docs/API.md)
+  and [1.x compatibility policy](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/docs/API_STABILITY.md).
+- [Burmese quick start](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/docs/BURMESE_QUICKSTART.md).
+- [Performance](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/docs/PERFORMANCE.md),
+  [learning](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/docs/LEARNING.md)
+  and [dynamic circuits](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/docs/DYNAMIC_CIRCUITS.md).
+- [Release notes](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/docs/RELEASE_NOTES.md),
+  [contributing](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/CONTRIBUTING.md)
+  and [security](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/SECURITY.md).
 
 This SDK targets education and small research experiments. It does not include
 distributed execution, fused CUDA kernels, hardware services, pulse simulation,

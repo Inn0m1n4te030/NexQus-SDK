@@ -28,5 +28,5 @@ For bug reports include a minimal complete circuit, Python/NumPy/Torch versions,
 OS/device, expected result, actual result and simulator metadata. Remove private
 data and credentials. Use https://github.com/Inn0m1n4te030/NexQus-SDK/issues.
 
-The proposed public API policy is in docs/API_STABILITY.md. Avoid depending on
+The public API policy is in docs/API_STABILITY.md. Avoid depending on
 private helpers, direct Operation construction or mutable implementation internals.

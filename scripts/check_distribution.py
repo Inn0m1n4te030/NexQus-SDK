@@ -28,7 +28,7 @@ def run(command,cwd,env):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dist',type=Path,default=ROOT/'dist')
-    parser.add_argument('--report',type=Path,default=ROOT/'docs'/'distribution_validation.json')
+    parser.add_argument('--report',type=Path,default=ROOT/'.release-artifacts'/'distribution_validation.json')
     args=parser.parse_args()
     args.report.parent.mkdir(parents=True,exist_ok=True)
     args.report.write_text(json.dumps(dict(all_passed=False,status='running'))+'\n',encoding='utf-8')
@@ -59,6 +59,15 @@ def main():
                   'tests/test_release.py','notebooks/00_start_here.ipynb','.github/workflows/ci.yml']
         if not all(f'{base}/{path}' in names for path in expected):
             raise ValueError('Source distribution lacks release, test or tutorial files')
+        public_docs={'API.md','API_STABILITY.md','BURMESE_QUICKSTART.md',
+                     'PERFORMANCE.md','LEARNING.md','DYNAMIC_CIRCUITS.md',
+                     'RELEASE_NOTES.md','RELEASING.md'}
+        packaged_docs={name.removeprefix(f'{base}/docs/') for name in names
+                       if name.startswith(f'{base}/docs/') and archive.getmember(name).isfile()}
+        if packaged_docs!=public_docs:
+            raise ValueError(f'Public documentation contents differ: {packaged_docs ^ public_docs}')
+        if any('/.release-artifacts/' in name for name in names):
+            raise ValueError('Internal release reports must not be packaged')
     environment=dict(os.environ)
     environment.pop('PYTHONPATH',None)
     environment['PYTHONUTF8']='1'
