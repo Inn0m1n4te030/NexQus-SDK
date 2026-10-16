@@ -139,41 +139,70 @@ def qaoa_maxcut(n_qubits, edges, gammas, betas):
     return q
 
 
-# Dense logical modular gates deliberately bound this educational implementation.
 def _shor_modulus(modulus):
     modulus = positive_integer(modulus, 'modulus')
-    if not 3 <= modulus <= 31:
-        raise ValueError('modulus must be between 3 and 31 (educational simulator limit)')
+    if modulus < 3:
+        raise ValueError('modulus must be at least 3')
     return modulus
 
 
-def order_finding(base, modulus, counting_qubits=None):
-    """Build quantum order finding for coprime 1 < base < modulus <= 31.
+@dataclass(frozen=True)
+class ShorResources:
+    """Storage estimates for noiseless order finding (not a process RAM cap)."""
+    target_qubits: int
+    counting_qubits: int
+    total_qubits: int
+    statevector_bytes: int
+    estimated_working_bytes: int
+    permutation_bytes: int
+    estimated_construction_bytes: int
+
+
+def shor_resources(modulus, counting_qubits=None, *, precision='double'):
+    """Estimate resources without constructing gates or allocating a state."""
+    modulus = _shor_modulus(modulus)
+    if precision not in ('single', 'double'):
+        raise ValueError("precision must be 'single' or 'double'")
+    width = (modulus - 1).bit_length()
+    n = 2 * width if counting_qubits is None else positive_integer(counting_qubits, 'counting_qubits')
+    total = n + width
+    if total > 62:
+        raise MemoryError('Order finding exceeds 62-qubit index capacity and practical statevector storage')
+    state = (8 if precision == 'single' else 16) * (1 << total)
+    permutations = n * (1 << (width + 1)) * 8
+    # Source maps, validation/temporary maps, prepared indices, QFT objects.
+    construction = 6 * permutations + 1024 * (n * (n + 1) // 2 + n + 1)
+    return ShorResources(width, n, total, state, state * 6, permutations, construction)
+
+
+def order_finding(base, modulus, counting_qubits=None, *, max_memory_mb=64):
+    """Build order finding using O(2**target_qubits) permutation indices per gate.
 
     Leading counting wires estimate s/r; trailing ceil(log2(modulus)) wires
-    start in |1>. Defaults to twice that many counting wires (maximum 10).
-    Modular multiplication is a dense logical permutation, identity on unused
-    basis states >= modulus. This is not a scalable arithmetic decomposition.
+    start in |1>. Counting width defaults to twice the target width. Unused
+    basis states >= modulus are unchanged. max_memory_mb bounds estimated gate
+    construction storage, not simulation storage; inspect shor_resources first.
+    These logical gates are not elementary-gate hardware arithmetic circuits.
     """
     modulus = _shor_modulus(modulus)
     base = positive_integer(base, 'base')
     if not 1 < base < modulus or math.gcd(base, modulus) != 1:
         raise ValueError('base must satisfy 1 < base < modulus and be coprime to modulus')
-    width = (modulus - 1).bit_length()
-    n = 2 * width if counting_qubits is None else positive_integer(counting_qubits, 'counting_qubits')
-    if n > 10:
-        raise ValueError('counting_qubits must be at most 10')
+    if isinstance(max_memory_mb, bool) or not np.isfinite(max_memory_mb) or max_memory_mb <= 0:
+        raise ValueError('max_memory_mb must be positive and finite')
+    resources = shor_resources(modulus, counting_qubits)
+    if resources.estimated_construction_bytes > max_memory_mb * 1024**2:
+        raise MemoryError('Order-finding gate construction exceeds max_memory_mb; inspect shor_resources')
+    width, n = resources.target_qubits, resources.counting_qubits
     dimension = 1 << width
     q = Circuit(n + width).x(n + width - 1)
     for j in range(n):
         q.h(j)
         multiplier = pow(base, 1 << (n - 1 - j), modulus)
-        gate = np.eye(2 * dimension, dtype=complex)
-        gate[dimension:, dimension:] = 0
-        for x in range(dimension):
-            y = multiplier * x % modulus if x < modulus else x
-            gate[dimension + y, dimension + x] = 1
-        q.unitary(gate, (j, *range(n, n + width)), 'controlled_modular_multiply')
+        mapping = np.arange(2 * dimension, dtype=np.int64)
+        # Python integer arithmetic avoids multiplication overflow for large N.
+        mapping[dimension:dimension + modulus] = [dimension + multiplier * x % modulus for x in range(modulus)]
+        q.permutation(mapping, (j, *range(n, n + width)), 'controlled_modular_multiply')
     return q.compose(qft(n, inverse=True), range(n))
 
 
@@ -188,12 +217,13 @@ class ShorResult:
     order: int | None = None
 
 
-def shor(modulus, *, base=None, shots=32, max_attempts=8, seed=None, simulator=None):
-    """Factor an integer 3..31 using simulated quantum order finding.
+def shor(modulus, *, base=None, shots=32, max_attempts=8, seed=None, simulator=None,
+         counting_qubits=None):
+    """Factor an integer >=3 using resource-checked simulated order finding.
 
     Returns ShorResult; factors=None means the bounded attempts failed, not
     proof of primality. Even inputs and perfect powers use classical shortcuts;
-    primes are recognized classically within this tiny supported range. With
+    primes are recognized classically by trial division after resource checks. With
     base=None each attempt chooses a random base; a supplied base is reused.
     Each quantum attempt samples ``shots`` phases. Continued fractions and LCM
     combine their denominators; only verified modular orders produce factors.
@@ -208,9 +238,21 @@ def shor(modulus, *, base=None, shots=32, max_attempts=8, seed=None, simulator=N
         base = positive_integer(base, 'base')
         if not 1 < base < modulus:
             raise ValueError('base must satisfy 1 < base < modulus')
+    if counting_qubits is not None:
+        counting_qubits = positive_integer(counting_qubits, 'counting_qubits')
     rng = np.random.default_rng(seed)
     if modulus % 2 == 0:
         return ShorResult(modulus, (2, modulus // 2), 0, 'even')
+    sim = Simulator() if simulator is None else simulator
+    if not isinstance(sim, Simulator):
+        raise TypeError('simulator must be a Simulator')
+    resources = shor_resources(modulus, counting_qubits, precision=sim.precision)
+    working = resources.estimated_working_bytes
+    if sim.method == 'density_matrix':
+        working *= 1 << resources.total_qubits
+    if working + resources.estimated_construction_bytes > sim.max_memory_mb * 1024**2:
+        raise MemoryError('Shor simulation exceeds simulator.max_memory_mb; inspect shor_resources, '
+                          'reduce counting_qubits, or explicitly increase the budget')
     for root in range(2, math.isqrt(modulus) + 1):
         power = root * root
         while power < modulus:
@@ -219,15 +261,15 @@ def shor(modulus, *, base=None, shots=32, max_attempts=8, seed=None, simulator=N
             return ShorResult(modulus, (root, modulus // root), 0, 'perfect_power')
     if all(modulus % d for d in range(2, math.isqrt(modulus) + 1)):
         return ShorResult(modulus, None, 0, 'prime')
-    sim = Simulator() if simulator is None else simulator
-    n = 2 * (modulus - 1).bit_length()
+    n = resources.counting_qubits
     for attempt in range(1, max_attempts + 1):
         a = int(rng.integers(2, modulus)) if base is None else base
         divisor = math.gcd(a, modulus)
         if divisor > 1:
             return ShorResult(modulus, tuple(sorted((divisor, modulus // divisor))), attempt, 'gcd', a)
-        circuit = order_finding(a, modulus)
-        result = sim.run(circuit, shots=shots, seed=int(rng.integers(0, 2**32)), retain_state=False)
+        circuit = order_finding(a, modulus, n, max_memory_mb=sim.max_memory_mb)
+        result = sim.run(circuit, shots=shots, seed=int(rng.integers(0, 2**32)),
+                         retain_state=False, trajectories=1)
         candidates = {1}
         for bits in result.counts:
             measurement = int(bits[:n], 2)
@@ -235,7 +277,7 @@ def shor(modulus, *, base=None, shots=32, max_attempts=8, seed=None, simulator=N
                 continue
             denominator = Fraction(measurement, 1 << n).limit_denominator(modulus - 1).denominator
             # Keep alternative LCMs so one inaccurate phase cannot poison
-            # later useful samples. The tiny modulus bounds this set's size.
+            # later useful samples. The modulus bounds this set's size.
             candidates |= {math.lcm(c, denominator) for c in candidates
                            if math.lcm(c, denominator) < modulus}
             for candidate in sorted(candidates):

@@ -190,21 +190,25 @@ Licensed under the [MIT License](https://github.com/Inn0m1n4te030/NexQus-SDK/blo
 
 ## Shor factoring (development version)
 
-The source checkout adds quantum order finding and Shor factoring for integers
-3 through 31. Install this checkout with `python -m pip install -e .` to try it;
+The source checkout adds quantum order finding and Shor factoring with memory
+checks instead of a fixed 31 limit. Install it with `python -m pip install -e .`;
 these functions are not in the published 1.0.0 package.
 
 ```python
 from nexqus import algorithms
 
-result = algorithms.shor(21, base=2, seed=42)
-print(result.factors)  # (3, 7)
+print(algorithms.shor_resources(77))  # Inspect storage estimates before running
+result = algorithms.shor(77, base=2, seed=42)
+print(result.factors)  # (7, 11)
 print(result.method)   # quantum
 ```
 
 See [the Shor example](examples/shor.py) and [API reference](docs/API.md).
-This is classical simulation of quantum circuits with dense logical modular
-gates, intended for teaching rather than large-number factoring.
+Modular gates use compact permutation indices instead of dense matrices.
+The statevector still has 2**qubits amplitudes: double-precision order finding
+for 77 uses 21 qubits, a 32 MiB state, and about 192 MiB of estimated state working
+storage, plus gate storage. This is classical simulation, not a quantum speedup
+or an elementary-gate hardware implementation.
 
 ## Native circuit drawing (development version)
 
@@ -219,5 +223,16 @@ q.draw('svg', filename='circuit.svg')  # Vector export; displays in Jupyter
 The 1.1 development version includes its own dependency-free text/SVG renderer,
 including control gates, measurements, classical conditions, noise, symbolic
 parameters, custom gates, and wrapping. Use `fold=8` to wrap every eight operations.
+
+Any ordinary circuit can be drawn without running a simulation, including idle
+wires and custom sequences (`cx` is CNOT):
+
+```python
+from nexqus import Circuit
+
+q = Circuit(8).rx(0.5, 0).cx(0, 1).ry(0.8, 3).cx(3, 7)
+print(q.draw())
+q.draw('svg', filename='custom_8_qubits.svg')
+```
 
 ![Native NexQus teleportation diagram](docs/images/teleportation.svg)

@@ -20,6 +20,7 @@ records operations; it does not execute a quantum state.
 | swap(a,b) | Swap two distinct qubits |
 | unitary(matrix,wires,name='U') | Finite 2^k square validated unitary |
 | diagonal(values,wires,name='diagonal') | 2^k unit-modulus entries; tolerance atol=rtol=1e-10 |
+| permutation(mapping,wires,name='permutation') | 1.1: basis map x → mapping[x], storing 2^k integer indices |
 | controlled(matrix,control,target,name='controlled-U') | Controlled single-qubit 2×2 unitary |
 | noise(channel,q) | Insert a one-qubit Noise channel at this point |
 | measure(q,key) | Ideal Z measurement, overwriting a named classical bit |
@@ -197,20 +198,21 @@ keys alice_z/alice_x. Rename keys when composing repeated protocol blocks.
 
 ### Shor factoring (added in 1.1, unreleased)
 
-`order_finding(base, modulus, counting_qubits=None)` returns a Circuit. It requires
-3 <= modulus <= 31 and coprime 1 < base < modulus. The trailing register has
+`order_finding(base, modulus, counting_qubits=None, *, max_memory_mb=64)` returns
+a Circuit. It requires modulus >= 3 and coprime 1 < base < modulus. The trailing register has
 `(modulus-1).bit_length()` qubits initialized to |1>; the leading counting
-register defaults to twice that width, with a maximum of 10 counting qubits.
+register defaults to twice that width. The initial 31/10-qubit limits are removed.
 Use `result.marginal(range(counting_qubits))` to inspect its phase distribution.
 Each controlled modular multiplier leaves unused basis states >= modulus fixed.
 
-`shor(modulus, *, base=None, shots=32, max_attempts=8, seed=None, simulator=None)`
+`shor(modulus, *, base=None, shots=32, max_attempts=8, seed=None, simulator=None,
+counting_qubits=None)`
 returns an immutable `ShorResult(modulus, factors, attempts, method, base, order)`.
 The factors are a sorted nontrivial pair whose product is modulus, not necessarily
 prime. `factors=None` with method `failed` means attempts were exhausted, not that
 the input is prime. Methods `even`, `perfect_power`, `prime`, and `gcd` identify
 classical preprocessing; method `quantum` means sampled order finding supplied
-a verified even order. The bounded prime check uses trial division.
+a verified even order. The prime check uses trial division after resource checks.
 
 A supplied base is reused on retries; otherwise a seeded generator selects bases.
 `shots` and `max_attempts` must be positive integers. Zero phases, odd orders,
@@ -220,10 +222,38 @@ exponentiation verifies candidate orders before GCD factor extraction. There is
 no fallback classical factor search after unsuccessful quantum samples.
 
 The optional simulator uses the normal NexQus execution backend; the default is
-NumPy statevector. These are dense logical modular gates, not a scalable
-elementary-gate arithmetic decomposition. At the upper bound the default circuit
-has 15 qubits (32768 amplitudes), plus gates and simulator work buffers.
+NumPy statevector. A noiseless trajectory simulator uses one trajectory because
+all such histories are identical. Modular gates use integer permutation maps
+and gather amplitudes without constructing dense matrices. They are logical
+operations, not an elementary-gate arithmetic decomposition for quantum hardware.
+
+`shor_resources(modulus, counting_qubits=None, *, precision='double')` returns
+an immutable `ShorResources` with target/counting/total qubits, statevector bytes,
+estimated state working bytes, permutation-map bytes, and estimated construction
+bytes. It allocates no gates or quantum state. The default m=ceil(log2(modulus))
+target qubits and 2m counting qubits require 2^(3m) amplitudes. For 77 this is
+21 qubits, 32 MiB for the double-precision state and 192 MiB estimated state
+working storage, plus gate storage. Density matrices cost substantially more.
+
+`order_finding.max_memory_mb` checks estimated gate-construction storage only.
+`shor` checks state working storage plus construction against the supplied
+Simulator's `max_memory_mb` (default 1024 MiB) before allocating odd-input
+circuits. Even inputs return their trivial factors without allocating a state.
+Estimates are not hard process-RAM caps; increasing the budget does not create
+physical RAM. The implementation also rejects totals above 62 qubits for index
+capacity; practical statevector limits occur much earlier.
+
+Reduce `counting_qubits` to trade phase resolution and factoring success rate for
+lower memory, or explicitly configure a larger simulator budget when sufficient
+RAM is available. Quantum factoring is regression-tested for 15, 21, 35 and 77;
+larger values are resource-dependent rather than guaranteed to finish quickly.
 The existing single-target-qubit `phase_estimation` API is unchanged.
+
+`Circuit.permutation` validates that mapping contains every basis index exactly
+once, copies it, and supports compose, inverse, binding, compilation, classical
+conditions, noise, statevector/density/trajectory modes and NumPy/PyTorch.
+Wire order follows the same MSB-first convention as `unitary`. The stored map
+has one int64 per basis state; prepared kernels use its inverse as gather indices.
 
 Algorithm background: [IBM Quantum, Shor’s algorithm](https://quantum.cloud.ibm.com/docs/en/tutorials/shors-algorithm).
 

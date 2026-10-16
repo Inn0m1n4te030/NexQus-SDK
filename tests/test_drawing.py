@@ -8,6 +8,17 @@ from nexqus import Circuit, Parameter, Simulator, Noise, algorithms
 
 
 class DrawingTests(unittest.TestCase):
+    def test_eight_qubit_custom_circuit(self):
+        q = Circuit(8).rx(.5, 0).cx(0, 1).ry(.8, 3).cx(3, 7)
+        rows = q.draw().splitlines()
+        self.assertEqual(len(rows), 8)
+        self.assertIn('[RX]', rows[0])
+        self.assertIn('[RY]', rows[3])
+        self.assertIn('⊕', rows[7])
+        root = ET.fromstring(q.draw('svg'))
+        labels = [node.text for node in root.findall('.//{*}text')]
+        for i in range(8): self.assertIn(f'q{i}', labels)
+
     def test_bell_symbols_and_notebook(self):
         q = algorithms.bell()
         text = q.draw()

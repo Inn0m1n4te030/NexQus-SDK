@@ -40,17 +40,18 @@ def run_dynamic(sim,circuit,*,shots,seed,noise,trajectories,initial_state,retain
     psi=_initial_vector(initial_state,size)
     rng=np.random.default_rng(seed); device_rng=DeviceRandom(b,seed,random_engine)
     cache=dict(prepared_arrays)
-    def native(data):
-        if id(data) not in cache: cache[id(data)]=sim._prepare_array(data)
+    def native(data, permutation=False):
+        if id(data) not in cache: cache[id(data)]=sim._prepare_array(data, permutation)
         return cache[id(data)]
     p0=np.diag([1,0]).astype(complex); p1=np.diag([0,1]).astype(complex)
     reset_operators=(p0,np.array([[0,1],[0,0]],complex))
     projectors=(p0,p1)
-    def transform(state,data,wires,density=False,diagonal=False):
+    def transform(state,data,wires,density=False,diagonal=False,permutation=False):
+        prepared = native(data, permutation)
         if density:
-            out=b.apply(state,native(data),wires,diagonal)
-            return b.apply(out,native(data).conj(),tuple(n+q for q in wires),diagonal)
-        return b.apply_batch(state,native(data),wires,diagonal)
+            out=b.apply(state,prepared,wires,diagonal,permutation)
+            return b.apply(out,prepared if permutation else prepared.conj(),tuple(n+q for q in wires),diagonal,permutation)
+        return b.apply_batch(state,prepared,wires,diagonal,permutation)
     def exact_channel(state,operators,q):
         out=b.zeros(state.shape)
         for operator in operators: out+=transform(state,operator,(q,),True)
@@ -113,7 +114,7 @@ def run_dynamic(sim,circuit,*,shots,seed,noise,trajectories,initial_state,retain
                 elif op.kind=='reset': add(code,exact_channel(state,reset_operators,op.wires[0]))
                 elif op.kind=='noise': add(code,exact_channel(state,op.data.kraus,op.wires[0]))
                 else:
-                    changed=transform(state,op.data,op.wires,True,op.kind=='diagonal')
+                    changed=transform(state,op.data,op.wires,True,op.kind=='diagonal',op.kind=='permutation')
                     if noise:
                         for channel in noise.channels_for(op.name):
                             for q in op.wires: changed=exact_channel(changed,channel.kraus,q)
@@ -166,7 +167,7 @@ def run_dynamic(sim,circuit,*,shots,seed,noise,trajectories,initial_state,retain
                 elif op.kind=='reset': state=sampled_channel(state,reset_operators,op.wires[0])
                 elif op.kind=='noise': state=sampled_channel(state,op.data.kraus,op.wires[0])
                 else:
-                    state=transform(state,op.data,op.wires,diagonal=op.kind=='diagonal')
+                    state=transform(state,op.data,op.wires,diagonal=op.kind=='diagonal',permutation=op.kind=='permutation')
                     if noise:
                         for channel in noise.channels_for(op.name):
                             for q in op.wires: state=sampled_channel(state,channel.kraus,q)
