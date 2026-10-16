@@ -15,10 +15,12 @@ The maintainer approved MIT licensing and confirmed PyPI ownership on
 public source repository is https://github.com/Inn0m1n4te030/NexQus-SDK, with
 issue tracking enabled and Source/Issues/Documentation metadata configured.
 
-TestPyPI and PyPI authentication are separate from GitHub access. Complete the
-following account setup before the authenticated upload:
+TestPyPI staging completed on 2026-10-16 using the approved Trusted Publisher.
+The release and verification evidence are in RELEASE_STATUS.md and
+testpypi_validation_rc1.json. Production PyPI authentication and publishing setup
+are separate from TestPyPI and GitHub access. For production setup:
 
-1. Sign in to the intended TestPyPI account and confirm its access to the project.
+1. Sign in to the intended production PyPI account and confirm project access.
    Production PyPI ownership does not sign in or grant access on TestPyPI.
 2. Protect the repository's main branch and set GitHub environments named
    testpypi and pypi. Configure the appropriate repository, publish.yml workflow
@@ -59,7 +61,8 @@ workflow is not evidence that the matrix has run. Record the actual green commit
 The core dependency audit queries current advisory data. Audit the resolved
 optional Torch/tutorial environment as well before public distribution, and
 resolve collection errors or vulnerability findings instead of treating skipped
-packages as clean. The local advisory-service connection timed out in this audit.
+packages as clean. Advisory results describe the versions and scope recorded in
+their reports; repeat them for the final stable release environment.
 
 ## Build and inspect
 

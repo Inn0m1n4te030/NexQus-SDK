@@ -1,0 +1,69 @@
+{
+  "sdk_version": "1.0.0rc1",
+  "validated_utc_date": "2026-10-16",
+  "index": "TestPyPI",
+  "project_url": "https://test.pypi.org/project/nexqus-sdk/1.0.0rc1/",
+  "source_commit": "ada02f8cfcd9a759e6178fc7560afb01107c3ea1",
+  "publishing_workflow_run": "https://github.com/Inn0m1n4te030/NexQus-SDK/actions/runs/38869118243",
+  "publishing_method": "GitHub OIDC Trusted Publishing with digital attestations",
+  "publishing_result": "success",
+  "verification_ci_jobs": 20,
+  "verification_ci_all_passed": true,
+  "artifacts_sha256": {
+    "nexqus_sdk-1.0.0rc1-py3-none-any.whl": "d6f72544d4418f2a9c2373d21e9fe1e10b6409982568049c0063f6515ed1ca68",
+    "nexqus_sdk-1.0.0rc1.tar.gz": "8bc2c54d6b1d04fd8ab84e7f2611c52a8e4f39ad0930f682b6a9e30075de0bc6"
+  },
+  "fresh_index_install": {
+    "python": "3.12.14",
+    "numpy": "2.5.4",
+    "sdk_version": "1.0.0rc1",
+    "sdk_imported_from_fresh_venv": true,
+    "dependencies_from_normal_index": true,
+    "sdk_only_from_testpypi": true,
+    "wheel_hash_matches_publishing_job": true,
+    "unittest_discovered": 133,
+    "unittest_passed": 121,
+    "unittest_skipped": 12,
+    "skip_reason": "Optional PyTorch is absent from the NumPy-only verification environment",
+    "unittest_failures": 0,
+    "unittest_errors": 0,
+    "unittest_seconds": 1.792,
+    "smoke_checks": [
+      "installed_distribution_import",
+      "bell_probabilities_and_shots",
+      "analytic_amplitude_damping",
+      "noisy_trajectories",
+      "measurement_and_feedforward",
+      "parameter_shift_gradient"
+    ],
+    "smoke_all_passed": true
+  },
+  "cuda_candidate_validated": false,
+  "gpu_required_jupyter_candidate_validated": false,
+  "production_pypi_published": false,
+  "remaining": [
+    "Fresh CUDA and GPU-required Jupyter validation on the exact candidate",
+    "Production PyPI account and Trusted Publisher setup",
+    "Stable 1.0.0 artifact build, validation, upload and clean index-install verification"
+  ],
+  "dependency_audit": {
+    "result": "no_known_vulnerabilities",
+    "utc_date": "2026-10-16",
+    "packages": 126,
+    "skipped_packages": 0,
+    "platform": "Linux",
+    "python": "3.12.14",
+    "torch_build": "2.14.1+cpu",
+    "torch_upstream_advisory_version": "2.14.1",
+    "scope": [
+      "core",
+      "GPU extra using the official CPU Torch build",
+      "benchmark",
+      "full tutorial including JupyterLab and nested extras",
+      "release tooling"
+    ],
+    "cuda_specific_dependency_packages_covered": false,
+    "report": "dependency_audit_optional_rc1.json",
+    "lookup_inputs": "dependency_audit_requirements_rc1.txt"
+  }
+}
