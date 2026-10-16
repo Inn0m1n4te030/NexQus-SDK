@@ -1,3 +1,8 @@
+# Unreleased — 1.1.0
+
+- Add bounded quantum order finding and Shor factorization for integers 3..31,
+  explicit result metadata, deterministic seeds, tests, and a runnable example.
+
 # Changelog
 
 ## 1.0.0 — 2026-10-16

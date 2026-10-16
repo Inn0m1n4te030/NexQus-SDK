@@ -1,5 +1,7 @@
 """Small reusable algorithms. All use the NexQus circuit engine."""
 import math
+from dataclasses import dataclass
+from fractions import Fraction
 import numpy as np
 from .circuit import Circuit, positive_integer
 from .simulator import _initial_vector
@@ -135,3 +137,120 @@ def qaoa_maxcut(n_qubits, edges, gammas, betas):
         for u,v in edges: q.cx(u,v).rz(-gamma,v).cx(u,v)
         for j in range(n_qubits): q.rx(2*beta,j)
     return q
+
+
+# Dense logical modular gates deliberately bound this educational implementation.
+def _shor_modulus(modulus):
+    modulus = positive_integer(modulus, 'modulus')
+    if not 3 <= modulus <= 31:
+        raise ValueError('modulus must be between 3 and 31 (educational simulator limit)')
+    return modulus
+
+
+def order_finding(base, modulus, counting_qubits=None):
+    """Build quantum order finding for coprime 1 < base < modulus <= 31.
+
+    Leading counting wires estimate s/r; trailing ceil(log2(modulus)) wires
+    start in |1>. Defaults to twice that many counting wires (maximum 10).
+    Modular multiplication is a dense logical permutation, identity on unused
+    basis states >= modulus. This is not a scalable arithmetic decomposition.
+    """
+    modulus = _shor_modulus(modulus)
+    base = positive_integer(base, 'base')
+    if not 1 < base < modulus or math.gcd(base, modulus) != 1:
+        raise ValueError('base must satisfy 1 < base < modulus and be coprime to modulus')
+    width = (modulus - 1).bit_length()
+    n = 2 * width if counting_qubits is None else positive_integer(counting_qubits, 'counting_qubits')
+    if n > 10:
+        raise ValueError('counting_qubits must be at most 10')
+    dimension = 1 << width
+    q = Circuit(n + width).x(n + width - 1)
+    for j in range(n):
+        q.h(j)
+        multiplier = pow(base, 1 << (n - 1 - j), modulus)
+        gate = np.eye(2 * dimension, dtype=complex)
+        gate[dimension:, dimension:] = 0
+        for x in range(dimension):
+            y = multiplier * x % modulus if x < modulus else x
+            gate[dimension + y, dimension + x] = 1
+        q.unitary(gate, (j, *range(n, n + width)), 'controlled_modular_multiply')
+    return q.compose(qft(n, inverse=True), range(n))
+
+
+@dataclass(frozen=True)
+class ShorResult:
+    """A factor pair or explicit unsuccessful bounded search; factors need not be prime."""
+    modulus: int
+    factors: tuple | None
+    attempts: int
+    method: str
+    base: int | None = None
+    order: int | None = None
+
+
+def shor(modulus, *, base=None, shots=32, max_attempts=8, seed=None, simulator=None):
+    """Factor an integer 3..31 using simulated quantum order finding.
+
+    Returns ShorResult; factors=None means the bounded attempts failed, not
+    proof of primality. Even inputs and perfect powers use classical shortcuts;
+    primes are recognized classically within this tiny supported range. With
+    base=None each attempt chooses a random base; a supplied base is reused.
+    Each quantum attempt samples ``shots`` phases. Continued fractions and LCM
+    combine their denominators; only verified modular orders produce factors.
+    ``simulator`` may be a NexQus Simulator (default: NumPy statevector).
+    """
+    from .simulator import Simulator
+
+    modulus = _shor_modulus(modulus)
+    shots = positive_integer(shots, 'shots')
+    max_attempts = positive_integer(max_attempts, 'max_attempts')
+    if base is not None:
+        base = positive_integer(base, 'base')
+        if not 1 < base < modulus:
+            raise ValueError('base must satisfy 1 < base < modulus')
+    rng = np.random.default_rng(seed)
+    if modulus % 2 == 0:
+        return ShorResult(modulus, (2, modulus // 2), 0, 'even')
+    for root in range(2, math.isqrt(modulus) + 1):
+        power = root * root
+        while power < modulus:
+            power *= root
+        if power == modulus:
+            return ShorResult(modulus, (root, modulus // root), 0, 'perfect_power')
+    if all(modulus % d for d in range(2, math.isqrt(modulus) + 1)):
+        return ShorResult(modulus, None, 0, 'prime')
+    sim = Simulator() if simulator is None else simulator
+    n = 2 * (modulus - 1).bit_length()
+    for attempt in range(1, max_attempts + 1):
+        a = int(rng.integers(2, modulus)) if base is None else base
+        divisor = math.gcd(a, modulus)
+        if divisor > 1:
+            return ShorResult(modulus, tuple(sorted((divisor, modulus // divisor))), attempt, 'gcd', a)
+        circuit = order_finding(a, modulus)
+        result = sim.run(circuit, shots=shots, seed=int(rng.integers(0, 2**32)), retain_state=False)
+        candidates = {1}
+        for bits in result.counts:
+            measurement = int(bits[:n], 2)
+            if measurement == 0:
+                continue
+            denominator = Fraction(measurement, 1 << n).limit_denominator(modulus - 1).denominator
+            # Keep alternative LCMs so one inaccurate phase cannot poison
+            # later useful samples. The tiny modulus bounds this set's size.
+            candidates |= {math.lcm(c, denominator) for c in candidates
+                           if math.lcm(c, denominator) < modulus}
+            for candidate in sorted(candidates):
+                if candidate % 2 or pow(a, candidate, modulus) != 1:
+                    continue
+                # Reduce a verified multiple to the actual order.
+                order = candidate
+                for divisor in range(2, candidate + 1):
+                    while order % divisor == 0 and pow(a, order // divisor, modulus) == 1:
+                        order //= divisor
+                if order % 2:
+                    continue
+                midpoint = pow(a, order // 2, modulus)
+                for divisor in (math.gcd(midpoint - 1, modulus), math.gcd(midpoint + 1, modulus)):
+                    if 1 < divisor < modulus:
+                        factors = tuple(sorted((divisor, modulus // divisor)))
+                        return ShorResult(modulus, factors, attempt, 'quantum', a, order)
+    return ShorResult(modulus, None, max_attempts, 'failed', a)

@@ -1,6 +1,6 @@
 # NexQus public API reference
 
-Applies to NexQus SDK 1.0. Read API_STABILITY.md for the supported 1.x
+Applies to NexQus SDK 1.x; additions for 1.1 are marked below. Read API_STABILITY.md for the supported 1.x
 contract. Internal tensor adapters and direct operation-list mutation are not
 supported public APIs.
 
@@ -194,6 +194,38 @@ uses a one-qubit target; inspect the leading counting register with marginal().
 QAOA builds an unweighted MaxCut ansatz and leaves optimization to the caller.
 Teleportation assumes input on q0 and zero q1/q2, with output on q2 and classical
 keys alice_z/alice_x. Rename keys when composing repeated protocol blocks.
+
+### Shor factoring (added in 1.1, unreleased)
+
+`order_finding(base, modulus, counting_qubits=None)` returns a Circuit. It requires
+3 <= modulus <= 31 and coprime 1 < base < modulus. The trailing register has
+`(modulus-1).bit_length()` qubits initialized to |1>; the leading counting
+register defaults to twice that width, with a maximum of 10 counting qubits.
+Use `result.marginal(range(counting_qubits))` to inspect its phase distribution.
+Each controlled modular multiplier leaves unused basis states >= modulus fixed.
+
+`shor(modulus, *, base=None, shots=32, max_attempts=8, seed=None, simulator=None)`
+returns an immutable `ShorResult(modulus, factors, attempts, method, base, order)`.
+The factors are a sorted nontrivial pair whose product is modulus, not necessarily
+prime. `factors=None` with method `failed` means attempts were exhausted, not that
+the input is prime. Methods `even`, `perfect_power`, `prime`, and `gcd` identify
+classical preprocessing; method `quantum` means sampled order finding supplied
+a verified even order. The bounded prime check uses trial division.
+
+A supplied base is reused on retries; otherwise a seeded generator selects bases.
+`shots` and `max_attempts` must be positive integers. Zero phases, odd orders,
+and trivial square roots may fail; changing the base or seed can help.
+Continued fractions recover phase denominators, LCM combines them, and modular
+exponentiation verifies candidate orders before GCD factor extraction. There is
+no fallback classical factor search after unsuccessful quantum samples.
+
+The optional simulator uses the normal NexQus execution backend; the default is
+NumPy statevector. These are dense logical modular gates, not a scalable
+elementary-gate arithmetic decomposition. At the upper bound the default circuit
+has 15 qubits (32768 amplitudes), plus gates and simulator work buffers.
+The existing single-target-qubit `phase_estimation` API is unchanged.
+
+Algorithm background: [IBM Quantum, Shor’s algorithm](https://quantum.cloud.ibm.com/docs/en/tutorials/shors-algorithm).
 
 ## Numerical validation helpers
 

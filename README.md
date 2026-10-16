@@ -5,7 +5,7 @@ with noise channels, reusable algorithms, analytic gradients and Burmese/English
 tutorials. NexQus implements its own circuit representation and evolution kernels;
 other quantum SDKs are not execution dependencies.
 
-**Version 1.0.0 · MIT license.**
+**Stable release: 1.0.0 · Development: 1.1.0.dev0 · MIT license.**
 [Source and issue tracking](https://github.com/Inn0m1n4te030/NexQus-SDK).
 
 ## Install
@@ -187,3 +187,21 @@ code like other Python code: run code from sources you trust.
 
 Homepage: [nexqus.com](https://nexqus.com).
 Licensed under the [MIT License](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/LICENSE).
+
+## Shor factoring (development version)
+
+The source checkout adds quantum order finding and Shor factoring for integers
+3 through 31. Install this checkout with `python -m pip install -e .` to try it;
+these functions are not in the published 1.0.0 package.
+
+```python
+from nexqus import algorithms
+
+result = algorithms.shor(21, base=2, seed=42)
+print(result.factors)  # (3, 7)
+print(result.method)   # quantum
+```
+
+See [the Shor example](examples/shor.py) and [API reference](docs/API.md).
+This is classical simulation of quantum circuits with dense logical modular
+gates, intended for teaching rather than large-number factoring.
