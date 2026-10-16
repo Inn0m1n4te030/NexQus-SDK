@@ -7,7 +7,10 @@ RELEASE_NOTES.md. Generated test reports and audit outputs belong in
 ## Prepare a release
 
 1. Update the single __version__ value in src/nexqus/__init__.py.
-2. Update the changelog, release notes and installation instructions.
+2. Update the changelog, release notes and installation instructions, including
+   notebooks/README.md and the setup/version text in scripts/build_notebooks.py.
+   Regenerate all notebooks with python scripts/build_notebooks.py, then execute
+   them for validation. Keep generated source notebooks free of saved outputs.
 3. Review API compatibility, license metadata, documentation links and package contents.
 4. Obtain passing CI on the reviewed commit. CI covers Python 3.10–3.14 on
    Linux/macOS/Windows, minimum NumPy, Torch CPU, Jupyter and installed distributions.

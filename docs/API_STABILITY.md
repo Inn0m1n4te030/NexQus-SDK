@@ -1,6 +1,7 @@
 # Public API policy for NexQus 1.x
 
 This policy covers the documented public API beginning with version 1.0.0.
+The current stable release is 1.1.0, including the additions documented in API.md.
 
 ## Supported surface
 

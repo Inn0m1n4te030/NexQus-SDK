@@ -2,7 +2,7 @@
 
 ## Install and run
 
-From the NexQus 1.0 source checkout, in your existing environment:
+From the NexQus 1.1.0 source checkout, in your existing environment:
 
 ```bash
 python -m pip install --upgrade -e .
@@ -163,7 +163,7 @@ loss rather than relying only on the built-in MSE models.
 
 ## Scope
 
-NexQus 1.0 provides explicit analytic gradients. PyTorch autograd, torch.nn.Module
+NexQus 1.1.0 provides explicit analytic gradients. PyTorch autograd, torch.nn.Module
 integration, trajectory gradients, dynamic-circuit gradients and hardware training
 are outside the supported API. The small learning examples demonstrate circuit
 optimization; they do not establish an advantage over classical learning.

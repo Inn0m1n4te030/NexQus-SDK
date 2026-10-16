@@ -1,8 +1,14 @@
 # Performance and numerical comparison
 
+This guide applies to NexQus SDK 1.1.0. For order-finding workloads, call
+`algorithms.shor_resources(modulus)` before simulation. Compact permutation gates
+avoid dense modular matrices; state storage still grows exponentially in the
+total qubit count. The API reference describes counting-precision and memory
+budget controls. Drawing a circuit does not allocate or evolve a quantum state.
+
 ## Install benchmark tools
 
-From the NexQus 1.0 source checkout:
+From the NexQus 1.1.0 source checkout:
 
 ```bash
 python -m pip install --upgrade -e '.[benchmark]'

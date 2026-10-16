@@ -16,7 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import nexqus
 from nexqus import Circuit, Simulator, Parameter, Noise, NoiseModel, algorithms
-assert nexqus.__version__.split('.')[0] == '1', 'Install NexQus SDK 1.x in this kernel environment'
+assert nexqus.__version__ == '1.1.0', 'Install NexQus SDK 1.1.0 in this kernel environment and restart it'
 print('NexQus SDK:', nexqus.__version__)
 ''')
 
@@ -27,7 +27,7 @@ md('''
 # 00 · Your first NexQus circuit / စတင်အသုံးပြုခြင်း
 
 **Goal:** install NexQus, run a Bell circuit, and distinguish probabilities from sampled counts.
-**Time:** about 10 minutes. No physics or GPU background is required.
+**Time:** about 15 minutes. No physics or GPU background is required. Targets NexQus SDK 1.1.0.
 
 NexQus ဖြင့် မိမိကွန်ပျူတာပေါ်တွင် quantum circuit ကို simulation လုပ်နိုင်ပါသည်။
 စတင်ရန် quantum hardware သို့မဟုတ် GPU မလိုအပ်ပါ။
@@ -35,7 +35,7 @@ NexQus ဖြင့် မိမိကွန်ပျူတာပေါ်တွ
 Open a terminal in the extracted SDK folder, activate your environment, and run:
 
 ```bash
-python -m pip install 'nexqus-sdk[tutorial]==1.0.0'
+python -m pip install 'nexqus-sdk[tutorial]==1.1.0'
 python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)"
 jupyter lab notebooks
 ```
@@ -84,6 +84,28 @@ plt.tight_layout(); plt.show()
 print('Checks passed. Next: 01_qubits_and_gates.ipynb')
 '''),
 md('''
+## Draw your own circuit / Circuit ပုံဆွဲခြင်း
+
+SDK 1.1.0 draws any ordinary circuit without simulating it. Here RX and RY
+are rotations in radians; `cx` is CNOT. All eight wires appear, including idle
+wires. `draw()` returns terminal text; `draw('svg')` displays in Jupyter.
+To save a vector file, use `custom.draw('svg', filename='custom.svg')`.
+Concrete gates display stored names; symbolic gates include their expressions.
+
+မိမိတည်ဆောက်ထားသော circuit ကို simulation မလုပ်ဘဲ ပုံဆွဲနိုင်ပါသည်။
+Jupyter တွင် SVG ပုံကို ကြည့်နိုင်ပြီး file အဖြစ်လည်း သိမ်းနိုင်ပါသည်။
+'''),
+code('''
+custom = Circuit(8).rx(.5, 0).cx(0, 1).ry(.8, 3).cx(3, 7)
+text_diagram = custom.draw()
+assert all(f'q{i}' in text_diagram for i in range(8))
+print(text_diagram)
+svg_diagram = custom.draw('svg')
+from xml.etree import ElementTree
+assert ElementTree.fromstring(svg_diagram).tag.endswith('svg')
+svg_diagram  # Jupyter displays SVG; the standalone runner prints the text above.
+'''),
+md('''
 **Try it:** remove CX and inspect the bitstrings. Then change `shots` from 1000 to 100.
 Predict which probabilities change and which differences are only sampling variation.
 ''')]),
@@ -91,7 +113,7 @@ Predict which probabilities change and which differences are only sampling varia
 md('''
 # 01 · Qubits, gates and entanglement / Qubit နှင့် gate များ
 
-**Goal:** connect amplitudes, rotations and correlated measurements. About 15 minutes.
+**Goal:** connect amplitudes, rotations, correlated measurements and algorithms. About 20 minutes.
 A pure-state amplitude vector has squared magnitudes summing to one. Measurement probabilities
 do not reveal every complex phase in that vector.
 
@@ -141,6 +163,33 @@ grover = Simulator().run(algorithms.grover(2, '10'), shots=0)
 assert grover.most_likely == '10'
 assert np.isclose(grover.probabilities[2], 1)
 print('QFT inverse and Grover checks passed.')
+'''),
+md('''
+## Shor factoring and resources / Shor algorithm
+
+In SDK 1.1.0, `shor` combines quantum order finding, inverse QFT and classical
+factor recovery. Modular operations use compact permutation maps. Inspect
+resources before trying larger inputs: storing a statevector still grows
+exponentially with the total qubit count, and the memory checks are estimates.
+
+77 is a 7-bit modulus (7 × 11), not an RSA-2048-size example. At default counting
+precision it uses 21 simulated qubits: 32 MiB for the double-precision state and
+about 192 MiB estimated state working storage, plus gates. The smaller factoring
+examples below use the quantum path, not the classical even/perfect-power shortcut.
+An unsuccessful bounded attempt returns `factors=None`; it is not proof of primality.
+These are logical simulated gates, not a hardware arithmetic decomposition.
+
+Input number ကြီးလာလျှင် memory ပိုလိုအပ်ပါသည်။ မစမ်းမီ resource estimate ကို
+စစ်ဆေးပါ။ ဤဥပမာများသည် RSA-2048 ကို factor လုပ်နိုင်သည်ဟု မဆိုလိုပါ။
+'''),
+code('''
+resources = algorithms.shor_resources(77)
+assert resources.total_qubits == 21
+print('77 resources:', resources)
+for modulus, expected in [(15, (3, 5)), (21, (3, 7)), (35, (5, 7))]:
+    factors = algorithms.shor(modulus, base=2, seed=42)
+    assert factors.factors == expected and factors.method == 'quantum'
+    print(modulus, '->', factors.factors, 'method:', factors.method)
 '''),
 md('''
 **Try it:** prepare `algorithms.ghz(3)` and predict its nonzero probabilities.
@@ -494,7 +543,8 @@ def main():
             if kind=='code': cell.update(execution_count=None,outputs=[])
             content.append(cell)
         notebook=dict(cells=content,metadata=dict(kernelspec=dict(display_name='Python (NexQus)',language='python',name='nexqus'),
-                        language_info=dict(name='python',version='3.10'),nexqus=dict(lesson=name)),nbformat=4,nbformat_minor=5)
+                        language_info=dict(name='python',version='3.10'),
+                        nexqus=dict(lesson=name,sdk_version='1.1.0')),nbformat=4,nbformat_minor=5)
         (directory/(name+'.ipynb')).write_text(json.dumps(notebook,ensure_ascii=False,indent=1)+'\n',encoding='utf-8')
     print(f'Generated {len(BOOKS)} notebooks in {directory}')
 

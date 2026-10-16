@@ -1,11 +1,11 @@
 # Measurement, reset and classical feed-forward
 
 Use classical measurement outcomes to control subsequent circuit operations.
-NexQus 1.0 supports exact and sampled dynamic simulation on CPU and CUDA.
+NexQus 1.1.0 supports exact and sampled dynamic simulation on CPU and CUDA.
 
 ## Install and run
 
-From the NexQus 1.0 source checkout:
+From the NexQus 1.1.0 source checkout:
 
 ```bash
 python -m pip install --upgrade -e .
