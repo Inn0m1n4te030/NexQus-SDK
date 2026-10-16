@@ -1,4 +1,4 @@
-# NexQus SDK 1.0 learning path
+# NexQus SDK 1.1.0 learning path
 
 Work through these lessons in order. Each notebook starts from its own imports
 and can run independently after installing the SDK. English explanations include
@@ -6,8 +6,8 @@ Burmese summaries/comments; figures use English labels for broad font support.
 
 | Notebook | Learn | Approximate study time |
 |---|---|---:|
-| [00 — Start here](00_start_here.ipynb) | Environment, first circuit, counts versus probabilities | 10 min |
-| [01 — Qubits and gates](01_qubits_and_gates.ipynb) | Amplitudes, rotations, entanglement, QFT/iQFT, Grover | 15 min |
+| [00 — Start here](00_start_here.ipynb) | Environment, first circuit, counts versus probabilities, 8-qubit drawing | 15 min |
+| [01 — Qubits and gates](01_qubits_and_gates.ipynb) | Amplitudes, rotations, entanglement, QFT/iQFT, Grover, Shor and resources | 20 min |
 | [02 — Noise and methods](02_noise_and_methods.ipynb) | Exact channels, trajectories, memory and conventions | 15 min |
 | [03 — Functions and devices](03_functions_sweeps_and_devices.ipynb) | Decorators, parameters, sweeps, compilation, optional CUDA | 15 min |
 | [04 — Gradients and learning](04_gradients_and_learning.ipynb) | Gate-local derivatives, Adam, regression, toy classification | 20 min |
@@ -20,12 +20,14 @@ Download the source checkout for the notebook files. From its root, activate
 the environment where you want to learn and install the tutorial dependencies:
 
 ```bash
-python -m pip install 'nexqus-sdk[tutorial]==1.0.0'
+python -m pip install 'nexqus-sdk[tutorial]==1.1.0'
 python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)"
 jupyter lab notebooks
 ```
 
-Select **Python (NexQus)**. Use **Restart Kernel and Run All** to verify a lesson
+These notebooks target SDK 1.1.0; each setup cell checks the imported version.
+Restart the kernel after an upgrade. Select **Python (NexQus)**.
+Use **Restart Kernel and Run All** to verify a lesson
 from a clean state. A lesson should not depend on variables from another file.
 An import/version error usually means the selected kernel uses a different
 environment; select the kernel registered by the commands above.
@@ -74,7 +76,8 @@ IPC instead of TCP; neither transport is available in every restricted container
 
 CI executes all seven notebooks through real Jupyter kernels. Their assertions
 cover state normalization, bit order, gates, entanglement, noise conventions,
-gradients, learning, reset, teleportation and agreement between simulation methods.
+gradients, learning, reset, teleportation, native circuit drawing, quantum-path
+factoring and agreement between simulation methods.
 GPU execution is optional for learners; maintainers can require it with the
 command above. Reports remain separate from the public teaching material.
 

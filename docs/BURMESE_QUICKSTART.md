@@ -1,4 +1,4 @@
-# NexQus SDK 1.1 စတင်အသုံးပြုနည်း
+# NexQus SDK 1.1.0 စတင်အသုံးပြုနည်း
 
 NexQus ဖြင့် noiseless circuit၊ noise ပါသော circuit နှင့် measurement/reset
 protocol များကို မိမိကွန်ပျူတာပေါ်တွင် simulation လုပ်နိုင်ပါသည်။ NumPy CPU ကို
@@ -125,7 +125,30 @@ print(result.most_likely)
 ```
 
 Bell၊ GHZ၊ QFT၊ Grover၊ Bernstein–Vazirani၊ Deutsch–Jozsa၊ phase estimation၊
-QAOA MaxCut နှင့် teleportation circuit များ ပါဝင်ပါသည်။
+QAOA MaxCut နှင့် teleportation circuit များ ပါဝင်ပါသည်။ Version 1.1.0 တွင်
+Shor factoring နှင့် quantum order finding ကိုလည်း အသုံးပြုနိုင်ပါသည်။
+
+```python
+print(algorithms.shor_resources(35))
+factored = algorithms.shor(35, base=2, seed=42)
+print(factored.factors)  # (5, 7)
+print(factored.method)   # quantum
+```
+
+Number ကြီးလာလျှင် statevector memory သည် အဆတိုးလာပါသည်။ မစမ်းမီ
+`shor_resources()` ဖြင့် စစ်ဆေးပါ။ ဤဥပမာသည် RSA-2048 ကို factor လုပ်နိုင်သည်ဟု မဆိုလိုပါ။
+
+မိမိတည်ဆောက်ထားသော circuit ကို simulation မလုပ်ဘဲ ပုံဆွဲနိုင်ပါသည်။
+`cx` သည် CNOT ဖြစ်ပြီး gate မရှိသော wire များကိုလည်း ပုံတွင် မြင်ရပါမည်။
+
+```python
+custom = Circuit(8).rx(.5, 0).cx(0, 1).ry(.8, 3).cx(3, 7)
+print(custom.draw())
+custom.draw('svg', filename='custom.svg')  # Jupyter တွင် SVG ပုံကိုလည်း ပြပါသည်။
+```
+
+Symbolic gate တွင် parameter expression ကို ပြပြီး concrete gate တွင် gate name
+ကို ပြပါသည်။ မူလ numerical angle ကို circuit representation တွင် မသိမ်းထားပါ။
 
 GPU အသုံးပြုရန် မိမိ CUDA environment နှင့်ကိုက်ညီသော PyTorch ကို
 [တရားဝင် PyTorch လမ်းညွှန်](https://pytorch.org/get-started/locally/) အတိုင်း install လုပ်ပါ။

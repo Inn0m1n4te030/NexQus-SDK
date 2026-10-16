@@ -1,6 +1,6 @@
 # NexQus public API reference
 
-Applies to NexQus SDK 1.x; additions for 1.1 are marked below. Read API_STABILITY.md for the supported 1.x
+Applies to NexQus SDK 1.1.0; additions for 1.1 are marked below. Read API_STABILITY.md for the supported 1.x
 contract. Internal tensor adapters and direct operation-list mutation are not
 supported public APIs.
 
