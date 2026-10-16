@@ -5,7 +5,7 @@ with noise channels, reusable algorithms, analytic gradients and Burmese/English
 tutorials. NexQus implements its own circuit representation and evolution kernels;
 other quantum SDKs are not execution dependencies.
 
-**Stable release: 1.0.0 · Development: 1.1.0.dev0 · MIT license.**
+**Version 1.1.0 · MIT license.**
 [Source and issue tracking](https://github.com/Inn0m1n4te030/NexQus-SDK).
 
 ## Install
@@ -13,7 +13,7 @@ other quantum SDKs are not execution dependencies.
 In an activated Python 3.10+ virtual environment:
 
 ```bash
-python -m pip install nexqus-sdk==1.0.0
+python -m pip install nexqus-sdk==1.1.0
 ```
 
 The distribution name is **nexqus-sdk**; the Python import is **nexqus**.
@@ -188,11 +188,10 @@ code like other Python code: run code from sources you trust.
 Homepage: [nexqus.com](https://nexqus.com).
 Licensed under the [MIT License](https://github.com/Inn0m1n4te030/NexQus-SDK/blob/main/LICENSE).
 
-## Shor factoring (development version)
+## Shor factoring
 
-The source checkout adds quantum order finding and Shor factoring with memory
-checks instead of a fixed 31 limit. Install it with `python -m pip install -e .`;
-these functions are not in the published 1.0.0 package.
+Version 1.1 adds quantum order finding and Shor factoring with memory checks
+instead of a fixed 31 limit.
 
 ```python
 from nexqus import algorithms
@@ -210,7 +209,7 @@ for 77 uses 21 qubits, a 32 MiB state, and about 192 MiB of estimated state work
 storage, plus gate storage. This is classical simulation, not a quantum speedup
 or an elementary-gate hardware implementation.
 
-## Native circuit drawing (development version)
+## Native circuit drawing
 
 ```python
 from nexqus import algorithms
@@ -220,7 +219,7 @@ print(q.draw())                       # Terminal diagram
 q.draw('svg', filename='circuit.svg')  # Vector export; displays in Jupyter
 ```
 
-The 1.1 development version includes its own dependency-free text/SVG renderer,
+Version 1.1 includes its own dependency-free text/SVG renderer,
 including control gates, measurements, classical conditions, noise, symbolic
 parameters, custom gates, and wrapping. Use `fold=8` to wrap every eight operations.
 
