@@ -1,4 +1,4 @@
-# NexQus SDK 1.0 စတင်အသုံးပြုနည်း
+# NexQus SDK 1.1 စတင်အသုံးပြုနည်း
 
 NexQus ဖြင့် noiseless circuit၊ noise ပါသော circuit နှင့် measurement/reset
 protocol များကို မိမိကွန်ပျူတာပေါ်တွင် simulation လုပ်နိုင်ပါသည်။ NumPy CPU ကို
