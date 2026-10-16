@@ -47,7 +47,7 @@ class PermutationTests(unittest.TestCase):
     @unittest.skipUnless(importlib.util.find_spec('torch'), 'Optional PyTorch not installed')
     def test_torch_cuda_all_modes(self):
         import torch
-        if not torch.cuda.is_available(): self.skipTest('CUDA unavailable')
+        if not torch.cuda.is_available(): self.skipTest('CUDA GPU unavailable')
         self.check_backend('torch', 'cuda')
 
     def test_inverse_compose_and_snapshot(self):

@@ -61,11 +61,15 @@ def main():
             raise ValueError('Source distribution lacks release, test or tutorial files')
         public_docs={'API.md','API_STABILITY.md','BURMESE_QUICKSTART.md',
                      'PERFORMANCE.md','LEARNING.md','DYNAMIC_CIRCUITS.md',
-                     'RELEASE_NOTES.md','RELEASING.md'}
+                     'RELEASE_NOTES.md','RELEASING.md',
+                     'images/teleportation.svg','images/custom_8_qubits.svg'}
         packaged_docs={name.removeprefix(f'{base}/docs/') for name in names
                        if name.startswith(f'{base}/docs/') and archive.getmember(name).isfile()}
         if packaged_docs!=public_docs:
             raise ValueError(f'Public documentation contents differ: {packaged_docs ^ public_docs}')
+        for name in public_docs:
+            if archive.extractfile(f'{base}/docs/{name}').read()!=(ROOT/'docs'/name).read_bytes():
+                raise ValueError(f'Source documentation mismatch: {name}')
         if any('/.release-artifacts/' in name for name in names):
             raise ValueError('Internal release reports must not be packaged')
     environment=dict(os.environ)
