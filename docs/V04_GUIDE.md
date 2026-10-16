@@ -2,7 +2,7 @@
 
 ## Install and run
 
-From the extracted `nexqus-sdk-v0.4.0` directory, in your existing environment:
+From the extracted `nexqus-sdk-v1.0.0rc1` directory, in your existing environment:
 
 ```bash
 python -m pip install --upgrade -e .

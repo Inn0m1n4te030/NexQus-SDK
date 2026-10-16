@@ -2,7 +2,7 @@
 
 ## Upgrade in your existing environment
 
-From the extracted `nexqus-sdk-v0.3.0` folder:
+From the extracted `nexqus-sdk-v1.0.0rc1` folder:
 
 ```bash
 python -m pip install --upgrade -e '.[benchmark]'

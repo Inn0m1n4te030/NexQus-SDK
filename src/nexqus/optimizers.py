@@ -35,13 +35,15 @@ class Adam:
         parameters,gradients=_validate(parameters,gradients)
         if self.t and set(parameters)!=set(self.m):
             raise ValueError('Parameter names changed; reset the optimizer first')
-        self.t+=1
-        result={}
+        step=self.t+1
+        result={}; moments={}; variances={}
         for k,value in parameters.items():
             g=gradients[k]
-            self.m[k]=self.beta1*self.m.get(k,0)+(1-self.beta1)*g
-            self.v[k]=self.beta2*self.v.get(k,0)+(1-self.beta2)*g*g
-            m=self.m[k]/(1-self.beta1**self.t)
-            v=self.v[k]/(1-self.beta2**self.t)
+            moments[k]=real_scalar(self.beta1*self.m.get(k,0)+(1-self.beta1)*g)
+            variances[k]=real_scalar(self.beta2*self.v.get(k,0)+(1-self.beta2)*g*g)
+            m=real_scalar(moments[k]/(1-self.beta1**step))
+            v=real_scalar(variances[k]/(1-self.beta2**step))
             result[k]=real_scalar(value-self.lr*m/(np.sqrt(v)+self.epsilon))
+        # Commit only after every value is finite; a failed step is retryable.
+        self.t=step; self.m=moments; self.v=variances
         return result

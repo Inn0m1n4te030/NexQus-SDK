@@ -61,20 +61,29 @@ only notebook code you trust, just as you would run a Python script.
 
 `--engine auto` uses Jupyter when the required libraries are available, otherwise
 the standalone runner. The chosen engine, per-notebook status, cell count and
-optional skips are recorded in `docs/notebook_execution_v06.json` and notebook
+optional skips and the SDK version reported by each kernel are recorded in
+`docs/notebook_execution.json` and notebook
 metadata. Explicit `--engine jupyter` never silently falls back.
+The runner rejects an otherwise passing notebook if its kernel imports a
+different SDK version from this source release. `--report PATH` preserves a
+separately named report. On supported Unix hosts `--transport ipc` can use local
+IPC instead of TCP; neither transport is available in every restricted container.
 
-## What was verified in this delivery
+## Validation evidence
 
-- Seven notebooks, 35 code cells, all passed under the standalone Python runner.
-- Five embedded Matplotlib PNGs were generated.
-- One optional CUDA cell was explicitly skipped because PyTorch is absent here.
+- Earlier v0.6 maintainer validation passed all seven notebooks and 35 code
+  cells through Jupyter, with GPU required and zero optional skips.
+- This candidate must be validated for its own SDK version; the v0.6 report
+  is historical evidence, not proof of an unchanged candidate.
+- Current local evidence and limitations are recorded in docs/VALIDATION.md.
+- Five Matplotlib figures accompany the notebooks when execution succeeds.
 - Assertions check state normalization, bit order, rotation identities,
   entanglement, QFT round trips, noise conventions, channel positivity,
   gradients, learning loss, measurement/reset, teleportation and method agreement.
-- A Jupyter runtime could not be installed from this environment's package
-  index, so actual Jupyter-kernel execution has not been verified here. Use the
-  provided command above to check it in your own environment.
+- The audit environment has Jupyter installed but blocks kernel socket creation
+  for both TCP and IPC. These launch failures are retained separately in
+  docs/notebook_jupyter_attempt_rc1.json. They are not passing kernel executions.
+  Use the Jupyter command on a normal host and preserve its new report.
 
 Each lesson includes a **Try it** exercise. Exercises are prompts for changing
 the tested examples; they do not contain intentionally broken code cells.

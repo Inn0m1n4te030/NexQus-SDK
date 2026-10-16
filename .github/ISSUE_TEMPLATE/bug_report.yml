@@ -1,0 +1,21 @@
+name: Bug report
+description: Report a reproducible SDK problem
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: SDK, Python, NumPy, Torch/CUDA versions, OS and GPU (if used)
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Small complete circuit, simulator options, random seed, expected and actual results. Remove credentials and private data.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Error or validation output

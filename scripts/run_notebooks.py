@@ -6,6 +6,7 @@ interactive-widget support. It captures stdout and Matplotlib PNGs into .ipynb.
 Use --engine jupyter --kernel nexqus for a real registered Jupyter kernel.
 """
 import argparse
+import ast
 import base64
 import contextlib
 import importlib.util
@@ -22,6 +23,14 @@ import traceback
 ROOT=Path(__file__).resolve().parents[1]
 
 
+def source_version():
+    tree=ast.parse((ROOT/'src'/'nexqus'/'__init__.py').read_text(encoding='utf-8'))
+    for statement in tree.body:
+        if isinstance(statement,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='__version__' for t in statement.targets):
+            return ast.literal_eval(statement.value)
+    raise ValueError('Missing source version')
+
+
 def python_worker(path):
     os.environ['MPLBACKEND']='Agg'
     import matplotlib
@@ -29,6 +38,9 @@ def python_worker(path):
     import matplotlib.pyplot as plt
     notebook=json.loads(path.read_text(encoding='utf-8'))
     namespace={'__name__':'__main__'}
+    for cell in notebook['cells']:
+        if cell['cell_type']=='code':
+            cell['execution_count']=None; cell['outputs']=[]
     execution_count=0; status='passed'; code_cells=0; optional_skips=0
     started=time.perf_counter()
     for cell in notebook['cells']:
@@ -69,7 +81,8 @@ def python_worker(path):
                           note='Plain Python cells executed; not a Jupyter/IPython kernel execution')
     path.write_text(json.dumps(notebook,ensure_ascii=False,indent=1)+'\n',encoding='utf-8')
     record=dict(notebook=path.name,engine='standalone_python',status=status,code_cells=code_cells,
-                optional_skips=optional_skips,seconds=time.perf_counter()-started)
+                optional_skips=optional_skips,seconds=time.perf_counter()-started,
+                sdk_version=getattr(namespace.get('nexqus'),'__version__',None))
     print(json.dumps(record))
     return 0 if status=='passed' else 1
 
@@ -78,8 +91,11 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--engine',choices=['auto','python','jupyter'],default='auto')
     p.add_argument('--kernel',default='nexqus')
+    p.add_argument('--transport',choices=['tcp','ipc'],default='tcp',
+                   help='Jupyter transport; IPC is useful on Unix hosts without local TCP sockets')
     p.add_argument('--timeout',type=int,default=120,help='Jupyter cell timeout / standalone notebook process timeout')
     p.add_argument('--require-gpu',action='store_true')
+    p.add_argument('--report',type=Path,default=ROOT/'docs'/'notebook_execution.json')
     p.add_argument('--worker',type=Path,help=argparse.SUPPRESS)
     args=p.parse_args()
     if args.worker: return python_worker(args.worker.resolve())
@@ -95,40 +111,71 @@ def main():
     paths=sorted((ROOT/'notebooks').glob('*.ipynb'))
     if not paths: p.error('No notebooks found; run scripts/build_notebooks.py')
     records=[]
+    expected_version=source_version()
     for path in paths:
         print(f'Executing {path.name} with {engine}...',flush=True)
         if engine=='python':
-            result=subprocess.run([sys.executable,str(Path(__file__).resolve()),'--worker',str(path)],
-                                  cwd=ROOT,capture_output=True,text=True,timeout=args.timeout)
-            try: record=json.loads(result.stdout)
-            except json.JSONDecodeError:
-                record=dict(notebook=path.name,engine='standalone_python',status='failed',error=result.stderr[-4000:])
-            if result.returncode: print(result.stderr or record,flush=True)
+            try:
+                result=subprocess.run([sys.executable,str(Path(__file__).resolve()),'--worker',str(path)],
+                                      cwd=ROOT,capture_output=True,text=True,encoding='utf-8',timeout=args.timeout)
+                try: record=json.loads(result.stdout)
+                except json.JSONDecodeError:
+                    record=dict(notebook=path.name,engine='standalone_python',status='failed',error=result.stderr[-4000:])
+                if result.returncode:
+                    record['status']='failed'
+                    print(result.stderr or record,flush=True)
+            except subprocess.TimeoutExpired:
+                record=dict(notebook=path.name,engine='standalone_python',status='failed',
+                            error=f'Notebook exceeded {args.timeout} seconds')
         else:
             import nbformat
             from nbclient import NotebookClient
+            from traitlets.config import Config
             notebook=nbformat.read(path,as_version=4); started=time.perf_counter()
+            execution_error=None
+            for cell in notebook.cells:
+                if cell.cell_type=='code': cell.execution_count=None; cell.outputs=[]
             try:
                 NotebookClient(notebook,timeout=args.timeout,kernel_name=args.kernel,
+                               config=Config({'KernelManager':{'transport':args.transport}}),
                                resources={'metadata':{'path':str(ROOT)}}).execute()
                 status='passed'
             except Exception as exc:
-                status='failed'; print(str(exc),flush=True)
+                status='failed'; execution_error=str(exc); print(execution_error,flush=True)
             skips=sum(output.get('text','').count('SKIPPED optional CUDA') for cell in notebook.cells
                       if cell.cell_type=='code' for output in cell.get('outputs',[]))
-            record=dict(notebook=path.name,engine='jupyter',status=status,
+            versions=[]
+            for cell in notebook.cells:
+                if cell.cell_type!='code': continue
+                for output in cell.get('outputs',[]):
+                    for line in output.get('text','').splitlines():
+                        if line.startswith('NexQus SDK: '): versions.append(line.removeprefix('NexQus SDK: ').strip())
+            record=dict(notebook=path.name,engine='jupyter',status=status,transport=args.transport,
+                        sdk_version=versions[0] if len(versions)==1 else None,
                         code_cells=sum(c.cell_type=='code' for c in notebook.cells),
                         optional_skips=skips,seconds=time.perf_counter()-started)
+            if execution_error is not None: record['error']=execution_error
+        record['expected_sdk_version']=expected_version
+        if record.get('sdk_version')!=expected_version and record['status']=='passed':
+            record['status']='failed'
+            record['error']='Notebook kernel did not report the expected SDK version'
+        if engine=='jupyter':
             notebook.metadata.nexqus.execution=record
             nbformat.write(notebook,path)
+        else:
+            notebook=json.loads(path.read_text(encoding='utf-8'))
+            notebook['metadata']['nexqus']['execution']=record
+            path.write_text(json.dumps(notebook,ensure_ascii=False,indent=1)+'\n',encoding='utf-8')
         records.append(record)
         print(f"  {record['status']} ({record.get('code_cells',0)} code cells)",flush=True)
-    report=dict(engine=engine,python=platform.python_version(),notebooks=records,
+    report=dict(engine=engine,python=platform.python_version(),sdk_version=expected_version,notebooks=records,
                 all_passed=all(r['status']=='passed' for r in records) and
                            not (args.require_gpu and any(r.get('optional_skips',0)>0 for r in records)),
                 gpu_required=args.require_gpu,
-                execution_note='Standalone engine tests plain Python cells; use Jupyter engine to validate an actual kernel')
-    destination=ROOT/'docs'/'notebook_execution_v06.json'
+                execution_note=('Jupyter kernel execution; see per-notebook status and SDK version' if engine=='jupyter' else
+                                'Standalone engine tests plain Python cells, not a Jupyter kernel'))
+    destination=args.report.resolve()
+    destination.parent.mkdir(parents=True,exist_ok=True)
     destination.write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print(f'Saved execution report: {destination}')
     return 0 if report['all_passed'] else 1

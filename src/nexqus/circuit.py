@@ -37,7 +37,10 @@ class Circuit:
         if isinstance(wires, numbers.Integral) and not isinstance(wires, bool):
             wires = (wires,)
         else:
-            wires = tuple(wires)
+            try:
+                wires = tuple(wires)
+            except TypeError as exc:
+                raise ValueError("Provide wire indices as integers") from exc
         if not wires or len(set(wires)) != len(wires):
             raise ValueError("Provide distinct nonempty wires")
         if any(isinstance(q, bool) or not isinstance(q, numbers.Integral)
@@ -60,7 +63,8 @@ class Circuit:
     def diagonal(self, diagonal, wires, name="diagonal"):
         wires = self._wires(wires)
         d = np.array(diagonal, dtype=complex, copy=True)
-        if d.shape != (2 ** len(wires),) or not np.isfinite(d).all() or not np.allclose(abs(d), 1):
+        if (d.shape != (2 ** len(wires),) or not np.isfinite(d).all()
+                or not np.allclose(abs(d), 1, atol=1e-10, rtol=1e-10)):
             raise ValueError("Diagonal must contain one unit-modulus entry per basis state")
         d.flags.writeable = False
         self.operations.append(Operation(name, wires, d, "diagonal"))

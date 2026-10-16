@@ -1,0 +1,27 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "gate": "public_metadata",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "status": "passed",
+      "reasons": [
+        "Select public distribution terms: replace LICENSE and update project.license",
+        "LICENSE is still the private review notice",
+        "Add a verified Source URL to project.urls",
+        "Add a verified Issues URL to project.urls"
+      ]
+    },
+    {
+      "gate": "cuda_required",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "status": "passed",
+      "reasons": [
+        "CUDA is required but unavailable",
+        "GPU release validation requires zero skipped tests"
+      ]
+    }
+  ]
+}

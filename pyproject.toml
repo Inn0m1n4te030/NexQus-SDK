@@ -1,18 +1,41 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "nexqus-sdk"
-version = "0.6.0"
-description = "NexQus quantum circuit simulation SDK"
+dynamic = ["version"]
+description = "Quantum circuit, noise, dynamic protocol and learning simulation on NumPy or PyTorch"
+readme = "README.md"
+authors = [{name = "NexQus"}]
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.24"]
+dependencies = ["numpy>=1.24,<3"]
+keywords = ["quantum", "simulator", "statevector", "noise", "qml", "cuda", "burmese"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.urls]
+Homepage = "https://nexqus.com"
+Source = "https://github.com/Inn0m1n4te030/NexQus-SDK"
+Issues = "https://github.com/Inn0m1n4te030/NexQus-SDK/issues"
+Documentation = "https://github.com/Inn0m1n4te030/NexQus-SDK#readme"
 
 [project.optional-dependencies]
-gpu = ["torch>=2.2"]
+gpu = ["torch>=2.2,<3"]
 benchmark = ["threadpoolctl>=3.1"]
 tutorial = ["matplotlib>=3.7", "nbformat>=5.9", "nbclient>=0.10", "ipykernel>=6", "jupyterlab>=4"]
+release = ["build>=1.2.2", "twine>=6.1"]
+
+[tool.setuptools.dynamic]
+version = {attr = "nexqus.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]

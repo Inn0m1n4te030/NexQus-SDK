@@ -6,7 +6,7 @@ Tested beginner notebooks (priority 6) are still outstanding.
 
 ## Install and run
 
-From the extracted `nexqus-sdk-v0.5.0` folder:
+From the extracted `nexqus-sdk-v1.0.0rc1` folder:
 
 ```bash
 python -m pip install --upgrade -e .
