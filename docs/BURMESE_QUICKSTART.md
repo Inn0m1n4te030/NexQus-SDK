@@ -10,7 +10,7 @@ protocol များကို မိမိကွန်ပျူတာပေါ�
 Python 3.10 နှင့်အထက်ရှိသော virtual environment တွင် အောက်ပါ command ကို run ပါ။
 
 ```bash
-python -m pip install nexqus-sdk==1.0.0
+python -m pip install nexqus-sdk==1.1.0
 ```
 
 ## ၂။ ပထမဆုံး circuit ကို run ပါ

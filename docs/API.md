@@ -196,7 +196,7 @@ QAOA builds an unweighted MaxCut ansatz and leaves optimization to the caller.
 Teleportation assumes input on q0 and zero q1/q2, with output on q2 and classical
 keys alice_z/alice_x. Rename keys when composing repeated protocol blocks.
 
-### Shor factoring (added in 1.1, unreleased)
+### Shor factoring (added in 1.1)
 
 `order_finding(base, modulus, counting_qubits=None, *, max_memory_mb=64)` returns
 a Circuit. It requires modulus >= 3 and coprime 1 < base < modulus. The trailing register has
@@ -257,7 +257,7 @@ has one int64 per basis state; prepared kernels use its inverse as gather indice
 
 Algorithm background: [IBM Quantum, Shor’s algorithm](https://quantum.cloud.ibm.com/docs/en/tutorials/shors-algorithm).
 
-### Circuit drawing (added in 1.1, unreleased)
+### Circuit drawing (added in 1.1)
 
 `Circuit.draw(output='text', *, filename=None, fold=12)` returns a diagram without
 executing the circuit. Use `print(q.draw())` in a terminal, or `q.draw('svg')` in

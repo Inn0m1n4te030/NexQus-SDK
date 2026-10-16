@@ -1,14 +1,29 @@
-# NexQus SDK 1.0.0
+# NexQus SDK 1.1.0
 
-NexQus 1.0 provides a Python quantum circuit simulator for education and small
+NexQus provides a Python quantum circuit simulator for education and small
 research experiments, with NumPy CPU and optional PyTorch CPU/NVIDIA CUDA execution.
 The package is distributed under the MIT license.
 
 ## Install
 
 ```bash
-python -m pip install nexqus-sdk==1.0.0
+python -m pip install nexqus-sdk==1.1.0
 ```
+
+## New in 1.1
+
+- Native text/SVG circuit drawing, Jupyter display, file export and wrapping,
+  including custom circuits, idle wires, measurements and classical conditions.
+- Shor factoring and quantum order finding with configurable counting precision,
+  resource estimates and memory checks; quantum-path examples through 77.
+- Compact basis-permutation operations across NumPy/PyTorch simulation modes,
+  compilation, inverses, noise and classical conditions.
+
+Shor uses logical modular permutation gates, not an elementary-gate hardware
+arithmetic decomposition. Statevector storage still grows exponentially in total
+qubits. Memory estimates are not hard process-RAM caps. Circuit drawings show
+stored gate names and symbolic expressions; concrete original angles are not
+retained by the current circuit representation.
 
 ## Included features
 
