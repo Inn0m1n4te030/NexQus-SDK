@@ -4,16 +4,58 @@ Unreleased source-checkout additions. The published PyPI 1.2.0 wheel does not
 contain these APIs. Install this branch/checkout before using them:
 
 ```bash
-python -m pip install -e '.[tutorial,chemistry]'
+python -m pip install -e ".[tutorial]"
 python examples/qgan_distribution.py
+```
+
+This installs QGAN and both lessons 08/09 on native Windows, Linux or macOS.
+Restart an already-running notebook kernel after installing.
+
+For the PySCF molecular-integral driver and full H₂ bond-length example,
+use **Linux, macOS, or WSL on Windows**. Add the chemistry dependency only
+after the core/tutorial installation above succeeds:
+
+```bash
+python -m pip install -e ".[chemistry]"
 python examples/h2_vqe.py
 ```
 
 Both examples are entirely local. No AWS credentials, cloud simulator, QPU
 submission or paid task is used. PySCF is an optional chemistry dependency;
 core NexQus still depends only on NumPy. Other quantum SDKs are not required.
-PySCF binary availability depends on your platform/Python version; the optional
-integration is exercised on Linux/Python 3.12, not every core-supported platform.
+PySCF [does not support native Windows](https://pyscf.org/user/install.html).
+Adding the chemistry extra on native Windows can cause pip to attempt an
+unsupported source build and abort the whole combined installation before
+updating NexQus. The optional chemistry integration is tested on Linux/Python
+3.12; core/tutorial support does not imply PySCF platform support.
+
+### Recover from a missing QGAN import
+
+The message `Successfully built nexqus-sdk` means a wheel was built, not that
+it was installed. If a combined install ends with `Failed to build pyscf`,
+the kernel may still use an older NexQus package. A running kernel can also
+retain the previous module until it is restarted. Both source and published
+packages currently say 1.2.0, so the version string alone cannot identify them.
+
+Run this **inside the notebook** to install the current source into its Python
+environment, without PySCF or a local checkout path:
+
+```python
+%pip install --upgrade "nexqus-sdk[tutorial] @ https://github.com/Inn0m1n4te030/NexQus-SDK/archive/refs/heads/main.zip"
+```
+
+Then **restart the kernel**, Run All, and verify:
+
+```python
+import sys, nexqus
+print(sys.executable)
+print(nexqus.__file__)
+from nexqus import QuantumDistribution, QGAN, Adam, distribution_metrics
+```
+
+For editable development, use `%pip install -e "/actual/path/NexQus-SDK[tutorial]"`
+instead, pointing to an updated checkout. A normal installed source package can
+also live in `site-packages`; the import path alone does not prove its version.
 
 See the [measured three-seed and H₂ results](../benchmarks/results/qgan_h2_20261017.md)
 for figures, final errors, dependency versions and comparison limitations.

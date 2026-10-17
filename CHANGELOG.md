@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Separate native Windows QGAN/tutorial installation from the optional PySCF
+  driver (Linux/macOS/WSL), add notebook API/path diagnostics and recovery
+  instructions, and execute all lessons on Windows/Python 3.13 in CI.
+
 - Add bounded exact probability Jacobians, a hybrid discrete QGAN, classical
   distribution comparisons and local probability-sensitivity visualization.
 - Add weighted Pauli Hamiltonians/gradients, optional PySCF closed-shell

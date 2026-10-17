@@ -28,10 +28,12 @@ Examples and notebooks are available in the source repository and source archive
 
 The development checkout adds [explainable QGANs and H₂ molecular simulation](docs/QGAN_CHEMISTRY.md):
 quantum/classical distribution learning, probability sensitivities, weighted
-Hamiltonians and H₂ VQE curves checked against classical FCI. Run
-`python examples/qgan_distribution.py` or `python examples/h2_vqe.py` after
-`python -m pip install -e '.[tutorial,chemistry]'`. These local-only additions
-and lessons 08/09 are not in the published PyPI 1.2.0 wheel.
+Hamiltonians and H₂ VQE curves checked against classical FCI. Install the
+source with `python -m pip install -e ".[tutorial]"` for QGAN and lessons 08/09,
+including native Windows. Restart the notebook kernel after installation.
+The full `examples/h2_vqe.py` additionally needs `.[chemistry]` on Linux,
+macOS or WSL; PySCF does not support native Windows. These local additions
+are not in the published PyPI 1.2.0 wheel. See the guide for import recovery.
 
 The development checkout includes a [local explainability explorer](docs/EXPLAINABILITY.md):
 step through a circuit and inspect probabilities, phases, reduced-qubit states,

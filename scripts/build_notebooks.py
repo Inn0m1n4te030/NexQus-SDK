@@ -756,13 +756,36 @@ gradient ရလဒ်များကို နှိုင်းယှဉ်က�
 ''')]))
 
 
+SOURCE_API_SETUP=code('''
+import sys
+import nexqus
+print('Kernel Python:', sys.executable)
+print('Imported NexQus:', nexqus.__file__)
+required = ('QuantumDistribution', 'QGAN', 'distribution_metrics', 'PauliHamiltonian')
+missing = [name for name in required if not hasattr(nexqus, name)]
+if missing:
+    raise ImportError(
+        'This kernel imported an older NexQus package without: ' + ', '.join(missing) + '. '
+        'Install the current source into this notebook kernel with %pip install --upgrade '
+        '"nexqus-sdk[tutorial] @ https://github.com/Inn0m1n4te030/NexQus-SDK/archive/refs/heads/main.zip" '
+        'or %pip install -e "/path/to/NexQus-SDK[tutorial]", then restart the kernel and Run All. '
+        'The published 1.2.0 wheel lacks these additions; version 1.2.0 alone is not a feature check. '
+        'QGAN and this fixed-H2 lesson do not require the chemistry extra or PySCF.')
+''')
+
+
 BOOKS.append(('08_qgan_distribution', [
 md('''
 # 08 · Explainable QGAN / Quantum generator သင်ယူပုံ
 
-**Unreleased source-checkout lesson.** Install this checkout with
-`python -m pip install -e '.[tutorial]'`; the published 1.2.0 wheel does not
-include these APIs. Everything runs locally without a QPU.
+Install the current source checkout with `python -m pip install -e ".[tutorial]"`.
+The published 1.2.0 wheel does not include these APIs. Restart your notebook
+kernel after installing. The first cell shows the Python and package paths
+and checks that the new APIs are available.
+
+QGAN works on native Windows without PySCF. Do not add the chemistry extra
+for this lesson. PySCF requires Linux, macOS or WSL on Windows.
+Everything runs locally without a QPU.
 
 The quantum generator produces a Born probability distribution. A classical
 discriminator tries to distinguish its outcomes from the target. We alternate
@@ -771,7 +794,7 @@ training, not direct minimization of distribution error.
 
 Quantum circuit မှ probability များ ထုတ်ပေးပြီး classical discriminator နှင့်
 အပြိုင် သင်ယူပါသည်။ အောက်တွင် classical model နှင့်လည်း နှိုင်းယှဉ်ထားပါသည်။
-'''), SETUP,
+'''), SOURCE_API_SETUP, SETUP,
 code('''
 from nexqus import QuantumDistribution, QGAN, Adam, distribution_metrics
 theta = Parameter('theta')
@@ -823,10 +846,12 @@ md('''
 # 09 · Explain H₂ energy / မော်လီကျူး စွမ်းအင်ကို လေ့လာခြင်း
 
 **Unreleased source-checkout lesson.** Install this checkout with the tutorial
-extra. This fixed-geometry lesson does not need PySCF. To regenerate integrals
-and compare a bond-length curve against independent PySCF FCI, install
-`python -m pip install -e '.[chemistry,tutorial]'` and run
-`python examples/h2_vqe.py`.
+extra: `python -m pip install -e ".[tutorial]"`, then restart the notebook kernel.
+This fixed-geometry lesson works on native Windows and does not need PySCF.
+To regenerate integrals and compare a bond-length curve against independent
+PySCF FCI, use Linux, macOS or WSL on Windows, install the core first, then add
+`python -m pip install -e ".[chemistry]"` and run `python examples/h2_vqe.py`.
+PySCF does not support native Windows.
 
 The coefficients below were generated with PySCF 2.14.0, RHF/STO-3G, neutral
 singlet H₂ at 0.735 Å. They use Jordan–Wigner mapping and interleaved alpha/beta
@@ -835,7 +860,7 @@ The saved classical FCI reference is -1.1373060357534004 Hartree.
 
 H₂ ကိုသာ အခြေခံထားသော ဥပမာဖြစ်ပြီး molecule အကြီးများ သို့မဟုတ် ဆေးဝါး၏
 ထိရောက်မှုကို တွက်ချက်ထားခြင်း မဟုတ်ပါ။
-'''), SETUP,
+'''), SOURCE_API_SETUP, SETUP,
 code('''
 from nexqus import PauliHamiltonian, Adam
 from nexqus.chemistry import h2_pair_ansatz
