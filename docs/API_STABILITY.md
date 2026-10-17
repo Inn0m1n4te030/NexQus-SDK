@@ -5,7 +5,8 @@ The current stable release is 1.2.0, including circuit inspection, PNG/PDF expor
 and QML templates documented in API.md. These additions follow the same 1.x
 compatibility contract as the existing circuit and simulation interfaces.
 Sections explicitly marked unreleased describe source-checkout additions that
-are not in the published 1.2.0 archives, including the optional Braket bridge.
+are not in the published 1.2.0 archives, including the optional Braket bridge
+and the local circuit explainability explorer.
 
 ## Supported surface
 

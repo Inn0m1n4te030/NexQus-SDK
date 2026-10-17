@@ -26,6 +26,12 @@ Examples and notebooks are available in the source repository and source archive
 
 ## Your first circuit
 
+The development checkout includes a [local explainability explorer](docs/EXPLAINABILITY.md):
+step through a circuit and inspect probabilities, phases, reduced-qubit states,
+correlations and QNN parameter occurrences in a standalone HTML report.
+Run `python examples/explain_circuits.py` after installing this source checkout.
+This feature is not in the existing PyPI 1.2.0 wheel.
+
 The development checkout also includes an optional [Amazon Braket bridge](docs/BRAKET.md)
 for offline preparation, local simulation and explicit hardware job submission.
 It is not in the existing PyPI 1.2.0 wheel. Its example and CI never submit cloud

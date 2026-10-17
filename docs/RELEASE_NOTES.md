@@ -2,6 +2,12 @@
 
 ## Unreleased source-checkout addition
 
+The local [circuit explainability explorer](EXPLAINABILITY.md) adds exact
+gate-by-gate state traces, offline HTML visualization, QNN block/parameter
+annotations and Bell/interference/trained-QNN examples. It is not included in
+the published 1.2.0 wheel. It supports static pure-state simulation; feature
+attribution and noisy/dynamic explanations are future work.
+
 The optional [Amazon Braket bridge](BRAKET.md) adds offline preparation, local
 simulation, explicit paid submission and job/result handling. It is not included
 in the published 1.2.0 wheel. Tests use local simulation and mocked AWS calls;
