@@ -21,13 +21,13 @@ Download the source checkout for the notebook files. From its root, activate
 the environment where you want to learn and install the tutorial dependencies:
 
 ```bash
-python -m pip install -e '.[tutorial,visualization]'
+python -m pip install 'nexqus-sdk[tutorial,visualization]==1.2.0'
 python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)"
 jupyter lab notebooks
 ```
 
-Lessons 00–06 target SDK 1.1.0; lesson 07 requires the unreleased source-checkout
-additions. The existing PyPI 1.1.0 wheel cannot run lesson 07. Each setup cell
+All eight lessons target SDK 1.2.0. For editable development, install
+`python -m pip install -e '.[tutorial,visualization]'` instead. Each setup cell
 checks the imported version, and lesson 07 also checks its required API.
 Restart the kernel after an upgrade. Select **Python (NexQus)**.
 Use **Restart Kernel and Run All** to verify a lesson

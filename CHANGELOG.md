@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 1.2.0 — 2026-10-17
+
+- Add visual quantum-versus-classical sine regression with prediction/loss/error
+  plots, held-out evaluation, multiple seeds and a matched sinusoidal baseline.
+- Repair malformed notebook JSON and update all eight tutorials for 1.2.0.
 
 - Remove all latency metrics from correctness/smoke reports. Warm every engine
   equally for performance and sample memory in a separate fresh subprocess.

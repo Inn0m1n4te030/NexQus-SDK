@@ -1,4 +1,4 @@
-# NexQus SDK 1.1.0 စတင်အသုံးပြုနည်း
+# NexQus SDK 1.2.0 စတင်အသုံးပြုနည်း
 
 NexQus ဖြင့် noiseless circuit၊ noise ပါသော circuit နှင့် measurement/reset
 protocol များကို မိမိကွန်ပျူတာပေါ်တွင် simulation လုပ်နိုင်ပါသည်။ NumPy CPU ကို
@@ -10,7 +10,7 @@ protocol များကို မိမိကွန်ပျူတာပေါ�
 Python 3.10 နှင့်အထက်ရှိသော virtual environment တွင် အောက်ပါ command ကို run ပါ။
 
 ```bash
-python -m pip install nexqus-sdk==1.1.0
+python -m pip install nexqus-sdk==1.2.0
 ```
 
 ## ၂။ ပထမဆုံး circuit ကို run ပါ

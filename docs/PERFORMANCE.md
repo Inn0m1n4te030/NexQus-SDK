@@ -9,7 +9,7 @@ warmups for each engine and measures memory in separate subprocesses. See the
 [before/after optimization comparison](../benchmarks/results/optimization_20261017.md)
 for matched reruns of the unoptimized and optimized SDK.
 
-This guide applies to NexQus SDK 1.1.0. For order-finding workloads, call
+This guide applies to NexQus SDK 1.2.0. For order-finding workloads, call
 `algorithms.shor_resources(modulus)` before simulation. Compact permutation gates
 avoid dense modular matrices; state storage still grows exponentially in the
 total qubit count. The API reference describes counting-precision and memory
@@ -17,7 +17,7 @@ budget controls. Drawing a circuit does not allocate or evolve a quantum state.
 
 ## Install benchmark tools
 
-From the NexQus 1.1.0 source checkout:
+From the NexQus 1.2.0 source checkout:
 
 ```bash
 python -m pip install --upgrade -e '.[benchmark]'
@@ -118,7 +118,7 @@ PRNG quality. Increase trajectories or repeat seeds for further experiments.
 - `Simulator(local_gates=False)` or benchmark `--no-local-gates`: generic
   matrix/permutation kernels instead of local/broadcast kernels.
 - `run(noise_fastpath=False)` or benchmark `--no-fast-noise`: generic Kraus
-  sampling/evolution instead of specialized channels. The development checkout
+  sampling/evolution instead of specialized channels. Version 1.2
   adds exact NumPy density-block updates for value-recognized Pauli mixtures
   and amplitude/phase damping; arbitrary channels and Torch retain generic
   density evolution. Compiled circuits cache channel recognition.
