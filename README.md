@@ -156,6 +156,9 @@ Seven bilingual notebooks target SDK 1.1.0 and cover circuits, native drawing,
 algorithms including Shor/resources, noise, devices, gradients, learning,
 measurement/reset and an end-to-end experiment. Start with
 `notebooks/00_start_here.ipynb`; the learning map is in `notebooks/README.md`.
+Lesson 04 includes quantum versus classical sine predictions, loss curves and
+held-out errors. A [rendered comparison and terminal instructions](docs/LEARNING.md)
+are available without executing a notebook.
 The source distribution includes tutorials, tests, examples and documentation;
 the small runtime wheel contains the importable SDK and package metadata.
 

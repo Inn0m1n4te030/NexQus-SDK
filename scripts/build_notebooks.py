@@ -335,9 +335,11 @@ Keep backend, precision, RNG engine, batch layout and SDK version fixed for repr
 md('''
 # 04 · Gradients and learning / Gradient နှင့် QML အခြေခံ
 
-**Goal:** differentiate an expectation and train a small circuit. About 20 minutes.
+**Goal:** differentiate an expectation and compare quantum/classical learning. About 25 minutes.
 Parameter-shift changes one gate occurrence at a time and applies the arithmetic chain rule.
 This SDK API is explicit optimization, not PyTorch autograd.
+Run all cells to display the four-panel quantum/classical comparison below.
+A saved preview is linked from [the learning guide](../docs/LEARNING.md).
 
 Parameter တစ်ခုကို gate များစွာတွင် ပြန်သုံးထားလျှင် derivative များကို chain rule ဖြင့် ပေါင်းပါသည်။
 '''),SETUP,
@@ -355,37 +357,161 @@ print('Analytic gradient:', gradients['theta'])
 print('Finite-difference check:', finite_difference)
 '''),
 code('''
+from time import perf_counter
 x, weight, bias = Parameter('x'), Parameter('weight'), Parameter('bias')
 template = Circuit(1).ry(weight*x + bias, 0)
 function = QuantumFunction(template, 'Z')
-model = QuantumRegressor(function, ['x'], {'weight': .7, 'bias': -.8})
 train_x = np.linspace(-np.pi, np.pi, 20); train_y = np.sin(train_x)
-initial_loss = float(np.mean((model.predict(train_x) - train_y)**2))
-# Adam ဖြင့် weight နှင့် bias ကို train ပါ။
-model.fit(train_x, train_y, epochs=80, optimizer=Adam(lr=.05))
-grid = np.linspace(-np.pi, np.pi, 101); predictions = model.predict(grid)
-grid_mse = float(np.mean((predictions-np.sin(grid))**2))
-print('Initial training MSE:', initial_loss)
-print('Final evaluation-grid MSE:', grid_mse)
-print('Learned parameters:', model.parameters)
-assert grid_mse < 1e-4
+# Midpoints give 201 evaluation inputs distinct from the training inputs.
+test_x = np.linspace(-np.pi, np.pi, 201, endpoint=False) + np.pi/201
+test_y = np.sin(test_x)
+assert np.min(abs(test_x[:, None] - train_x[None, :])) > 1e-12
+grid = np.linspace(-np.pi, np.pi, 401)
+epochs, learning_rate, width = 80, .05, 8
+
+
+def classical_prediction_and_jacobian(kind, values, inputs):
+    if kind == 'sinusoid':
+        angle = values[0]*inputs + values[1]
+        prediction = np.cos(angle)
+        jacobian = np.column_stack([-np.sin(angle)*inputs, -np.sin(angle)])
+    else:
+        # A 1 -> 8 -> 1 tanh MLP; normalized inputs and bounded outputs.
+        inputs = inputs/np.pi
+        hidden = np.tanh(inputs[:, None]*values[:width] + values[width:2*width])
+        prediction = np.tanh(hidden @ values[2*width:3*width] + values[-1])
+        output_gradient = 1-prediction**2
+        back = output_gradient[:, None]*(1-hidden**2)*values[2*width:3*width]
+        jacobian = np.column_stack([back*inputs[:, None], back,
+                                   output_gradient[:, None]*hidden, output_gradient])
+    return prediction, jacobian
+
+
+def fit_classical(kind, initial):
+    values = np.array(initial, dtype=float, copy=True)
+    optimizer = Adam(lr=learning_rate)
+    history = []
+    for _ in range(epochs):
+        predicted, jacobian = classical_prediction_and_jacobian(kind, values, train_x)
+        errors = predicted-train_y
+        history.append(float(np.mean(errors**2)))
+        gradients = 2*jacobian.T @ errors/len(train_x)
+        updated = optimizer.step({str(i): float(v) for i, v in enumerate(values)},
+                                 {str(i): float(v) for i, v in enumerate(gradients)})
+        values = np.array([updated[str(i)] for i in range(len(values))])
+    return values, history
+
+
+# Check classical derivatives independently before comparing training results.
+probe = np.random.default_rng(0).normal(0, .2, 3*width+1)
+for kind, initial in [('sinusoid', np.array([.7, -.8])), ('mlp', probe)]:
+    _, jacobian = classical_prediction_and_jacobian(kind, initial, train_x)
+    for index in range(len(initial)):
+        step = np.zeros_like(initial); step[index] = 1e-6
+        plus = classical_prediction_and_jacobian(kind, initial+step, train_x)[0]
+        minus = classical_prediction_and_jacobian(kind, initial-step, train_x)[0]
+        np.testing.assert_allclose(jacobian[:, index], (plus-minus)/2e-6,
+                                   atol=1e-8, rtol=1e-6)
+
+records, examples = [], {}
+for seed in (7, 21, 42):
+    rng = np.random.default_rng(seed)
+    initial = np.array([.7, -.8]) + rng.uniform(-.05, .05, 2)
+    model = QuantumRegressor(function, ['x'], dict(zip(['weight', 'bias'], initial)))
+    started = perf_counter()
+    model.fit(train_x, train_y, epochs=epochs, optimizer=Adam(lr=learning_rate))
+    elapsed = perf_counter()-started
+    q_test = model.predict(test_x)
+    q_grid = model.predict(grid)
+    records.append(dict(seed=seed, name='Quantum circuit', parameters=2,
+                        train_mse=float(np.mean((model.predict(train_x)-train_y)**2)),
+                        test_mse=float(np.mean((q_test-test_y)**2)), seconds=elapsed))
+    if seed == 42:
+        examples['Quantum circuit'] = (q_grid, [r['loss'] for r in model.history])
+    for kind, label, initial_values in [
+            ('sinusoid', 'Classical sinusoid', initial),
+            ('mlp', 'Classical MLP', np.r_[rng.normal(0, .6, width),
+                                        np.zeros(width), rng.normal(0, .3, width), 0.])]:
+        started = perf_counter()
+        values, history = fit_classical(kind, initial_values)
+        elapsed = perf_counter()-started
+        predicted = classical_prediction_and_jacobian(kind, values, test_x)[0]
+        if kind == 'sinusoid':
+            # Same mathematical model and initialization: predictions should agree.
+            np.testing.assert_allclose(predicted, q_test, atol=1e-10, rtol=1e-10)
+        train_predicted = classical_prediction_and_jacobian(kind, values, train_x)[0]
+        records.append(dict(seed=seed, name=label, parameters=len(values),
+                            train_mse=float(np.mean((train_predicted-train_y)**2)),
+                            test_mse=float(np.mean((predicted-test_y)**2)), seconds=elapsed))
+        if seed == 42:
+            examples[label] = (classical_prediction_and_jacobian(kind, values, grid)[0], history)
+
+names = ['Quantum circuit', 'Classical MLP', 'Classical sinusoid']
+print('Same 20 training samples; 201 disjoint interpolation points; 80 Adam updates, lr=.05.')
+print('Three initializations: 7, 21, 42. Times measure training only on this machine.')
+print(f'{"Model":22} {"Params":>6} {"Train MSE":>12} {"Test MSE mean":>15} {"Test MSE std":>14} {"Fit sec mean":>13}')
+for name in names:
+    rows = [r for r in records if r['name'] == name]
+    errors = np.array([r['test_mse'] for r in rows])
+    print(f'{name:22} {rows[0]["parameters"]:6d} '
+          f'{np.mean([r["train_mse"] for r in rows]):12.3e} '
+          f'{errors.mean():15.3e} {errors.std():14.3e} '
+          f'{np.mean([r["seconds"] for r in rows]):13.4f}')
+assert all(np.isfinite(r['test_mse']) for r in records)
 '''),
 code('''
-fig, axes = plt.subplots(1, 2, figsize=(9, 3))
-axes[0].semilogy([r['loss'] for r in model.history]); axes[0].set_xlabel('Epoch')
-axes[0].set_ylabel('MSE before update'); axes[0].set_title('Training history')
-axes[1].plot(grid, np.sin(grid), label='Target sin(x)')
-axes[1].plot(grid, predictions, '--', label='Circuit prediction')
-axes[1].set_xlabel('x'); axes[1].set_title('Dense evaluation grid'); axes[1].legend()
+colors = {'Quantum circuit': '#2563eb', 'Classical MLP': '#ea580c',
+          'Classical sinusoid': '#9333ea'}
+fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+fig.suptitle('NexQus 1.1.0: quantum vs classical sine regression', fontsize=15)
+axes[0, 0].plot(grid, np.sin(grid), color='#111827', lw=2, alpha=.45, label='Target sin(x)')
+axes[0, 0].scatter(train_x, train_y, color='#111827', s=17, label='20 training samples', zorder=5)
+for name in names:
+    prediction, history = examples[name]
+    style = ':' if name == 'Classical sinusoid' else '-'
+    axes[0, 0].plot(grid, prediction, style, color=colors[name], label=name, lw=1.7)
+    axes[0, 1].semilogy(np.maximum(history, 1e-16), style, color=colors[name], label=name)
+    axes[1, 1].semilogy(grid, np.maximum(abs(prediction-np.sin(grid)), 1e-16),
+                        style, color=colors[name], label=name)
+means = [np.mean([r['test_mse'] for r in records if r['name'] == name]) for name in names]
+stds = [np.std([r['test_mse'] for r in records if r['name'] == name]) for name in names]
+bars = axes[1, 0].bar(range(3), means, yerr=stds, capsize=5, color=[colors[n] for n in names])
+axes[1, 0].set_yscale('log'); axes[1, 0].set_xticks(range(3), ['Quantum', 'Classical MLP', 'Classical sinusoid'])
+for bar, value in zip(bars, means):
+    axes[1, 0].annotate(f'{value:.2e}', (bar.get_x()+bar.get_width()/2, value),
+                        xytext=(0, 8), textcoords='offset points', ha='center', fontsize=9)
+axes[1, 0].set_ylim(top=max(means)*4)
+axes[0, 0].set(title='Predictions, seed 42', xlabel='x', ylabel='y')
+axes[0, 1].set(title='Training loss, seed 42', xlabel='Adam update', ylabel='MSE before update')
+axes[1, 0].set(title='Held-out MSE: mean +/- SD over 3 seeds', ylabel='MSE; lower is better')
+axes[1, 1].set(title='Absolute prediction error, seed 42', xlabel='x', ylabel='Absolute error')
+for axis in (axes[0, 0], axes[0, 1], axes[1, 1]):
+    axis.legend(fontsize=8)
+for axis in axes.flat: axis.grid(alpha=.15)
 plt.tight_layout(); plt.show()
 '''),
 md('''
-The circuit computes cos(weight*x+bias). Sine is representable at weight=1, bias=-pi/2.
-This is a learning demonstration, not evidence of quantum advantage or performance on real datasets.
-Pauli expectations lie in [-1,1], so the built-in MSE model requires scaled targets.
+## Read the comparison / ရလဒ်များကို နှိုင်းယှဉ်ခြင်း
 
-ဤ example သည် synthetic data ပေါ်တွင် circuit parameter သင်ယူပုံကို ပြသခြင်းဖြစ်ပါသည်။
-Classical model ထက် ပိုကောင်းကြောင်း သက်သေမဟုတ်ပါ။
+The blue curve is the trained quantum circuit. Orange is a classical 1-8-1 tanh
+neural network (25 parameters). Purple is a classical cosine model (2 parameters),
+with exactly the same initialization and function family as the quantum circuit.
+The quantum expectation is cos(weight*x+bias); both 2-parameter models can learn
+sine at weight=1, bias=-pi/2. Their overlapping curves and matching errors are expected.
+
+The table reports the actual result for every model; no model is required to win.
+If quantum MSE is lower than the MLP's, it fits this task better under these stated
+settings. The matched sinusoidal baseline shows whether the benefit comes from
+the periodic model family. Compare timing separately: quantum simulation executes
+on a classical CPU here. An 80-update budget with one MLP configuration is not an
+exhaustive hyperparameter search. These held-out inputs test interpolation within
+the same interval, not extrapolation or real cybersecurity data.
+
+ယခု quantum model နှင့် classical model နှစ်မျိုးကို data နှင့် training update
+အရေအတွက်တူညီစွာ အသုံးပြုပြီး နှိုင်းယှဉ်ထားပါသည်။ Test MSE နည်းလေ prediction
+ပိုကောင်းလေ ဖြစ်ပါသည်။ Quantum curve နှင့် classical sinusoid curve ထပ်နေခြင်းသည်
+ဤ circuit အတွက် function family တူညီသောကြောင့် ဖြစ်ပါသည်။ မိမိ run ရလဒ်၏
+error၊ parameter အရေအတွက်နှင့် training time ကို အတူကြည့်ပါ။
 '''),
 code('''
 classifier = QuantumBinaryClassifier(function, ['x'], {'weight': .7, 'bias': -1.0})
@@ -545,6 +671,49 @@ def main():
                         language_info=dict(name='python',version='3.10'),
                         nexqus=dict(lesson=name,sdk_version='1.1.0')),nbformat=4,nbformat_minor=5)
         (directory/(name+'.ipynb')).write_text(json.dumps(notebook,ensure_ascii=False,indent=1)+'\n',encoding='utf-8')
+    # Keep the terminal comparison and lesson 04 on exactly the same code.
+    learning_cells = next(cells for name, cells in BOOKS if name == '04_gradients_and_learning')
+    training = next(text for kind, text in learning_cells
+                    if kind == 'code' and text.startswith('from time import perf_counter'))
+    plotting = next(text for kind, text in learning_cells
+                    if kind == 'code' and text.startswith('colors ='))
+    export = dedent('''
+if args.output_dir is not None:
+    import csv
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    fig.savefig(args.output_dir/'comparison.png', dpi=160, bbox_inches='tight')
+    fig.savefig(args.output_dir/'comparison.svg', bbox_inches='tight')
+    payload = dict(sdk_version=nexqus.__version__, backend='numpy', device='cpu',
+                   epochs=epochs, learning_rate=learning_rate, seeds=[7, 21, 42],
+                   training_samples=len(train_x), held_out_samples=len(test_x),
+                   evaluation='disjoint in-domain interpolation', records=records)
+    (args.output_dir/'metrics.json').write_text(json.dumps(payload, indent=2)+'\\n', encoding='utf-8')
+    with (args.output_dir/'predictions.csv').open('w', newline='', encoding='utf-8') as handle:
+        writer = csv.writer(handle)
+        writer.writerow(['x', 'target', *names])
+        writer.writerows(zip(grid, np.sin(grid), *(examples[n][0] for n in names)))
+    print('Saved plots, metrics and predictions to', args.output_dir)
+''').strip()
+    plotting = plotting.replace('plt.tight_layout(); plt.show()',
+                                'plt.tight_layout()\n'+export+'\nplt.show()')
+    header = dedent('''
+        """Quantum/classical sine comparison. Generated from scripts/build_notebooks.py.
+
+        python examples/compare_sine.py --output-dir results/sine
+        Requires the tutorial extra for Matplotlib. Edit the notebook generator
+        to keep this script and lesson 04 synchronized.
+        """
+        import argparse
+        import json
+        from pathlib import Path
+        from nexqus import QuantumFunction, QuantumRegressor, Adam
+
+        parser = argparse.ArgumentParser(description=__doc__)
+        parser.add_argument('--output-dir', type=Path)
+        args = parser.parse_args()
+    ''').strip()
+    (ROOT/'examples'/'compare_sine.py').write_text(
+        '\n\n'.join([header, SETUP[1], training, plotting])+'\n', encoding='utf-8')
     print(f'Generated {len(BOOKS)} notebooks in {directory}')
 
 

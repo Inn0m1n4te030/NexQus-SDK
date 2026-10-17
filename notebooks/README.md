@@ -10,7 +10,7 @@ Burmese summaries/comments; figures use English labels for broad font support.
 | [01 — Qubits and gates](01_qubits_and_gates.ipynb) | Amplitudes, rotations, entanglement, QFT/iQFT, Grover, Shor and resources | 20 min |
 | [02 — Noise and methods](02_noise_and_methods.ipynb) | Exact channels, trajectories, memory and conventions | 15 min |
 | [03 — Functions and devices](03_functions_sweeps_and_devices.ipynb) | Decorators, parameters, sweeps, compilation, optional CUDA | 15 min |
-| [04 — Gradients and learning](04_gradients_and_learning.ipynb) | Gate-local derivatives, Adam, regression, toy classification | 20 min |
+| [04 — Gradients and learning](04_gradients_and_learning.ipynb) | Gradients, quantum/classical sine predictions, loss/error plots, toy classification | 25 min |
 | [05 — Dynamic protocols](05_measurement_reset_teleportation.ipynb) | Collapse, reset, feed-forward, teleportation and correlations | 20 min |
 | [06 — Your first experiment](06_your_first_experiment.ipynb) | Compare methods with controlled variables and an experiment report | 15 min |
 
@@ -89,6 +89,9 @@ the tested examples; they do not contain intentionally broken code cells.
 `scripts/build_notebooks.py` is the editable lesson source. Running it regenerates
 all notebooks and clears saved outputs. Re-run the executor afterward. The
 source notebooks start with clean outputs so you can run each lesson yourself.
+The generator also keeps examples/compare_sine.py synchronized with lesson 04.
+For a visible preview without executing a notebook, see the
+[saved comparison figure](../docs/images/sine_comparison.svg).
 
 ## Burmese guidance
 

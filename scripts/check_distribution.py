@@ -62,7 +62,8 @@ def main():
         public_docs={'API.md','API_STABILITY.md','BURMESE_QUICKSTART.md',
                      'PERFORMANCE.md','LEARNING.md','DYNAMIC_CIRCUITS.md',
                      'RELEASE_NOTES.md','RELEASING.md',
-                     'images/teleportation.svg','images/custom_8_qubits.svg'}
+                     'images/teleportation.svg','images/custom_8_qubits.svg',
+                     'images/sine_comparison.svg','images/sine_comparison.png'}
         packaged_docs={name.removeprefix(f'{base}/docs/') for name in names
                        if name.startswith(f'{base}/docs/') and archive.getmember(name).isfile()}
         if packaged_docs!=public_docs:

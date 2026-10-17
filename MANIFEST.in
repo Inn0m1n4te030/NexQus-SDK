@@ -3,7 +3,7 @@ recursive-include src *.py
 recursive-include tests *.py
 recursive-include examples *.py
 recursive-include scripts *.py *.sh
-recursive-include docs *.md *.svg
+recursive-include docs *.md *.svg *.png
 recursive-include notebooks *.md *.ipynb
 recursive-include .github *.yml *.yaml
 prune .release-artifacts
