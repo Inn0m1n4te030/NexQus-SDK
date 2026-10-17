@@ -1,5 +1,6 @@
 """Numerical adapters. Circuit evolution is implemented by NexQus itself."""
 import numpy as np
+from math import prod, sqrt
 
 
 class Backend:
@@ -95,13 +96,56 @@ class Backend:
 
     def _local_one(self,tensor,data,axis):
         """NumPy pairwise updates: avoid BLAS threading and target-axis transposes."""
-        left=int(np.prod(tensor.shape[:axis]))
-        right=int(np.prod(tensor.shape[axis+1:]))
+        # Includes numeric RZ gates and custom diagonal 2x2 operators. Check
+        # matrix values, never names. Avoid multiplying the zero off-diagonals.
+        if data[0,1] == 0 and data[1,0] == 0:
+            return tensor*self._broadcast_diagonal(data.diagonal(),(axis,),tensor.ndim)
+        left=prod(tensor.shape[:axis])
+        right=prod(tensor.shape[axis+1:])
         x=tensor.reshape(left,2,right)
         out=np.empty(x.shape,dtype=self.dtype)
-        out[:,0,:]=data[0,0]*x[:,0,:]+data[0,1]*x[:,1,:]
-        out[:,1,:]=data[1,0]*x[:,0,:]+data[1,1]*x[:,1,:]
+        if not np.any(data.imag): data=data.real
+        # Reuse one half-state scratch buffer instead of allocating expression
+        # temporaries for every multiply/add. Input state is never overwritten.
+        scratch=np.empty((left,right),dtype=self.dtype)
+        np.multiply(data[0,0],x[:,0,:],out=out[:,0,:])
+        np.multiply(data[0,1],x[:,1,:],out=scratch)
+        np.add(out[:,0,:],scratch,out=out[:,0,:])
+        np.multiply(data[1,0],x[:,0,:],out=out[:,1,:])
+        np.multiply(data[1,1],x[:,1,:],out=scratch)
+        np.add(out[:,1,:],scratch,out=out[:,1,:])
         return out.reshape(tensor.shape)
+
+    def density_channel(self,tensor,wire,n,pauli=None,damping=None):
+        """NumPy exact one-wire channels using density blocks; None falls back.
+
+        Coefficients come from validated Kraus values, including renamed/custom
+        Pauli mixtures. Arbitrary channels and Torch use generic Kraus evolution.
+        """
+        if self.torch or (pauli is None and damping is None): return None
+        blocks=[]
+        for a,b in ((0,0),(0,1),(1,0),(1,1)):
+            index=[slice(None)]*tensor.ndim
+            index[wire],index[n+wire]=a,b
+            blocks.append(tuple(index))
+        i00,i01,i10,i11=blocks
+        a,b,c,d=(tensor[index] for index in blocks)
+        out=np.empty(tensor.shape,dtype=self.dtype)
+        if pauli is not None:
+            identity,x,y,z=pauli
+            keep,flip=identity+z,x+y
+            same,cross=identity-z,x-y
+            out[i00]=keep*a+flip*d
+            out[i11]=keep*d+flip*a
+            out[i01]=same*b+cross*c
+            out[i10]=same*c+cross*b
+        else:
+            kind,gamma=damping
+            out[i00]=a+gamma*d if kind=='amplitude' else a
+            out[i11]=(1-gamma)*d if kind=='amplitude' else d
+            out[i01]=sqrt(1-gamma)*b
+            out[i10]=sqrt(1-gamma)*c
+        return out
 
     def index_array(self, values):
         indices = np.array(values, dtype=np.int64, copy=True)

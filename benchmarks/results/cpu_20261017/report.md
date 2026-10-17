@@ -1,66 +1,66 @@
-# Independent simulator comparison
+# CPU performance comparison
 
-Run: 2026-10-17T08:43:02.955371+00:00. CPU: AMD EPYC 9V74 80-Core Processor. Python 3.12.14.
+Run: 2026-10-17T09:20:45.227710+00:00. CPU: AMD EPYC 9V74 80-Core Processor. Python 3.12.14.
 
-Suite `standard`; precision `double`; 1 CPU thread(s); 2 warmups and 7 measured repetitions per engine/case.
+Suite `standard`; precision `double`; 1 CPU thread(s).
 
-Full specifications, raw timings, versions, settings, hardware and errors: [JSON](results.json). Tabular data: [CSV](results.csv).
+Specifications, versions, settings, hardware and numerical diagnostics: [JSON](results.json). Tabular data: [CSV](results.csv).
 
-Timing covers prepared execution and full state/probability output. Imports, circuit construction, and compilation are excluded and preparation is reported separately. Gate fusion and idle-wire truncation are disabled. Every engine uses the same gates, noise, precision, zero shots and CPU. PennyLane uses default.qubit/default.mixed; this is not a benchmark of lightning.qubit.
+Every engine receives 3 untimed warmups and 9 measured executions. NumPy random initialization is performed equally before preparation for all engines. Timing covers prepared execution and full state/probability materialization; setup and correctness checks are excluded. No memory sampler runs during timing. Raw repetitions are in the JSON.
 
-RSS is process resident memory, including native allocations. Execution peak is sampled every 1 ms and includes warmups plus the untimed validation run; short peaks may be missed. OS process peak also includes imports and preparation. Baselines differ between SDKs; incremental RSS can be zero when an allocator reuses memory. Sampling is active during timing, so its overhead is included. No GPU memory or hardware execution is measured.
+Memory is measured in a separate fresh subprocess with the same warmup count. RSS includes native/Python allocations; sampled peaks can miss allocations shorter than 1 ms. OS process peak also includes imports/preparation. Baselines and allocator reuse differ between SDKs. No GPU memory is measured.
 
 | Circuit | Engine | Median ms | Execution peak MiB | Process peak MiB | Max state error | Accuracy |
 |---|---|---:|---:|---:|---:|---|
-| ghz_4q | nexqus | 0.099 | 37.2 | 37.3 | 0.00e+00 | pass |
-| ghz_4q | qiskit | 0.480 | 107.4 | 107.5 | 1.11e-16 | pass |
-| ghz_4q | pennylane | 0.303 | 170.7 | 170.7 | 0.00e+00 | pass |
-| rotations_4q | nexqus | 1.248 | 38.1 | 38.2 | 2.88e-16 | pass |
-| rotations_4q | qiskit | 1.616 | 107.5 | 107.5 | 3.48e-16 | pass |
-| rotations_4q | pennylane | 2.981 | 169.7 | 169.7 | 3.19e-16 | pass |
-| qft_4q | nexqus | 0.333 | 38.7 | 38.8 | 5.72e-17 | pass |
-| qft_4q | qiskit | 0.748 | 103.8 | 103.8 | 1.75e-16 | pass |
-| qft_4q | pennylane | 0.761 | 170.7 | 170.7 | 5.58e-17 | pass |
-| diagonal_4q | nexqus | 1.005 | 37.8 | 37.9 | 3.08e-16 | pass |
-| diagonal_4q | qiskit | 1.603 | 104.0 | 104.0 | 1.22e-15 | pass |
-| diagonal_4q | pennylane | 3.629 | 172.3 | 172.3 | 2.86e-16 | pass |
-| ghz_12q | nexqus | 0.205 | 38.6 | 38.6 | 1.11e-16 | pass |
-| ghz_12q | qiskit | 0.679 | 107.3 | 107.4 | 0.00e+00 | pass |
-| ghz_12q | pennylane | 0.995 | 170.8 | 170.8 | 1.11e-16 | pass |
-| rotations_12q | nexqus | 9.064 | 39.4 | 39.5 | 5.97e-17 | pass |
-| rotations_12q | qiskit | 6.678 | 108.3 | 108.3 | 0.00e+00 | pass |
-| rotations_12q | pennylane | 16.172 | 170.6 | 170.7 | 6.14e-17 | pass |
-| qft_12q | nexqus | 2.121 | 39.6 | 39.6 | 1.80e-16 | pass |
-| qft_12q | qiskit | 4.254 | 107.6 | 107.6 | 0.00e+00 | pass |
-| qft_12q | pennylane | 16.230 | 172.4 | 172.4 | 1.76e-16 | pass |
-| diagonal_12q | nexqus | 6.620 | 38.3 | 38.4 | 5.83e-16 | pass |
-| diagonal_12q | qiskit | 6.735 | 104.7 | 104.7 | 0.00e+00 | pass |
-| diagonal_12q | pennylane | 18.512 | 171.6 | 171.6 | 5.83e-16 | pass |
-| ghz_18q | nexqus | 9.150 | 52.5 | 56.4 | 1.11e-16 | pass |
-| ghz_18q | qiskit | 18.095 | 110.3 | 114.1 | 0.00e+00 | pass |
-| ghz_18q | pennylane | 8.723 | 184.5 | 186.5 | 1.11e-16 | pass |
-| rotations_18q | nexqus | 542.374 | 58.0 | 57.9 | 1.37e-17 | pass |
-| rotations_18q | qiskit | 317.561 | 117.3 | 121.1 | 0.00e+00 | pass |
-| rotations_18q | pennylane | 402.133 | 186.9 | 186.8 | 1.20e-17 | pass |
-| qft_18q | nexqus | 142.836 | 56.0 | 57.9 | 9.44e-17 | pass |
-| qft_18q | qiskit | 227.874 | 111.1 | 114.9 | 0.00e+00 | pass |
-| qft_18q | pennylane | 206.767 | 184.6 | 184.5 | 9.90e-17 | pass |
-| diagonal_18q | nexqus | 388.473 | 57.9 | 58.0 | 3.06e-16 | pass |
-| diagonal_18q | qiskit | 256.601 | 114.4 | 118.2 | 0.00e+00 | pass |
-| diagonal_18q | pennylane | 394.102 | 183.6 | 183.4 | 3.12e-16 | pass |
-| amplitude_damping_4q | nexqus | 4.890 | 39.2 | 39.3 | 1.13e-16 | pass |
-| amplitude_damping_4q | qiskit | 1.392 | 109.1 | 109.1 | 1.57e-16 | pass |
-| amplitude_damping_4q | pennylane | 11.713 | 170.6 | 170.6 | 2.27e-14 | pass |
-| depolarizing_4q | nexqus | 7.406 | 38.9 | 39.0 | 9.93e-17 | pass |
-| depolarizing_4q | qiskit | 1.448 | 105.7 | 105.7 | 1.14e-16 | pass |
-| depolarizing_4q | pennylane | 10.238 | 170.9 | 171.0 | 6.85e-14 | pass |
-| amplitude_damping_8q | nexqus | 156.523 | 45.4 | 45.4 | 1.74e-17 | pass |
-| amplitude_damping_8q | qiskit | 41.675 | 107.1 | 108.1 | 0.00e+00 | pass |
-| amplitude_damping_8q | pennylane | 423.884 | 173.4 | 173.4 | 3.56e-15 | pass |
-| depolarizing_8q | nexqus | 235.452 | 45.9 | 45.8 | 2.08e-17 | pass |
-| depolarizing_8q | qiskit | 41.489 | 110.3 | 111.3 | 0.00e+00 | pass |
-| depolarizing_8q | pennylane | 620.912 | 172.7 | 172.7 | 1.22e-14 | pass |
+| ghz_4q | nexqus | 0.043 | 37.8 | 37.9 | 0.00e+00 | pass |
+| ghz_4q | qiskit | 0.389 | 106.9 | 107.0 | 1.11e-16 | pass |
+| ghz_4q | pennylane | 0.242 | 171.5 | 171.6 | 0.00e+00 | pass |
+| rotations_4q | nexqus | 1.147 | 38.0 | 38.0 | 3.19e-16 | pass |
+| rotations_4q | qiskit | 1.429 | 107.8 | 107.8 | 3.48e-16 | pass |
+| rotations_4q | pennylane | 2.885 | 171.7 | 171.7 | 3.19e-16 | pass |
+| qft_4q | nexqus | 0.243 | 37.8 | 37.8 | 5.72e-17 | pass |
+| qft_4q | qiskit | 0.884 | 107.6 | 107.6 | 1.75e-16 | pass |
+| qft_4q | pennylane | 0.721 | 171.8 | 171.8 | 5.58e-17 | pass |
+| diagonal_4q | nexqus | 0.822 | 37.9 | 37.9 | 2.86e-16 | pass |
+| diagonal_4q | qiskit | 1.534 | 104.3 | 104.3 | 1.22e-15 | pass |
+| diagonal_4q | pennylane | 3.392 | 171.4 | 171.4 | 2.86e-16 | pass |
+| ghz_12q | nexqus | 0.227 | 37.5 | 37.5 | 1.11e-16 | pass |
+| ghz_12q | qiskit | 0.749 | 107.4 | 107.4 | 0.00e+00 | pass |
+| ghz_12q | pennylane | 0.688 | 172.3 | 172.3 | 1.11e-16 | pass |
+| rotations_12q | nexqus | 6.500 | 39.7 | 39.7 | 6.14e-17 | pass |
+| rotations_12q | qiskit | 6.592 | 105.2 | 105.2 | 0.00e+00 | pass |
+| rotations_12q | pennylane | 12.855 | 170.1 | 170.1 | 6.14e-17 | pass |
+| qft_12q | nexqus | 1.941 | 39.7 | 39.7 | 1.80e-16 | pass |
+| qft_12q | qiskit | 4.366 | 107.4 | 107.4 | 0.00e+00 | pass |
+| qft_12q | pennylane | 16.761 | 172.1 | 172.2 | 1.76e-16 | pass |
+| diagonal_12q | nexqus | 4.544 | 40.0 | 40.0 | 5.83e-16 | pass |
+| diagonal_12q | qiskit | 6.591 | 104.7 | 104.7 | 0.00e+00 | pass |
+| diagonal_12q | pennylane | 16.011 | 172.2 | 172.2 | 5.83e-16 | pass |
+| ghz_18q | nexqus | 7.079 | 56.7 | 56.7 | 1.11e-16 | pass |
+| ghz_18q | qiskit | 18.966 | 110.6 | 110.6 | 0.00e+00 | pass |
+| ghz_18q | pennylane | 9.511 | 183.2 | 183.2 | 1.11e-16 | pass |
+| rotations_18q | nexqus | 278.928 | 59.1 | 59.1 | 1.17e-17 | pass |
+| rotations_18q | qiskit | 295.237 | 113.1 | 113.1 | 0.00e+00 | pass |
+| rotations_18q | pennylane | 358.512 | 185.9 | 185.8 | 1.20e-17 | pass |
+| qft_18q | nexqus | 119.342 | 59.8 | 59.6 | 9.44e-17 | pass |
+| qft_18q | qiskit | 210.719 | 114.5 | 114.5 | 0.00e+00 | pass |
+| qft_18q | pennylane | 203.260 | 184.4 | 184.1 | 9.90e-17 | pass |
+| diagonal_18q | nexqus | 181.188 | 58.9 | 58.9 | 3.05e-16 | pass |
+| diagonal_18q | qiskit | 253.671 | 114.2 | 114.2 | 0.00e+00 | pass |
+| diagonal_18q | pennylane | 389.943 | 184.2 | 183.9 | 3.12e-16 | pass |
+| amplitude_damping_4q | nexqus | 1.678 | 39.3 | 39.3 | 1.94e-16 | pass |
+| amplitude_damping_4q | qiskit | 1.482 | 105.2 | 105.2 | 1.57e-16 | pass |
+| amplitude_damping_4q | pennylane | 8.687 | 170.0 | 170.0 | 2.27e-14 | pass |
+| depolarizing_4q | nexqus | 1.890 | 38.1 | 38.1 | 1.03e-16 | pass |
+| depolarizing_4q | qiskit | 1.325 | 106.0 | 106.0 | 1.14e-16 | pass |
+| depolarizing_4q | pennylane | 10.127 | 170.1 | 170.1 | 6.85e-14 | pass |
+| amplitude_damping_8q | nexqus | 83.420 | 43.4 | 43.2 | 1.39e-17 | pass |
+| amplitude_damping_8q | qiskit | 42.745 | 105.2 | 105.2 | 0.00e+00 | pass |
+| amplitude_damping_8q | pennylane | 419.933 | 172.7 | 172.7 | 3.56e-15 | pass |
+| depolarizing_8q | nexqus | 65.672 | 44.9 | 44.8 | 1.27e-17 | pass |
+| depolarizing_8q | qiskit | 46.040 | 110.4 | 110.4 | 0.00e+00 | pass |
+| depolarizing_8q | pennylane | 586.024 | 173.7 | 173.7 | 1.22e-14 | pass |
 
 Small circuits (up to 5 qubits) use an independent full-matrix NumPy oracle. Larger circuits use Qiskit Aer as the cross-simulator reference when available; the JSON labels every reference. Statevector errors are aligned for global phase. Density errors compare full matrix entries. Probability TVD, normalization, Hermiticity, and small-density eigenvalues are also checked.
 
-These measurements describe this host and these workloads. Keep slower NexQus results; rerun on your own hardware before making performance claims. Prepared API overhead is included, so tiny circuits are often dominated by framework overhead.
+All engines use identical gate/noise specifications, precision, zero shots and CPU settings. Fusion and idle-wire truncation are disabled. PennyLane uses default.qubit/default.mixed, not Lightning. Keep slower NexQus results; performance describes this host and these workloads.

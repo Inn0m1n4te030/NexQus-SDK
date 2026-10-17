@@ -7,13 +7,22 @@ The NexQus runtime continues to support Python 3.10+:
 ```bash
 python -m pip install -e '.[benchmark-compare]'
 python benchmarks/run.py --suite smoke
-python benchmarks/run.py --suite correctness --warmup 0 --repeats 1
-python benchmarks/run.py --suite standard --threads 1 --warmup 2 --repeats 7 --output benchmarks/results/local
+python benchmarks/run.py --suite correctness
+python benchmarks/run.py --suite standard --threads 1 --warmup 3 --repeats 9 --output benchmarks/results/local
 ```
 
 The standard suite's [measured CPU report](results/cpu_20261017/report.md) includes
 raw JSON and CSV with slower NexQus workloads retained. Correctness evidence is
 in [the small-circuit report](results/correctness_20261017/report.md).
+The [optimization comparison](results/optimization_20261017.md) compares the
+unoptimized and optimized SDK using the same corrected timing protocol. The
+[unoptimized baseline](results/baseline_cpu_20261017/report.md) is a fresh rerun,
+not the earlier report with memory sampling active during timing.
+
+Correctness and smoke suites contain **no execution timing fields** in their
+JSON, CSV or Markdown output. They verify numerical results. Only the standard
+suite measures performance; it requires at least two equal warmups and three
+timed repetitions for every engine. Defaults are three warmups and nine repeats.
 
 ## Identical workloads
 
@@ -64,11 +73,15 @@ settings compare the same elementary workloads and do not represent each SDK's
 fastest optimized execution. API/result overhead is included, especially
 visible on small circuits. Raw repetitions, median, range and standard deviation
 are saved; timing is descriptive, not a CI speed threshold.
-Memory sampling is active during timing, so its monitoring overhead is included.
+Shared NumPy random initialization happens equally before preparation for every
+engine, and each engine completes the same number of untimed warmups. Framework
+lazy initialization is therefore excluded from steady-state execution timing.
+No memory sampler runs in the timed process.
 
-RSS includes native and Python memory. Execution RSS is sampled every 1 ms over
-warmups, timed repetitions and the untimed validation run. Short allocation
-peaks can be missed. A separate OS high-water RSS includes imports and setup.
+RSS includes native and Python memory. A second fresh subprocess per engine/case
+measures memory, with the same warmup count followed by an untimed execution.
+RSS is sampled every 1 ms; shorter allocation peaks can be missed. A separate
+OS high-water RSS includes that memory process's imports and setup.
 Baseline RSS and incremental sampled peaks are included: a zero increment can
 mean allocator reuse. State/probability byte sizes are reported separately.
 These measurements are process memory, not GPU VRAM or isolated tensor usage.
@@ -89,3 +102,13 @@ The recorded runtime/benchmark source hashes identify the code even when
 API references: [AerSimulator](https://qiskit.github.io/qiskit-aer/stubs/qiskit_aer.AerSimulator.html),
 [PennyLane devices](https://docs.pennylane.ai/en/stable/introduction/circuits.html),
 [PennyLane depolarization](https://docs.pennylane.ai/en/stable/code/api/pennylane.DepolarizingChannel.html).
+
+## Reproduce the unoptimized baseline
+
+Extract the runtime from commit `89050b4e35194a2587ebceb4e64a6be80a0b89b2`
+(`git archive COMMIT src`), then run this checkout's benchmark harness with
+`PYTHONPATH` pointing to the extracted `src` directory. Run the optimized source
+with the same Python environment, host, circuits, precision, threads, warmups
+and repetitions. The reports record the imported runtime path and source hash.
+The summary includes all workloads, including regressions or cases still slower
+than another simulator. Earlier report versions remain in Git history.

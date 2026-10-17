@@ -34,11 +34,12 @@ class CompiledCircuit:
     This is execution preparation, not native CUDA code generation. Source
     circuit edits do not affect the compiled snapshot. Call .run() repeatedly.
     """
-    def __init__(self, owner, circuit, noise, arrays, seconds):
+    def __init__(self, owner, circuit, noise, arrays, seconds, channel_specs=None):
         self._owner=owner
         self._circuit=circuit
         self._noise=noise
         self._arrays=arrays
+        self._channel_specs={} if channel_specs is None else channel_specs
         self.compile_seconds=seconds
 
     @property
@@ -167,17 +168,25 @@ class Simulator:
         snapshot=copy.deepcopy(circuit)
         frozen_noise=copy.deepcopy(noise)
         arrays={}
+        channel_specs={}
         def prepare(data, permutation=False):
             if id(data) not in arrays: arrays[id(data)]=self._prepare_array(data, permutation)
+        def prepare_channel(channel):
+            if id(channel) not in channel_specs:
+                weights=channel.pauli_weights()
+                channel_specs[id(channel)]=(None if weights is None else self.backend.real_array(weights),
+                                            None if weights is None else tuple(map(float,weights)),
+                                            channel.damping_spec() if weights is None else None)
+            for k in channel.kraus: prepare(k)
         for op in snapshot.operations:
             if op.kind=='noise':
-                for k in op.data.kraus: prepare(k)
+                prepare_channel(op.data)
             elif op.kind in ('unitary','diagonal','permutation'): prepare(op.data, op.kind=='permutation')
         if frozen_noise:
             for _,ch in frozen_noise.rules:
-                for k in ch.kraus: prepare(k)
+                prepare_channel(ch)
         self.backend.sync()
-        return CompiledCircuit(self,snapshot,frozen_noise,arrays,time.perf_counter()-started)
+        return CompiledCircuit(self,snapshot,frozen_noise,arrays,time.perf_counter()-started,channel_specs)
 
     def run_sweep(self, template, bindings, seed=None, **run_options):
         """Run bindings in input order, with independent reproducible child seeds.
@@ -206,12 +215,14 @@ class Simulator:
             random_engine='portable', noise_fastpath=True, max_branches=1024):
         prepared=isinstance(circuit,CompiledCircuit)
         prepared_arrays={}
+        prepared_channels={}
         compile_seconds=0.0
         if prepared:
             if circuit._owner is not self: raise ValueError('CompiledCircuit belongs to another Simulator')
             if noise is not None: raise ValueError('Noise is frozen at compile time; recompile to change it')
             noise=circuit._noise
             prepared_arrays=circuit._arrays
+            prepared_channels=circuit._channel_specs
             compile_seconds=circuit.compile_seconds
             circuit=circuit._circuit
         if not isinstance(circuit, Circuit): raise TypeError("Expected a Circuit")
@@ -247,16 +258,28 @@ class Simulator:
             raise MemoryError(f"Estimated working tensors need {working_bytes/1024**2:.1f} MiB; "
                               "increase max_memory_mb or use fewer qubits/trajectory mode")
         psi = _initial_vector(initial_state, size)
-        rng = np.random.default_rng(seed)
+        if random_engine not in ('portable','native'):
+            raise ValueError('random_engine must be portable or native')
+        # Exact zero-shot runs have no random draws. Preserve validation for an
+        # explicitly supplied seed, but avoid lazy RNG imports when none is used.
+        rng = np.random.default_rng(seed) if shots or seed is not None else None
         b = self.backend
-        device_rng=DeviceRandom(b,seed,random_engine)
+        device_rng=DeviceRandom(b,seed,random_engine) if method=='trajectory' else None
         channel_cache={}
         damping_cache={}
+        density_pauli_cache={}
         def prepare_channel(ch):
             if id(ch) not in channel_cache:
-                weights=ch.pauli_weights() if noise_fastpath else None
-                channel_cache[id(ch)]=None if weights is None else b.real_array(weights)
-                damping_cache[id(ch)]=ch.damping_spec() if noise_fastpath and weights is None else None
+                if noise_fastpath and id(ch) in prepared_channels:
+                    native,host,damping=prepared_channels[id(ch)]
+                else:
+                    weights=ch.pauli_weights() if noise_fastpath else None
+                    native=None if weights is None else b.real_array(weights)
+                    host=None if weights is None else tuple(map(float,weights))
+                    damping=ch.damping_spec() if noise_fastpath and weights is None else None
+                channel_cache[id(ch)]=native
+                density_pauli_cache[id(ch)]=host
+                damping_cache[id(ch)]=damping
         for op in circuit.operations:
             if op.kind=='noise': prepare_channel(op.data)
         if noise:
@@ -283,6 +306,9 @@ class Simulator:
 
         def channel(state, ch, q, density):
             if not density: raise RuntimeError('Quantum noise needs density or trajectory mode')
+            if noise_fastpath:
+                fast=b.density_channel(state,q,n,density_pauli_cache[id(ch)],damping_cache[id(ch)])
+                if fast is not None: return fast
             total = b.zeros(state.shape)
             for k in ch.kraus: total += transform(state, k, (q,), True)
             return total

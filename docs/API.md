@@ -98,6 +98,9 @@ sim.run(circuit, shots=1024, seed=None, noise=None, trajectories=256,
 - local_gates and noise_fastpath: diagnostic optimization switches. Static noise
   fast paths recognize actual Kraus values. Dynamic sampling currently uses
   generic Kraus kernels; noise_fastpath does not enable a dynamic specialization.
+  In the development checkout, noise_fastpath also enables exact NumPy density
+  updates for Pauli mixtures and amplitude/phase damping. Arbitrary channels
+  and Torch density evolution keep the generic Kraus path.
 
 max_memory_mb checks an estimated core workspace before allocation and branch
 growth. It does not cap all RAM/VRAM: circuit matrices, tensor caches, host results
@@ -108,6 +111,9 @@ or retained sweep results can raise memory substantially.
 device tensors, and returns CompiledCircuit. Use prepared.run(**options) or
 sim.run(prepared,**options). Noise is frozen at compilation; recompile to change it.
 A prepared object belongs to its creator. This is not gate fusion/native code.
+Development compiled objects also cache value-based noise-channel recognition.
+Exact unseeded zero-shot static runs avoid initializing unused random generators;
+explicit seeds and random-engine names are still validated.
 
 `sim.cache_info()` reports entries/bytes/limit/hits/misses for the bounded LRU.
 `sim.clear_cache()` resets that cache; live compiled objects keep their own tensor

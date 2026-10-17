@@ -2,7 +2,12 @@
 import importlib.util
 from pathlib import Path
 import sys
+import contextlib
+import csv
+import tempfile
+import types
 import unittest
+from unittest.mock import patch
 import numpy as np
 
 # The source-distribution test suite can run outside the checkout cwd. Adding
@@ -21,6 +26,35 @@ cases = load('cases')
 
 
 class BenchmarkTests(unittest.TestCase):
+    def test_correctness_worker_and_all_report_formats_omit_timing(self):
+        aliases={'reference':reference,'cases':cases}
+        with patch.dict(sys.modules,aliases):
+            adapters=load('adapters')
+            runner=load('run')
+        pool=types.SimpleNamespace(threadpool_limits=lambda **kwargs:contextlib.nullcontext(),threadpool_info=lambda:[])
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)
+            spec=cases.suite('smoke')[0]
+            request=dict(measurement='correctness',engine='nexqus',case=spec,precision='double',threads=1,
+                         state_path=str(path/'state.npz'))
+            with patch.dict(sys.modules,{'adapters':adapters,'threadpoolctl':pool}):
+                with patch.object(runner,'PeakRSS',side_effect=AssertionError('Correctness must not sample RSS')):
+                    row=runner.worker(request)
+            self.assertEqual(row['status'],'ok',row)
+            for key in row: self.assertNotIn('seconds',key)
+            with np.load(path/'state.npz') as data:
+                row['accuracy']=reference.accuracy(reference.dense_reference(spec),data['state'],spec['method'],
+                                                   'double',data['probabilities'])
+            row['reference']='independent dense oracle'
+            report=dict(environment=dict(utc_time='test',cpu='test',python='test'),
+                        configuration=dict(measurement='correctness',suite='smoke',precision='double',threads=1),results=[row])
+            runner.write_reports(path,report)
+            self.assertNotIn('median_seconds',(path/'results.json').read_text())
+            self.assertNotIn('Median ms',(path/'report.md').read_text())
+            with (path/'results.csv').open(newline='') as handle:
+                header=next(csv.reader(handle))
+            self.assertFalse(any('seconds' in field for field in header))
+
     def test_reference_analytic_states_and_noise(self):
         spec = dict(n_qubits=2,method='statevector',operations=[dict(gate='RY',angle=np.pi,wires=[1]),
                     dict(gate='CX',wires=[1,0])])

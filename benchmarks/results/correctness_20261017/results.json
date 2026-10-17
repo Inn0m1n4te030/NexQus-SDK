@@ -1,6 +1,6 @@
 {
   "environment": {
-    "utc_time": "2026-10-17T08:44:23.547356+00:00",
+    "utc_time": "2026-10-17T09:23:01.995253+00:00",
     "python": "3.12.14",
     "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
     "cpu": "AMD EPYC 9V74 80-Core Processor",
@@ -27,19 +27,18 @@
       "psutil": "7.2.2",
       "threadpoolctl": "3.7.0"
     },
-    "git_commit": "7a9a9bfb8d1f8744de4df3c5d54c26ccda12d7af",
+    "git_commit": "89050b4e35194a2587ebceb4e64a6be80a0b89b2",
     "git_dirty": true,
-    "runtime_source_sha256": "35497bef1e7f51cd665aaef688d7bafb8d6d2c54a42883211352131388c1e974",
-    "benchmark_source_sha256": "2236f1dae5768b5305524c5aaa939dc9a6ebcb3ea8f681198da7133d8b843461",
+    "runtime_source_sha256": "d042b398d6c1f24316fdf97ff16869698105e22e8b857591495c585b4bd94914",
+    "benchmark_source_sha256": "b25a7ef9c733f56ade04b591fd6bfdd5dcaf67079f73624cffceaefabced6e1d",
     "runtime_path": "/workspace/scratch/56fd6c55d453/NexQus-SDK/src/nexqus/__init__.py",
     "device": "CPU"
   },
   "configuration": {
     "suite": "correctness",
+    "measurement": "correctness",
     "precision": "double",
     "threads": 1,
-    "warmup": 0,
-    "repeats": 1,
     "engines": [
       "nexqus",
       "qiskit",
@@ -11819,28 +11818,14 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.0071767260001252,
-      "seconds": [
-        0.004271403999609902
-      ],
-      "median_seconds": 0.004271403999609902,
-      "min_seconds": 0.004271403999609902,
-      "max_seconds": 0.004271403999609902,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 37621760,
-      "execution_peak_rss_bytes": 40333312,
-      "sampled_incremental_rss_bytes": 2711552,
-      "process_peak_rss_bytes": 40402944,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.8619006149354548e-16,
-        "probability_tvd": 2.636779683484747e-16,
-        "probability_state_error": 2.220446049250313e-16,
-        "normalization_error": 2.220446049250313e-16,
+        "max_state_error": 1.7554167342883506e-16,
+        "probability_tvd": 2.706168622523819e-16,
+        "probability_state_error": 2.7755575615628914e-17,
+        "normalization_error": 0.0,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
         "tolerance": 1e-09
@@ -11863,14 +11848,6 @@
       },
       "threadpools": [
         {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
-        },
-        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -11879,6 +11856,14 @@
           "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
         },
         {
           "user_api": "blas",
@@ -11891,21 +11876,7 @@
           "architecture": "Barcelona"
         }
       ],
-      "preparation_seconds": 0.24911653699973613,
-      "seconds": [
-        0.0016004950002752594
-      ],
-      "median_seconds": 0.0016004950002752594,
-      "min_seconds": 0.0016004950002752594,
-      "max_seconds": 0.0016004950002752594,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 107704320,
-      "execution_peak_rss_bytes": 109019136,
-      "sampled_incremental_rss_bytes": 1314816,
-      "process_peak_rss_bytes": 109056000,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -11954,21 +11925,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.116562765999788,
-      "seconds": [
-        0.001192375999835349
-      ],
-      "median_seconds": 0.001192375999835349,
-      "min_seconds": 0.001192375999835349,
-      "max_seconds": 0.001192375999835349,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 179228672,
-      "execution_peak_rss_bytes": 179290112,
-      "sampled_incremental_rss_bytes": 61440,
-      "process_peak_rss_bytes": 179314688,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -12012,21 +11969,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.0061405819997162325,
-      "seconds": [
-        0.004041233999942051
-      ],
-      "median_seconds": 0.004041233999942051,
-      "min_seconds": 0.004041233999942051,
-      "max_seconds": 0.004041233999942051,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 38092800,
-      "execution_peak_rss_bytes": 40968192,
-      "sampled_incremental_rss_bytes": 2875392,
-      "process_peak_rss_bytes": 41037824,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -12056,6 +11999,14 @@
       },
       "threadpools": [
         {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
+        },
+        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -12064,14 +12015,6 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
-        },
-        {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
         },
         {
           "user_api": "blas",
@@ -12084,21 +12027,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.27428417199962496,
-      "seconds": [
-        0.001742140000260406
-      ],
-      "median_seconds": 0.001742140000260406,
-      "min_seconds": 0.001742140000260406,
-      "max_seconds": 0.001742140000260406,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 108363776,
-      "execution_peak_rss_bytes": 109289472,
-      "sampled_incremental_rss_bytes": 925696,
-      "process_peak_rss_bytes": 109330432,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -12147,21 +12076,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.0928389190003145,
-      "seconds": [
-        0.0011786360000769491
-      ],
-      "median_seconds": 0.0011786360000769491,
-      "min_seconds": 0.0011786360000769491,
-      "max_seconds": 0.0011786360000769491,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 177958912,
-      "execution_peak_rss_bytes": 179220480,
-      "sampled_incremental_rss_bytes": 1261568,
-      "process_peak_rss_bytes": 179240960,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -12204,28 +12119,14 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.006893048000165436,
-      "seconds": [
-        0.004585081000186619
-      ],
-      "median_seconds": 0.004585081000186619,
-      "min_seconds": 0.004585081000186619,
-      "max_seconds": 0.004585081000186619,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 37412864,
-      "execution_peak_rss_bytes": 40501248,
-      "sampled_incremental_rss_bytes": 3088384,
-      "process_peak_rss_bytes": 40566784,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 2.0014830212433607e-16,
-        "probability_tvd": 1.1102230246251565e-16,
-        "probability_state_error": 4.440892098500626e-16,
-        "normalization_error": 8.881784197001252e-16,
+        "max_state_error": 2.7755575615628914e-16,
+        "probability_tvd": 2.1163626406917047e-16,
+        "probability_state_error": 5.551115123125783e-16,
+        "normalization_error": 9.992007221626409e-16,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
         "tolerance": 1e-09
@@ -12248,14 +12149,6 @@
       },
       "threadpools": [
         {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
-        },
-        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -12264,6 +12157,14 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
         },
         {
           "user_api": "blas",
@@ -12276,21 +12177,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.2699501830002191,
-      "seconds": [
-        0.0019125229996461712
-      ],
-      "median_seconds": 0.0019125229996461712,
-      "min_seconds": 0.0019125229996461712,
-      "max_seconds": 0.0019125229996461712,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 111329280,
-      "execution_peak_rss_bytes": 112304128,
-      "sampled_incremental_rss_bytes": 974848,
-      "process_peak_rss_bytes": 112353280,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -12339,21 +12226,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1772931049999897,
-      "seconds": [
-        0.0016947399999480695
-      ],
-      "median_seconds": 0.0016947399999480695,
-      "min_seconds": 0.0016947399999480695,
-      "max_seconds": 0.0016947399999480695,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 177987584,
-      "execution_peak_rss_bytes": 179306496,
-      "sampled_incremental_rss_bytes": 1318912,
-      "process_peak_rss_bytes": 179331072,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -12398,30 +12271,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.010063821000130702,
-      "seconds": [
-        0.007325132999994821
-      ],
-      "median_seconds": 0.007325132999994821,
-      "min_seconds": 0.007325132999994821,
-      "max_seconds": 0.007325132999994821,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 37568512,
-      "execution_peak_rss_bytes": 40321024,
-      "sampled_incremental_rss_bytes": 2752512,
-      "process_peak_rss_bytes": 40398848,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 3.376689772149091e-16,
-        "probability_tvd": 2.5673907444456745e-16,
-        "probability_state_error": 3.3306690738754696e-16,
-        "normalization_error": 5.560650723948607e-16,
-        "hermiticity_error": 9.934984129320279e-17,
-        "minimum_eigenvalue": 0.006803561835023573,
+        "max_state_error": 1.3877787807814457e-16,
+        "probability_tvd": 3.469446951953614e-17,
+        "probability_state_error": 1.1102230246251565e-16,
+        "normalization_error": 1.1135191784918026e-16,
+        "hermiticity_error": 9.71445146547012e-17,
+        "minimum_eigenvalue": 0.006803561835023674,
         "tolerance": 1e-09
       }
     },
@@ -12442,6 +12301,16 @@
       },
       "threadpools": [
         {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
           "user_api": "openmp",
           "internal_api": "openmp",
           "num_threads": 1,
@@ -12458,33 +12327,9 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
-          "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
-          "threading_layer": "pthreads",
-          "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.24912092800013852,
-      "seconds": [
-        0.0015606500001013046
-      ],
-      "median_seconds": 0.0015606500001013046,
-      "min_seconds": 0.0015606500001013046,
-      "max_seconds": 0.0015606500001013046,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 108974080,
-      "execution_peak_rss_bytes": 110383104,
-      "sampled_incremental_rss_bytes": 1409024,
-      "process_peak_rss_bytes": 110419968,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -12517,8 +12362,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -12527,27 +12372,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1893910569997388,
-      "seconds": [
-        0.004257024999787973
-      ],
-      "median_seconds": 0.004257024999787973,
-      "min_seconds": 0.004257024999787973,
-      "max_seconds": 0.004257024999787973,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 179916800,
-      "execution_peak_rss_bytes": 180047872,
-      "sampled_incremental_rss_bytes": 131072,
-      "process_peak_rss_bytes": 180072448,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -12592,30 +12423,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.007909953000307723,
-      "seconds": [
-        0.007493235999845638
-      ],
-      "median_seconds": 0.007493235999845638,
-      "min_seconds": 0.007493235999845638,
-      "max_seconds": 0.007493235999845638,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 38187008,
-      "execution_peak_rss_bytes": 41095168,
-      "sampled_incremental_rss_bytes": 2908160,
-      "process_peak_rss_bytes": 41172992,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 2.7764247878179436e-16,
-        "probability_tvd": 1.5959455978986625e-16,
-        "probability_state_error": 4.440892098500626e-16,
-        "normalization_error": 8.883640885627585e-16,
-        "hermiticity_error": 1.2412670766236366e-16,
-        "minimum_eigenvalue": 0.02885162841668905,
+        "max_state_error": 3.3313062556961466e-16,
+        "probability_tvd": 3.400058012914542e-16,
+        "probability_state_error": 3.3306690738754696e-16,
+        "normalization_error": 6.662083675497768e-16,
+        "hermiticity_error": 1.1443916996305594e-16,
+        "minimum_eigenvalue": 0.028851628416688882,
         "tolerance": 1e-09
       }
     },
@@ -12639,6 +12456,16 @@
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
+          "prefix": "libopenblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
+          "version": null,
+          "threading_layer": "disabled",
+          "architecture": "Barcelona"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
           "prefix": "libscipy_openblas",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
           "version": "0.3.34.106.0",
@@ -12652,33 +12479,9 @@
           "prefix": "libgomp",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
           "version": null
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
-          "prefix": "libopenblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
-          "version": null,
-          "threading_layer": "disabled",
-          "architecture": "Barcelona"
         }
       ],
-      "preparation_seconds": 0.2655655779999506,
-      "seconds": [
-        0.002299784999650001
-      ],
-      "median_seconds": 0.002299784999650001,
-      "min_seconds": 0.002299784999650001,
-      "max_seconds": 0.002299784999650001,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 113049600,
-      "execution_peak_rss_bytes": 114057216,
-      "sampled_incremental_rss_bytes": 1007616,
-      "process_peak_rss_bytes": 114089984,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -12711,8 +12514,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -12721,27 +12524,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.2361183600000913,
-      "seconds": [
-        0.004518801999893185
-      ],
-      "median_seconds": 0.004518801999893185,
-      "min_seconds": 0.004518801999893185,
-      "max_seconds": 0.004518801999893185,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 178057216,
-      "execution_peak_rss_bytes": 178188288,
-      "sampled_incremental_rss_bytes": 131072,
-      "process_peak_rss_bytes": 178212864,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -12785,26 +12574,12 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.0068532280001818435,
-      "seconds": [
-        0.004557839999961288
-      ],
-      "median_seconds": 0.004557839999961288,
-      "min_seconds": 0.004557839999961288,
-      "max_seconds": 0.004557839999961288,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 36257792,
-      "execution_peak_rss_bytes": 39043072,
-      "sampled_incremental_rss_bytes": 2785280,
-      "process_peak_rss_bytes": 39108608,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.2412670766236366e-16,
-        "probability_tvd": 1.3877787807814457e-17,
+        "max_state_error": 1.249000902703301e-16,
+        "probability_tvd": 0.0,
         "probability_state_error": 3.3306690738754696e-16,
         "normalization_error": 5.551115123125783e-16,
         "hermiticity_error": null,
@@ -12832,11 +12607,11 @@
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
-          "prefix": "libopenblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
-          "version": null,
-          "threading_layer": "disabled",
-          "architecture": "Barcelona"
+          "prefix": "libscipy_openblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
         },
         {
           "user_api": "openmp",
@@ -12850,28 +12625,14 @@
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
-          "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
-          "threading_layer": "pthreads",
-          "architecture": "SkylakeX"
+          "prefix": "libopenblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
+          "version": null,
+          "threading_layer": "disabled",
+          "architecture": "Barcelona"
         }
       ],
-      "preparation_seconds": 0.29048696499967264,
-      "seconds": [
-        0.002007492999837268
-      ],
-      "median_seconds": 0.002007492999837268,
-      "min_seconds": 0.002007492999837268,
-      "max_seconds": 0.002007492999837268,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 108417024,
-      "execution_peak_rss_bytes": 109334528,
-      "sampled_incremental_rss_bytes": 917504,
-      "process_peak_rss_bytes": 109371392,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -12920,21 +12681,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.0943921660000342,
-      "seconds": [
-        0.001280036000025575
-      ],
-      "median_seconds": 0.001280036000025575,
-      "min_seconds": 0.001280036000025575,
-      "max_seconds": 0.001280036000025575,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 178077696,
-      "execution_peak_rss_bytes": 178139136,
-      "sampled_incremental_rss_bytes": 61440,
-      "process_peak_rss_bytes": 178163712,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -12978,21 +12725,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.006003289999625849,
-      "seconds": [
-        0.004410830999859172
-      ],
-      "median_seconds": 0.004410830999859172,
-      "min_seconds": 0.004410830999859172,
-      "max_seconds": 0.004410830999859172,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 38084608,
-      "execution_peak_rss_bytes": 40964096,
-      "sampled_incremental_rss_bytes": 2879488,
-      "process_peak_rss_bytes": 41029632,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -13022,16 +12755,6 @@
       },
       "threadpools": [
         {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
-          "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
-          "threading_layer": "pthreads",
-          "architecture": "SkylakeX"
-        },
-        {
           "user_api": "openmp",
           "internal_api": "openmp",
           "num_threads": 1,
@@ -13048,23 +12771,19 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.3116571030000159,
-      "seconds": [
-        0.0015940809998937766
-      ],
-      "median_seconds": 0.0015940809998937766,
-      "min_seconds": 0.0015940809998937766,
-      "max_seconds": 0.0015940809998937766,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 111529984,
-      "execution_peak_rss_bytes": 112463872,
-      "sampled_incremental_rss_bytes": 933888,
-      "process_peak_rss_bytes": 112500736,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -13113,21 +12832,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.257978353999988,
-      "seconds": [
-        0.0011318159999973432
-      ],
-      "median_seconds": 0.0011318159999973432,
-      "min_seconds": 0.0011318159999973432,
-      "max_seconds": 0.0011318159999973432,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 178049024,
-      "execution_peak_rss_bytes": 179437568,
-      "sampled_incremental_rss_bytes": 1388544,
-      "process_peak_rss_bytes": 179470336,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -13170,28 +12875,14 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.008566754999719706,
-      "seconds": [
-        0.0048957099998006015
-      ],
-      "median_seconds": 0.0048957099998006015,
-      "min_seconds": 0.0048957099998006015,
-      "max_seconds": 0.0048957099998006015,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 36446208,
-      "execution_peak_rss_bytes": 39497728,
-      "sampled_incremental_rss_bytes": 3051520,
-      "process_peak_rss_bytes": 39563264,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.1102230246251565e-16,
-        "probability_tvd": 8.803721640582296e-17,
-        "probability_state_error": 5.551115123125783e-16,
-        "normalization_error": 9.992007221626409e-16,
+        "max_state_error": 1.5328517645723046e-16,
+        "probability_tvd": 2.0990154059319366e-16,
+        "probability_state_error": 6.661338147750939e-16,
+        "normalization_error": 1.2212453270876722e-15,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
         "tolerance": 1e-09
@@ -13224,6 +12915,14 @@
           "architecture": "Barcelona"
         },
         {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
+        },
+        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -13232,31 +12931,9 @@
           "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
-        },
-        {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
         }
       ],
-      "preparation_seconds": 0.27988060799998493,
-      "seconds": [
-        0.004286928000055923
-      ],
-      "median_seconds": 0.004286928000055923,
-      "min_seconds": 0.004286928000055923,
-      "max_seconds": 0.004286928000055923,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 107565056,
-      "execution_peak_rss_bytes": 108781568,
-      "sampled_incremental_rss_bytes": 1216512,
-      "process_peak_rss_bytes": 108818432,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -13289,8 +12966,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -13299,27 +12976,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1518804509996698,
-      "seconds": [
-        0.00193889100000888
-      ],
-      "median_seconds": 0.00193889100000888,
-      "min_seconds": 0.00193889100000888,
-      "max_seconds": 0.00193889100000888,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 178610176,
-      "execution_peak_rss_bytes": 180056064,
-      "sampled_incremental_rss_bytes": 1445888,
-      "process_peak_rss_bytes": 180084736,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -13364,30 +13027,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.007774442000027193,
-      "seconds": [
-        0.005744435999986308
-      ],
-      "median_seconds": 0.005744435999986308,
-      "min_seconds": 0.005744435999986308,
-      "max_seconds": 0.005744435999986308,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 37502976,
-      "execution_peak_rss_bytes": 40263680,
-      "sampled_incremental_rss_bytes": 2760704,
-      "process_peak_rss_bytes": 40341504,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
         "max_state_error": 1.4946834900704541e-16,
-        "probability_tvd": 1.5265566588595902e-16,
-        "probability_state_error": 1.6653345369377348e-16,
-        "normalization_error": 3.460127568814794e-16,
-        "hermiticity_error": 1.1102230246251565e-16,
-        "minimum_eigenvalue": 0.009580565077235223,
+        "probability_tvd": 1.3877787807814457e-16,
+        "probability_state_error": 2.220446049250313e-16,
+        "normalization_error": 3.333318396174422e-16,
+        "hermiticity_error": 2.0014830212433607e-16,
+        "minimum_eigenvalue": 0.009580565077235073,
         "tolerance": 1e-09
       }
     },
@@ -13436,21 +13085,7 @@
           "version": null
         }
       ],
-      "preparation_seconds": 0.2488652679999177,
-      "seconds": [
-        0.0018577400001049682
-      ],
-      "median_seconds": 0.0018577400001049682,
-      "min_seconds": 0.0018577400001049682,
-      "max_seconds": 0.0018577400001049682,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 108515328,
-      "execution_peak_rss_bytes": 109912064,
-      "sampled_incremental_rss_bytes": 1396736,
-      "process_peak_rss_bytes": 109953024,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -13483,8 +13118,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -13493,27 +13128,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.3129754379997394,
-      "seconds": [
-        0.004721550999875035
-      ],
-      "median_seconds": 0.004721550999875035,
-      "min_seconds": 0.004721550999875035,
-      "max_seconds": 0.004721550999875035,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 178020352,
-      "execution_peak_rss_bytes": 178155520,
-      "sampled_incremental_rss_bytes": 135168,
-      "process_peak_rss_bytes": 178176000,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -13558,30 +13179,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.00740313000005699,
-      "seconds": [
-        0.006577398999979778
-      ],
-      "median_seconds": 0.006577398999979778,
-      "min_seconds": 0.006577398999979778,
-      "max_seconds": 0.006577398999979778,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 38215680,
-      "execution_peak_rss_bytes": 41037824,
-      "sampled_incremental_rss_bytes": 2822144,
-      "process_peak_rss_bytes": 41115648,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 2.2421403651603024e-16,
-        "probability_tvd": 1.8041124150158794e-16,
+        "max_state_error": 2.24448594616304e-16,
+        "probability_tvd": 2.1163626406917047e-16,
         "probability_state_error": 3.3306690738754696e-16,
-        "normalization_error": 6.663510141304025e-16,
-        "hermiticity_error": 1.7772239894833365e-16,
-        "minimum_eigenvalue": 0.0210709214391248,
+        "normalization_error": 6.694169688219662e-16,
+        "hermiticity_error": 9.937902050500903e-17,
+        "minimum_eigenvalue": 0.021070921439124753,
         "tolerance": 1e-09
       }
     },
@@ -13602,14 +13209,6 @@
       },
       "threadpools": [
         {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
-        },
-        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -13618,6 +13217,14 @@
           "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
         },
         {
           "user_api": "blas",
@@ -13630,21 +13237,7 @@
           "architecture": "Barcelona"
         }
       ],
-      "preparation_seconds": 0.2364103569998406,
-      "seconds": [
-        0.0019431770001574478
-      ],
-      "median_seconds": 0.0019431770001574478,
-      "min_seconds": 0.0019431770001574478,
-      "max_seconds": 0.0019431770001574478,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 109260800,
-      "execution_peak_rss_bytes": 110632960,
-      "sampled_incremental_rss_bytes": 1372160,
-      "process_peak_rss_bytes": 110678016,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -13677,8 +13270,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -13687,27 +13280,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1914400109999406,
-      "seconds": [
-        0.004046119999657094
-      ],
-      "median_seconds": 0.004046119999657094,
-      "min_seconds": 0.004046119999657094,
-      "max_seconds": 0.004046119999657094,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 177553408,
-      "execution_peak_rss_bytes": 177623040,
-      "sampled_incremental_rss_bytes": 69632,
-      "process_peak_rss_bytes": 177647616,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -13751,26 +13330,12 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.006751627000085136,
-      "seconds": [
-        0.004081343000052584
-      ],
-      "median_seconds": 0.004081343000052584,
-      "min_seconds": 0.004081343000052584,
-      "max_seconds": 0.004081343000052584,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 37998592,
-      "execution_peak_rss_bytes": 40890368,
-      "sampled_incremental_rss_bytes": 2891776,
-      "process_peak_rss_bytes": 40955904,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 2.220446049250313e-16,
-        "probability_tvd": 2.3592239273284576e-16,
+        "max_state_error": 2.482534153247273e-16,
+        "probability_tvd": 2.7755575615628914e-16,
         "probability_state_error": 1.6653345369377348e-16,
         "normalization_error": 4.440892098500626e-16,
         "hermiticity_error": null,
@@ -13795,6 +13360,14 @@
       },
       "threadpools": [
         {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
+        },
+        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -13803,14 +13376,6 @@
           "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
-        },
-        {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
         },
         {
           "user_api": "blas",
@@ -13823,21 +13388,7 @@
           "architecture": "Barcelona"
         }
       ],
-      "preparation_seconds": 0.2643191890001617,
-      "seconds": [
-        0.0019346150002093054
-      ],
-      "median_seconds": 0.0019346150002093054,
-      "min_seconds": 0.0019346150002093054,
-      "max_seconds": 0.0019346150002093054,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 107560960,
-      "execution_peak_rss_bytes": 108814336,
-      "sampled_incremental_rss_bytes": 1253376,
-      "process_peak_rss_bytes": 108847104,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -13886,21 +13437,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.118452298000193,
-      "seconds": [
-        0.0014931509999769332
-      ],
-      "median_seconds": 0.0014931509999769332,
-      "min_seconds": 0.0014931509999769332,
-      "max_seconds": 0.0014931509999769332,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 177405952,
-      "execution_peak_rss_bytes": 177467392,
-      "sampled_incremental_rss_bytes": 61440,
-      "process_peak_rss_bytes": 177491968,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -13944,21 +13481,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.006420585999876494,
-      "seconds": [
-        0.004298504999951547
-      ],
-      "median_seconds": 0.004298504999951547,
-      "min_seconds": 0.004298504999951547,
-      "max_seconds": 0.004298504999951547,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 38154240,
-      "execution_peak_rss_bytes": 41054208,
-      "sampled_incremental_rss_bytes": 2899968,
-      "process_peak_rss_bytes": 41123840,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -13998,6 +13521,14 @@
           "architecture": "SkylakeX"
         },
         {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
+        },
+        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -14006,31 +13537,9 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
-        },
-        {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
         }
       ],
-      "preparation_seconds": 0.257219558000088,
-      "seconds": [
-        0.0017511030000605388
-      ],
-      "median_seconds": 0.0017511030000605388,
-      "min_seconds": 0.0017511030000605388,
-      "max_seconds": 0.0017511030000605388,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 107782144,
-      "execution_peak_rss_bytes": 108908544,
-      "sampled_incremental_rss_bytes": 1126400,
-      "process_peak_rss_bytes": 108941312,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -14063,8 +13572,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -14073,27 +13582,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.0872286869998788,
-      "seconds": [
-        0.001168820000202686
-      ],
-      "median_seconds": 0.001168820000202686,
-      "min_seconds": 0.001168820000202686,
-      "max_seconds": 0.001168820000202686,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 178393088,
-      "execution_peak_rss_bytes": 179650560,
-      "sampled_incremental_rss_bytes": 1257472,
-      "process_peak_rss_bytes": 179675136,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -14136,28 +13631,14 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.006985261999943759,
-      "seconds": [
-        0.004722401999970316
-      ],
-      "median_seconds": 0.004722401999970316,
-      "min_seconds": 0.004722401999970316,
-      "max_seconds": 0.004722401999970316,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 37302272,
-      "execution_peak_rss_bytes": 40443904,
-      "sampled_incremental_rss_bytes": 3141632,
-      "process_peak_rss_bytes": 40509440,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 7.850462293418876e-17,
-        "probability_tvd": 8.326672684688674e-17,
+        "max_state_error": 1.1443916996305594e-16,
+        "probability_tvd": 5.551115123125783e-17,
         "probability_state_error": 2.7755575615628914e-16,
-        "normalization_error": 7.771561172376096e-16,
+        "normalization_error": 6.661338147750939e-16,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
         "tolerance": 1e-09
@@ -14180,6 +13661,14 @@
       },
       "threadpools": [
         {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
+        },
+        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -14198,31 +13687,9 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
-        },
-        {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
         }
       ],
-      "preparation_seconds": 0.3423161579999032,
-      "seconds": [
-        0.0018742449997262156
-      ],
-      "median_seconds": 0.0018742449997262156,
-      "min_seconds": 0.0018742449997262156,
-      "max_seconds": 0.0018742449997262156,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 107552768,
-      "execution_peak_rss_bytes": 108785664,
-      "sampled_incremental_rss_bytes": 1232896,
-      "process_peak_rss_bytes": 108822528,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -14271,21 +13738,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.2651742449997982,
-      "seconds": [
-        0.0016740480000407842
-      ],
-      "median_seconds": 0.0016740480000407842,
-      "min_seconds": 0.0016740480000407842,
-      "max_seconds": 0.0016740480000407842,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 64,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 177418240,
-      "execution_peak_rss_bytes": 178667520,
-      "sampled_incremental_rss_bytes": 1249280,
-      "process_peak_rss_bytes": 178692096,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -14330,30 +13783,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.00703965499997139,
-      "seconds": [
-        0.00589575000003606
-      ],
-      "median_seconds": 0.00589575000003606,
-      "min_seconds": 0.00589575000003606,
-      "max_seconds": 0.00589575000003606,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 36913152,
-      "execution_peak_rss_bytes": 39784448,
-      "sampled_incremental_rss_bytes": 2871296,
-      "process_peak_rss_bytes": 39858176,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 2.297585642192004e-16,
-        "probability_tvd": 1.5265566588595902e-16,
+        "max_state_error": 1.2516394369057592e-16,
+        "probability_tvd": 1.3877787807814457e-16,
         "probability_state_error": 0.0,
-        "normalization_error": 6.237590373807011e-17,
-        "hermiticity_error": 2.0122792321330962e-16,
-        "minimum_eigenvalue": 0.008549489100107508,
+        "normalization_error": 6.52781299692349e-18,
+        "hermiticity_error": 1.332720432884578e-16,
+        "minimum_eigenvalue": 0.008549489100107423,
         "tolerance": 1e-09
       }
     },
@@ -14384,14 +13823,6 @@
           "architecture": "SkylakeX"
         },
         {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
-        },
-        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -14400,23 +13831,17 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
         }
       ],
-      "preparation_seconds": 0.23779559700005848,
-      "seconds": [
-        0.002223662000233162
-      ],
-      "median_seconds": 0.002223662000233162,
-      "min_seconds": 0.002223662000233162,
-      "max_seconds": 0.002223662000233162,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 112889856,
-      "execution_peak_rss_bytes": 113905664,
-      "sampled_incremental_rss_bytes": 1015808,
-      "process_peak_rss_bytes": 113942528,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -14465,21 +13890,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1992905030001566,
-      "seconds": [
-        0.004309861999900022
-      ],
-      "median_seconds": 0.004309861999900022,
-      "min_seconds": 0.004309861999900022,
-      "max_seconds": 0.004309861999900022,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 179286016,
-      "execution_peak_rss_bytes": 179429376,
-      "sampled_incremental_rss_bytes": 143360,
-      "process_peak_rss_bytes": 179453952,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -14524,30 +13935,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.007254181999996945,
-      "seconds": [
-        0.006928598999820679
-      ],
-      "median_seconds": 0.006928598999820679,
-      "min_seconds": 0.006928598999820679,
-      "max_seconds": 0.006928598999820679,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 36286464,
-      "execution_peak_rss_bytes": 39038976,
-      "sampled_incremental_rss_bytes": 2752512,
-      "process_peak_rss_bytes": 39116800,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 2.1138016631127878e-16,
-        "probability_tvd": 1.6653345369377348e-16,
-        "probability_state_error": 2.7755575615628914e-16,
-        "normalization_error": 8.89853765781956e-16,
-        "hermiticity_error": 1.1775693440128314e-16,
-        "minimum_eigenvalue": 0.02477720642858166,
+        "max_state_error": 2.2755369628789303e-16,
+        "probability_tvd": 1.942890293094024e-16,
+        "probability_state_error": 2.220446049250313e-16,
+        "normalization_error": 6.662355180306974e-16,
+        "hermiticity_error": 1.1761654142746341e-16,
+        "minimum_eigenvalue": 0.02477720642858168,
         "tolerance": 1e-09
       }
     },
@@ -14571,16 +13968,6 @@
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
-          "prefix": "libopenblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
-          "version": null,
-          "threading_layer": "disabled",
-          "architecture": "Barcelona"
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
           "prefix": "libscipy_openblas",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
           "version": "0.3.34.106.0",
@@ -14594,23 +13981,19 @@
           "prefix": "libgomp",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
           "version": null
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libopenblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
+          "version": null,
+          "threading_layer": "disabled",
+          "architecture": "Barcelona"
         }
       ],
-      "preparation_seconds": 0.2460850119996394,
-      "seconds": [
-        0.0020496350002758845
-      ],
-      "median_seconds": 0.0020496350002758845,
-      "min_seconds": 0.0020496350002758845,
-      "max_seconds": 0.0020496350002758845,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 112906240,
-      "execution_peak_rss_bytes": 113905664,
-      "sampled_incremental_rss_bytes": 999424,
-      "process_peak_rss_bytes": 113942528,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -14643,8 +14026,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -14653,27 +14036,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1598718340001142,
-      "seconds": [
-        0.0043590250002125686
-      ],
-      "median_seconds": 0.0043590250002125686,
-      "min_seconds": 0.0043590250002125686,
-      "max_seconds": 0.0043590250002125686,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 256,
-      "probabilities_bytes": 32,
-      "baseline_rss_bytes": 178163712,
-      "execution_peak_rss_bytes": 178311168,
-      "sampled_incremental_rss_bytes": 147456,
-      "process_peak_rss_bytes": 178335744,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -14718,27 +14087,13 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.0073674389996085665,
-      "seconds": [
-        0.004679208999732509
-      ],
-      "median_seconds": 0.004679208999732509,
-      "min_seconds": 0.004679208999732509,
-      "max_seconds": 0.004679208999732509,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 36474880,
-      "execution_peak_rss_bytes": 39563264,
-      "sampled_incremental_rss_bytes": 3088384,
-      "process_peak_rss_bytes": 39628800,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.716587549445839e-16,
-        "probability_tvd": 2.8536201179818477e-16,
-        "probability_state_error": 1.1102230246251565e-16,
+        "max_state_error": 2.2247786310271853e-16,
+        "probability_tvd": 2.6020852139652106e-16,
+        "probability_state_error": 1.6653345369377348e-16,
         "normalization_error": 4.440892098500626e-16,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
@@ -14790,21 +14145,7 @@
           "version": null
         }
       ],
-      "preparation_seconds": 0.2853691919999619,
-      "seconds": [
-        0.001816178999888507
-      ],
-      "median_seconds": 0.001816178999888507,
-      "min_seconds": 0.001816178999888507,
-      "max_seconds": 0.001816178999888507,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 111689728,
-      "execution_peak_rss_bytes": 112652288,
-      "sampled_incremental_rss_bytes": 962560,
-      "process_peak_rss_bytes": 112693248,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -14853,21 +14194,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.171203493000121,
-      "seconds": [
-        0.0024406540001109533
-      ],
-      "median_seconds": 0.0024406540001109533,
-      "min_seconds": 0.0024406540001109533,
-      "max_seconds": 0.0024406540001109533,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 179093504,
-      "execution_peak_rss_bytes": 179167232,
-      "sampled_incremental_rss_bytes": 73728,
-      "process_peak_rss_bytes": 179191808,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -14911,21 +14238,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.006115404999945895,
-      "seconds": [
-        0.004399724999984755
-      ],
-      "median_seconds": 0.004399724999984755,
-      "min_seconds": 0.004399724999984755,
-      "max_seconds": 0.004399724999984755,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 37462016,
-      "execution_peak_rss_bytes": 40542208,
-      "sampled_incremental_rss_bytes": 3080192,
-      "process_peak_rss_bytes": 40607744,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -14955,6 +14268,14 @@
       },
       "threadpools": [
         {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
+        },
+        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -14963,14 +14284,6 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
-        },
-        {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
         },
         {
           "user_api": "blas",
@@ -14983,21 +14296,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.31709195700022974,
-      "seconds": [
-        0.0027552350002224557
-      ],
-      "median_seconds": 0.0027552350002224557,
-      "min_seconds": 0.0027552350002224557,
-      "max_seconds": 0.0027552350002224557,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 107532288,
-      "execution_peak_rss_bytes": 108871680,
-      "sampled_incremental_rss_bytes": 1339392,
-      "process_peak_rss_bytes": 108904448,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -15046,21 +14345,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1230311900003471,
-      "seconds": [
-        0.0017093110000132583
-      ],
-      "median_seconds": 0.0017093110000132583,
-      "min_seconds": 0.0017093110000132583,
-      "max_seconds": 0.0017093110000132583,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 177803264,
-      "execution_peak_rss_bytes": 179064832,
-      "sampled_incremental_rss_bytes": 1261568,
-      "process_peak_rss_bytes": 179089408,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -15104,28 +14389,14 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.00703407499986497,
-      "seconds": [
-        0.007474026999716443
-      ],
-      "median_seconds": 0.007474026999716443,
-      "min_seconds": 0.007474026999716443,
-      "max_seconds": 0.007474026999716443,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 38064128,
-      "execution_peak_rss_bytes": 40878080,
-      "sampled_incremental_rss_bytes": 2813952,
-      "process_peak_rss_bytes": 40947712,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.1443916996305594e-16,
-        "probability_tvd": 1.9081958235744878e-16,
+        "max_state_error": 2.4377648747674303e-16,
+        "probability_tvd": 1.942890293094024e-16,
         "probability_state_error": 5.551115123125783e-16,
-        "normalization_error": 1.3322676295501878e-15,
+        "normalization_error": 1.7763568394002505e-15,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
         "tolerance": 1e-09
@@ -15148,6 +14419,14 @@
       },
       "threadpools": [
         {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
+        },
+        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -15166,31 +14445,9 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
-        },
-        {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
         }
       ],
-      "preparation_seconds": 0.2773572510000122,
-      "seconds": [
-        0.0016451960000267718
-      ],
-      "median_seconds": 0.0016451960000267718,
-      "min_seconds": 0.0016451960000267718,
-      "max_seconds": 0.0016451960000267718,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 107794432,
-      "execution_peak_rss_bytes": 108986368,
-      "sampled_incremental_rss_bytes": 1191936,
-      "process_peak_rss_bytes": 109019136,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -15223,8 +14480,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -15233,27 +14490,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.2695867289999114,
-      "seconds": [
-        0.0025892239996210265
-      ],
-      "median_seconds": 0.0025892239996210265,
-      "min_seconds": 0.0025892239996210265,
-      "max_seconds": 0.0025892239996210265,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 177963008,
-      "execution_peak_rss_bytes": 179408896,
-      "sampled_incremental_rss_bytes": 1445888,
-      "process_peak_rss_bytes": 179433472,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -15299,30 +14542,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.010045634000107384,
-      "seconds": [
-        0.008119152000290342
-      ],
-      "median_seconds": 0.008119152000290342,
-      "min_seconds": 0.008119152000290342,
-      "max_seconds": 0.008119152000290342,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 36425728,
-      "execution_peak_rss_bytes": 39571456,
-      "sampled_incremental_rss_bytes": 3145728,
-      "process_peak_rss_bytes": 39636992,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.4304896245381993e-16,
-        "probability_tvd": 1.457167719820518e-16,
-        "probability_state_error": 0.0,
-        "normalization_error": 6.84259805556153e-17,
-        "hermiticity_error": 1.1857187100668868e-16,
-        "minimum_eigenvalue": 0.00195505880684055,
+        "max_state_error": 1.9747254992182984e-16,
+        "probability_tvd": 2.6194324487249787e-16,
+        "probability_state_error": 1.1102230246251565e-16,
+        "normalization_error": 4.451664127450393e-16,
+        "hermiticity_error": 1.0569008315563939e-16,
+        "minimum_eigenvalue": 0.0019550588068405115,
         "tolerance": 1e-09
       }
     },
@@ -15343,12 +14572,14 @@
       },
       "threadpools": [
         {
-          "user_api": "openmp",
-          "internal_api": "openmp",
+          "user_api": "blas",
+          "internal_api": "openblas",
           "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
+          "prefix": "libopenblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
+          "version": null,
+          "threading_layer": "disabled",
+          "architecture": "Barcelona"
         },
         {
           "user_api": "blas",
@@ -15361,31 +14592,15 @@
           "architecture": "SkylakeX"
         },
         {
-          "user_api": "blas",
-          "internal_api": "openblas",
+          "user_api": "openmp",
+          "internal_api": "openmp",
           "num_threads": 1,
-          "prefix": "libopenblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
-          "version": null,
-          "threading_layer": "disabled",
-          "architecture": "Barcelona"
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
         }
       ],
-      "preparation_seconds": 0.28982754900016516,
-      "seconds": [
-        0.001789959999769053
-      ],
-      "median_seconds": 0.001789959999769053,
-      "min_seconds": 0.001789959999769053,
-      "max_seconds": 0.001789959999769053,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 113139712,
-      "execution_peak_rss_bytes": 114130944,
-      "sampled_incremental_rss_bytes": 991232,
-      "process_peak_rss_bytes": 114167808,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -15418,8 +14633,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -15428,27 +14643,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.195660228000179,
-      "seconds": [
-        0.007440516999849933
-      ],
-      "median_seconds": 0.007440516999849933,
-      "min_seconds": 0.007440516999849933,
-      "max_seconds": 0.007440516999849933,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 177688576,
-      "execution_peak_rss_bytes": 177770496,
-      "sampled_incremental_rss_bytes": 81920,
-      "process_peak_rss_bytes": 177790976,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -15494,30 +14695,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.008179881999694771,
-      "seconds": [
-        0.008410561999880883
-      ],
-      "median_seconds": 0.008410561999880883,
-      "min_seconds": 0.008410561999880883,
-      "max_seconds": 0.008410561999880883,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 37007360,
-      "execution_peak_rss_bytes": 39915520,
-      "sampled_incremental_rss_bytes": 2908160,
-      "process_peak_rss_bytes": 39985152,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.460478603385596e-16,
-        "probability_tvd": 2.203098814490545e-16,
-        "probability_state_error": 2.220446049250313e-16,
-        "normalization_error": 8.88182285650843e-16,
-        "hermiticity_error": 1.2118257228641695e-16,
-        "minimum_eigenvalue": 0.010408085128737575,
+        "max_state_error": 2.274908252273727e-16,
+        "probability_tvd": 2.6020852139652106e-16,
+        "probability_state_error": 1.1102230246251565e-16,
+        "normalization_error": 4.446275389646758e-16,
+        "hermiticity_error": 1.7010907505015192e-16,
+        "minimum_eigenvalue": 0.010408085128737584,
         "tolerance": 1e-09
       }
     },
@@ -15566,21 +14753,7 @@
           "version": null
         }
       ],
-      "preparation_seconds": 0.2664543030000459,
-      "seconds": [
-        0.0016618510003354459
-      ],
-      "median_seconds": 0.0016618510003354459,
-      "min_seconds": 0.0016618510003354459,
-      "max_seconds": 0.0016618510003354459,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 109129728,
-      "execution_peak_rss_bytes": 110604288,
-      "sampled_incremental_rss_bytes": 1474560,
-      "process_peak_rss_bytes": 110641152,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -15629,21 +14802,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1989387540002099,
-      "seconds": [
-        0.006685338999886881
-      ],
-      "median_seconds": 0.006685338999886881,
-      "min_seconds": 0.006685338999886881,
-      "max_seconds": 0.006685338999886881,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 178208768,
-      "execution_peak_rss_bytes": 178348032,
-      "sampled_incremental_rss_bytes": 139264,
-      "process_peak_rss_bytes": 178368512,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -15688,26 +14847,12 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.011169119999976829,
-      "seconds": [
-        0.005155454000032478
-      ],
-      "median_seconds": 0.005155454000032478,
-      "min_seconds": 0.005155454000032478,
-      "max_seconds": 0.005155454000032478,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 36274176,
-      "execution_peak_rss_bytes": 39436288,
-      "sampled_incremental_rss_bytes": 3162112,
-      "process_peak_rss_bytes": 39501824,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 2.0819572716764683e-16,
-        "probability_tvd": 1.7607443281164592e-16,
+        "max_state_error": 2.1049566689853461e-16,
+        "probability_tvd": 1.0950441942103595e-16,
         "probability_state_error": 2.7755575615628914e-16,
         "normalization_error": 4.440892098500626e-16,
         "hermiticity_error": null,
@@ -15732,14 +14877,6 @@
       },
       "threadpools": [
         {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
-        },
-        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -15758,23 +14895,17 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
         }
       ],
-      "preparation_seconds": 0.2887790109998605,
-      "seconds": [
-        0.0018451629998708086
-      ],
-      "median_seconds": 0.0018451629998708086,
-      "min_seconds": 0.0018451629998708086,
-      "max_seconds": 0.0018451629998708086,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 111411200,
-      "execution_peak_rss_bytes": 112402432,
-      "sampled_incremental_rss_bytes": 991232,
-      "process_peak_rss_bytes": 112476160,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -15807,8 +14938,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -15817,27 +14948,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.2935596649999752,
-      "seconds": [
-        0.002314096000191057
-      ],
-      "median_seconds": 0.002314096000191057,
-      "min_seconds": 0.002314096000191057,
-      "max_seconds": 0.002314096000191057,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 177864704,
-      "execution_peak_rss_bytes": 178065408,
-      "sampled_incremental_rss_bytes": 200704,
-      "process_peak_rss_bytes": 178094080,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -15881,21 +14998,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.006431152999994083,
-      "seconds": [
-        0.0050071349996869685
-      ],
-      "median_seconds": 0.0050071349996869685,
-      "min_seconds": 0.0050071349996869685,
-      "max_seconds": 0.0050071349996869685,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 36388864,
-      "execution_peak_rss_bytes": 39489536,
-      "sampled_incremental_rss_bytes": 3100672,
-      "process_peak_rss_bytes": 39555072,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -15925,14 +15028,6 @@
       },
       "threadpools": [
         {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
-        },
-        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -15951,23 +15046,17 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
         }
       ],
-      "preparation_seconds": 0.29990060000000085,
-      "seconds": [
-        0.001460984000004828
-      ],
-      "median_seconds": 0.001460984000004828,
-      "min_seconds": 0.001460984000004828,
-      "max_seconds": 0.001460984000004828,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 107810816,
-      "execution_peak_rss_bytes": 109010944,
-      "sampled_incremental_rss_bytes": 1200128,
-      "process_peak_rss_bytes": 109051904,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -16000,8 +15089,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -16010,27 +15099,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.2250993299999209,
-      "seconds": [
-        0.001431971000329213
-      ],
-      "median_seconds": 0.001431971000329213,
-      "min_seconds": 0.001431971000329213,
-      "max_seconds": 0.001431971000329213,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 177684480,
-      "execution_peak_rss_bytes": 178946048,
-      "sampled_incremental_rss_bytes": 1261568,
-      "process_peak_rss_bytes": 178970624,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -16074,28 +15149,14 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.007250807999753306,
-      "seconds": [
-        0.00476355400041939
-      ],
-      "median_seconds": 0.00476355400041939,
-      "min_seconds": 0.00476355400041939,
-      "max_seconds": 0.00476355400041939,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 36458496,
-      "execution_peak_rss_bytes": 39579648,
-      "sampled_incremental_rss_bytes": 3121152,
-      "process_peak_rss_bytes": 39649280,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 2.618455766672135e-16,
-        "probability_tvd": 2.7777259659078624e-16,
-        "probability_state_error": 4.440892098500626e-16,
-        "normalization_error": 1.5543122344752192e-15,
+        "max_state_error": 3.376611507232129e-16,
+        "probability_tvd": 5.425347671117464e-16,
+        "probability_state_error": 6.661338147750939e-16,
+        "normalization_error": 2.220446049250313e-15,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
         "tolerance": 1e-09
@@ -16121,6 +15182,16 @@
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
           "prefix": "libopenblas",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
           "version": null,
@@ -16134,33 +15205,9 @@
           "prefix": "libgomp",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
           "version": null
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
-          "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
-          "threading_layer": "pthreads",
-          "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.260434203999921,
-      "seconds": [
-        0.0022098919998825295
-      ],
-      "median_seconds": 0.0022098919998825295,
-      "min_seconds": 0.0022098919998825295,
-      "max_seconds": 0.0022098919998825295,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 110698496,
-      "execution_peak_rss_bytes": 111947776,
-      "sampled_incremental_rss_bytes": 1249280,
-      "process_peak_rss_bytes": 111988736,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -16209,21 +15256,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.158020927999587,
-      "seconds": [
-        0.002544628000123339
-      ],
-      "median_seconds": 0.002544628000123339,
-      "min_seconds": 0.002544628000123339,
-      "max_seconds": 0.002544628000123339,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 179200000,
-      "execution_peak_rss_bytes": 180658176,
-      "sampled_incremental_rss_bytes": 1458176,
-      "process_peak_rss_bytes": 180686848,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -16269,30 +15302,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.008251739000115776,
-      "seconds": [
-        0.00699581999970178
-      ],
-      "median_seconds": 0.00699581999970178,
-      "min_seconds": 0.00699581999970178,
-      "max_seconds": 0.00699581999970178,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 36560896,
-      "execution_peak_rss_bytes": 38522880,
-      "sampled_incremental_rss_bytes": 1961984,
-      "process_peak_rss_bytes": 39657472,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.1443916996305594e-16,
-        "probability_tvd": 1.5612511283791264e-16,
+        "max_state_error": 1.5700924586837752e-16,
+        "probability_tvd": 9.020562075079397e-17,
         "probability_state_error": 1.6653345369377348e-16,
-        "normalization_error": 4.44953734089479e-16,
-        "hermiticity_error": 1.2952854044646059e-16,
-        "minimum_eigenvalue": 0.0012444033145038945,
+        "normalization_error": 2.6306370652759005e-16,
+        "hermiticity_error": 1.0666270994650967e-16,
+        "minimum_eigenvalue": 0.0012444033145039349,
         "tolerance": 1e-09
       }
     },
@@ -16313,12 +15332,14 @@
       },
       "threadpools": [
         {
-          "user_api": "openmp",
-          "internal_api": "openmp",
+          "user_api": "blas",
+          "internal_api": "openblas",
           "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
+          "prefix": "libopenblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
+          "version": null,
+          "threading_layer": "disabled",
+          "architecture": "Barcelona"
         },
         {
           "user_api": "blas",
@@ -16331,31 +15352,15 @@
           "architecture": "SkylakeX"
         },
         {
-          "user_api": "blas",
-          "internal_api": "openblas",
+          "user_api": "openmp",
+          "internal_api": "openmp",
           "num_threads": 1,
-          "prefix": "libopenblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
-          "version": null,
-          "threading_layer": "disabled",
-          "architecture": "Barcelona"
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
         }
       ],
-      "preparation_seconds": 0.24738381199995274,
-      "seconds": [
-        0.001700888999948802
-      ],
-      "median_seconds": 0.001700888999948802,
-      "min_seconds": 0.001700888999948802,
-      "max_seconds": 0.001700888999948802,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 109150208,
-      "execution_peak_rss_bytes": 110587904,
-      "sampled_incremental_rss_bytes": 1437696,
-      "process_peak_rss_bytes": 110628864,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -16404,21 +15409,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.2799569909998354,
-      "seconds": [
-        0.009292355000070529
-      ],
-      "median_seconds": 0.009292355000070529,
-      "min_seconds": 0.009292355000070529,
-      "max_seconds": 0.009292355000070529,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 178171904,
-      "execution_peak_rss_bytes": 178376704,
-      "sampled_incremental_rss_bytes": 204800,
-      "process_peak_rss_bytes": 178397184,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -16464,30 +15455,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.008622331999958988,
-      "seconds": [
-        0.009579999999914435
-      ],
-      "median_seconds": 0.009579999999914435,
-      "min_seconds": 0.009579999999914435,
-      "max_seconds": 0.009579999999914435,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 37036032,
-      "execution_peak_rss_bytes": 39882752,
-      "sampled_incremental_rss_bytes": 2846720,
-      "process_peak_rss_bytes": 39948288,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.1631705747361534e-16,
-        "probability_tvd": 1.3530843112619095e-16,
-        "probability_state_error": 4.440892098500626e-16,
-        "normalization_error": 1.1103081743754206e-15,
-        "hermiticity_error": 1.1443916996305594e-16,
-        "minimum_eigenvalue": 0.014376936784330867,
+        "max_state_error": 1.7772239894833365e-16,
+        "probability_tvd": 3.209238430557093e-16,
+        "probability_state_error": 3.3306690738754696e-16,
+        "normalization_error": 6.66957230914793e-16,
+        "hermiticity_error": 1.165434403614569e-16,
+        "minimum_eigenvalue": 0.01437693678433079,
         "tolerance": 1e-09
       }
     },
@@ -16511,16 +15488,6 @@
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
-          "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
-          "threading_layer": "pthreads",
-          "architecture": "SkylakeX"
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
           "prefix": "libopenblas",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
           "version": null,
@@ -16534,23 +15501,19 @@
           "prefix": "libgomp",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
           "version": null
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.26017142000000604,
-      "seconds": [
-        0.002248460999908275
-      ],
-      "median_seconds": 0.002248460999908275,
-      "min_seconds": 0.002248460999908275,
-      "max_seconds": 0.002248460999908275,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 109203456,
-      "execution_peak_rss_bytes": 110653440,
-      "sampled_incremental_rss_bytes": 1449984,
-      "process_peak_rss_bytes": 110690304,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -16583,8 +15546,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -16593,27 +15556,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1974803760003851,
-      "seconds": [
-        0.00838553099993078
-      ],
-      "median_seconds": 0.00838553099993078,
-      "min_seconds": 0.00838553099993078,
-      "max_seconds": 0.00838553099993078,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 178688000,
-      "execution_peak_rss_bytes": 178896896,
-      "sampled_incremental_rss_bytes": 208896,
-      "process_peak_rss_bytes": 178917376,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -16658,27 +15607,13 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.009458080000058544,
-      "seconds": [
-        0.005803547000141407
-      ],
-      "median_seconds": 0.005803547000141407,
-      "min_seconds": 0.005803547000141407,
-      "max_seconds": 0.005803547000141407,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 36454400,
-      "execution_peak_rss_bytes": 39550976,
-      "sampled_incremental_rss_bytes": 3096576,
-      "process_peak_rss_bytes": 39616512,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.6653345369377348e-16,
-        "probability_tvd": 2.7755575615628914e-16,
-        "probability_state_error": 1.1102230246251565e-16,
+        "max_state_error": 1.1102230246251565e-16,
+        "probability_tvd": 1.457167719820518e-16,
+        "probability_state_error": 5.551115123125783e-17,
         "normalization_error": 2.220446049250313e-16,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
@@ -16730,21 +15665,7 @@
           "version": null
         }
       ],
-      "preparation_seconds": 0.29786426600003324,
-      "seconds": [
-        0.001665986999796587
-      ],
-      "median_seconds": 0.001665986999796587,
-      "min_seconds": 0.001665986999796587,
-      "max_seconds": 0.001665986999796587,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 107782144,
-      "execution_peak_rss_bytes": 109137920,
-      "sampled_incremental_rss_bytes": 1355776,
-      "process_peak_rss_bytes": 109174784,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -16777,8 +15698,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -16787,27 +15708,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1720790790000137,
-      "seconds": [
-        0.002267777999804821
-      ],
-      "median_seconds": 0.002267777999804821,
-      "min_seconds": 0.002267777999804821,
-      "max_seconds": 0.002267777999804821,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 177823744,
-      "execution_peak_rss_bytes": 177897472,
-      "sampled_incremental_rss_bytes": 73728,
-      "process_peak_rss_bytes": 177922048,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -16851,21 +15758,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.00700666500006264,
-      "seconds": [
-        0.004738497000289499
-      ],
-      "median_seconds": 0.004738497000289499,
-      "min_seconds": 0.004738497000289499,
-      "max_seconds": 0.004738497000289499,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 36392960,
-      "execution_peak_rss_bytes": 39464960,
-      "sampled_incremental_rss_bytes": 3072000,
-      "process_peak_rss_bytes": 39530496,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -16923,21 +15816,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.32278148499972303,
-      "seconds": [
-        0.0024709839999559335
-      ],
-      "median_seconds": 0.0024709839999559335,
-      "min_seconds": 0.0024709839999559335,
-      "max_seconds": 0.0024709839999559335,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 111509504,
-      "execution_peak_rss_bytes": 112521216,
-      "sampled_incremental_rss_bytes": 1011712,
-      "process_peak_rss_bytes": 112553984,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -16986,21 +15865,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.3247611790002338,
-      "seconds": [
-        0.0016947200001595775
-      ],
-      "median_seconds": 0.0016947200001595775,
-      "min_seconds": 0.0016947200001595775,
-      "max_seconds": 0.0016947200001595775,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 179331072,
-      "execution_peak_rss_bytes": 180797440,
-      "sampled_incremental_rss_bytes": 1466368,
-      "process_peak_rss_bytes": 180822016,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -17044,27 +15909,13 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.007128626999929111,
-      "seconds": [
-        0.005037859999902139
-      ],
-      "median_seconds": 0.005037859999902139,
-      "min_seconds": 0.005037859999902139,
-      "max_seconds": 0.005037859999902139,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 37564416,
-      "execution_peak_rss_bytes": 40615936,
-      "sampled_incremental_rss_bytes": 3051520,
-      "process_peak_rss_bytes": 40681472,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 2.7755575615628914e-16,
-        "probability_tvd": 2.710505431213761e-16,
-        "probability_state_error": 5.551115123125783e-16,
+        "max_state_error": 2.482534153247273e-16,
+        "probability_tvd": 2.701831813833877e-16,
+        "probability_state_error": 4.440892098500626e-16,
         "normalization_error": 8.881784197001252e-16,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
@@ -17088,16 +15939,6 @@
       },
       "threadpools": [
         {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
-          "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
-          "threading_layer": "pthreads",
-          "architecture": "SkylakeX"
-        },
-        {
           "user_api": "openmp",
           "internal_api": "openmp",
           "num_threads": 1,
@@ -17114,23 +15955,19 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.29400756099994396,
-      "seconds": [
-        0.001994704000026104
-      ],
-      "median_seconds": 0.001994704000026104,
-      "min_seconds": 0.001994704000026104,
-      "max_seconds": 0.001994704000026104,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 111349760,
-      "execution_peak_rss_bytes": 112332800,
-      "sampled_incremental_rss_bytes": 983040,
-      "process_peak_rss_bytes": 112369664,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -17179,21 +16016,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.2078680969998459,
-      "seconds": [
-        0.002493942999990395
-      ],
-      "median_seconds": 0.002493942999990395,
-      "min_seconds": 0.002493942999990395,
-      "max_seconds": 0.002493942999990395,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 128,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 178102272,
-      "execution_peak_rss_bytes": 179359744,
-      "sampled_incremental_rss_bytes": 1257472,
-      "process_peak_rss_bytes": 179380224,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -17239,30 +16062,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.00883174799992048,
-      "seconds": [
-        0.008607354999639938
-      ],
-      "median_seconds": 0.008607354999639938,
-      "min_seconds": 0.008607354999639938,
-      "max_seconds": 0.008607354999639938,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 38117376,
-      "execution_peak_rss_bytes": 41033728,
-      "sampled_incremental_rss_bytes": 2916352,
-      "process_peak_rss_bytes": 41099264,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.2566871346510768e-16,
-        "probability_tvd": 1.8735013540549517e-16,
-        "probability_state_error": 1.1102230246251565e-16,
-        "normalization_error": 4.449332600835969e-16,
-        "hermiticity_error": 1.153297605929378e-16,
-        "minimum_eigenvalue": 0.001551025855437379,
+        "max_state_error": 1.5838319836915702e-16,
+        "probability_tvd": 1.5612511283791264e-16,
+        "probability_state_error": 5.551115123125783e-17,
+        "normalization_error": 9.764160432071573e-18,
+        "hermiticity_error": 1.1188630228279524e-16,
+        "minimum_eigenvalue": 0.0015510258554374203,
         "tolerance": 1e-09
       }
     },
@@ -17283,14 +16092,6 @@
       },
       "threadpools": [
         {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
-        },
-        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -17309,23 +16110,17 @@
           "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
         }
       ],
-      "preparation_seconds": 0.2978344829998605,
-      "seconds": [
-        0.002653559000009409
-      ],
-      "median_seconds": 0.002653559000009409,
-      "min_seconds": 0.002653559000009409,
-      "max_seconds": 0.002653559000009409,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 109117440,
-      "execution_peak_rss_bytes": 110563328,
-      "sampled_incremental_rss_bytes": 1445888,
-      "process_peak_rss_bytes": 110596096,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -17358,8 +16153,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -17368,27 +16163,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1983952800001134,
-      "seconds": [
-        0.008809253999970679
-      ],
-      "median_seconds": 0.008809253999970679,
-      "min_seconds": 0.008809253999970679,
-      "max_seconds": 0.008809253999970679,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 177975296,
-      "execution_peak_rss_bytes": 178040832,
-      "sampled_incremental_rss_bytes": 65536,
-      "process_peak_rss_bytes": 178065408,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -17434,30 +16215,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.01979290300005232,
-      "seconds": [
-        0.009612203999949998
-      ],
-      "median_seconds": 0.009612203999949998,
-      "min_seconds": 0.009612203999949998,
-      "max_seconds": 0.009612203999949998,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 37552128,
-      "execution_peak_rss_bytes": 40648704,
-      "sampled_incremental_rss_bytes": 3096576,
-      "process_peak_rss_bytes": 40722432,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.1739862079479962e-16,
-        "probability_tvd": 1.8041124150158794e-16,
+        "max_state_error": 1.5959455978986625e-16,
+        "probability_tvd": 2.42861286636753e-16,
         "probability_state_error": 2.7755575615628914e-16,
-        "normalization_error": 8.888806595968675e-16,
-        "hermiticity_error": 9.020562075079397e-17,
-        "minimum_eigenvalue": 0.011804956701843797,
+        "normalization_error": 8.92734240736984e-16,
+        "hermiticity_error": 1.0103182026100664e-16,
+        "minimum_eigenvalue": 0.011804956701843741,
         "tolerance": 1e-09
       }
     },
@@ -17478,6 +16245,14 @@
       },
       "threadpools": [
         {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
+        },
+        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -17486,14 +16261,6 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
-        },
-        {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
         },
         {
           "user_api": "blas",
@@ -17506,21 +16273,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.2674175029997059,
-      "seconds": [
-        0.0021617510001306073
-      ],
-      "median_seconds": 0.0021617510001306073,
-      "min_seconds": 0.0021617510001306073,
-      "max_seconds": 0.0021617510001306073,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 109223936,
-      "execution_peak_rss_bytes": 110686208,
-      "sampled_incremental_rss_bytes": 1462272,
-      "process_peak_rss_bytes": 110718976,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -17553,8 +16306,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -17563,27 +16316,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.230232517999866,
-      "seconds": [
-        0.007430463000218879
-      ],
-      "median_seconds": 0.007430463000218879,
-      "min_seconds": 0.007430463000218879,
-      "max_seconds": 0.007430463000218879,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 1024,
-      "probabilities_bytes": 64,
-      "baseline_rss_bytes": 178151424,
-      "execution_peak_rss_bytes": 178348032,
-      "sampled_incremental_rss_bytes": 196608,
-      "process_peak_rss_bytes": 178368512,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -17628,28 +16367,14 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.011719524000000092,
-      "seconds": [
-        0.006362031000207935
-      ],
-      "median_seconds": 0.006362031000207935,
-      "min_seconds": 0.006362031000207935,
-      "max_seconds": 0.006362031000207935,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 38133760,
-      "execution_peak_rss_bytes": 39841792,
-      "sampled_incremental_rss_bytes": 1708032,
-      "process_peak_rss_bytes": 41086976,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.7772239894833365e-16,
-        "probability_tvd": 3.612561638721701e-16,
-        "probability_state_error": 2.7755575615628914e-17,
-        "normalization_error": 2.220446049250313e-16,
+        "max_state_error": 2.779024842816778e-16,
+        "probability_tvd": 4.477754972365133e-16,
+        "probability_state_error": 4.163336342344337e-17,
+        "normalization_error": 4.440892098500626e-16,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
         "tolerance": 1e-09
@@ -17672,16 +16397,6 @@
       },
       "threadpools": [
         {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
-          "prefix": "libopenblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
-          "version": null,
-          "threading_layer": "disabled",
-          "architecture": "Barcelona"
-        },
-        {
           "user_api": "openmp",
           "internal_api": "openmp",
           "num_threads": 1,
@@ -17698,23 +16413,19 @@
           "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libopenblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
+          "version": null,
+          "threading_layer": "disabled",
+          "architecture": "Barcelona"
         }
       ],
-      "preparation_seconds": 0.332775787999708,
-      "seconds": [
-        0.00266648599972541
-      ],
-      "median_seconds": 0.00266648599972541,
-      "min_seconds": 0.00266648599972541,
-      "max_seconds": 0.00266648599972541,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 111325184,
-      "execution_peak_rss_bytes": 112463872,
-      "sampled_incremental_rss_bytes": 1138688,
-      "process_peak_rss_bytes": 112500736,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -17763,21 +16474,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.3402012350002224,
-      "seconds": [
-        0.004071956000188948
-      ],
-      "median_seconds": 0.004071956000188948,
-      "min_seconds": 0.004071956000188948,
-      "max_seconds": 0.004071956000188948,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 177721344,
-      "execution_peak_rss_bytes": 177926144,
-      "sampled_incremental_rss_bytes": 204800,
-      "process_peak_rss_bytes": 177950720,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -17821,21 +16518,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.00685113999998066,
-      "seconds": [
-        0.004478347999793186
-      ],
-      "median_seconds": 0.004478347999793186,
-      "min_seconds": 0.004478347999793186,
-      "max_seconds": 0.004478347999793186,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 37023744,
-      "execution_peak_rss_bytes": 39792640,
-      "sampled_incremental_rss_bytes": 2768896,
-      "process_peak_rss_bytes": 39862272,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -17865,14 +16548,6 @@
       },
       "threadpools": [
         {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
-        },
-        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -17881,6 +16556,14 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
+        },
+        {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
         },
         {
           "user_api": "blas",
@@ -17893,21 +16576,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.3589739410003858,
-      "seconds": [
-        0.0038501860003634647
-      ],
-      "median_seconds": 0.0038501860003634647,
-      "min_seconds": 0.0038501860003634647,
-      "max_seconds": 0.0038501860003634647,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 107515904,
-      "execution_peak_rss_bytes": 108765184,
-      "sampled_incremental_rss_bytes": 1249280,
-      "process_peak_rss_bytes": 108806144,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -17940,8 +16609,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -17950,27 +16619,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.256268382000144,
-      "seconds": [
-        0.0023263040002348134
-      ],
-      "median_seconds": 0.0023263040002348134,
-      "min_seconds": 0.0023263040002348134,
-      "max_seconds": 0.0023263040002348134,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 177442816,
-      "execution_peak_rss_bytes": 178716672,
-      "sampled_incremental_rss_bytes": 1273856,
-      "process_peak_rss_bytes": 178737152,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -18014,28 +16669,14 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.010279901000103564,
-      "seconds": [
-        0.006274191000102292
-      ],
-      "median_seconds": 0.006274191000102292,
-      "min_seconds": 0.006274191000102292,
-      "max_seconds": 0.006274191000102292,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 36356096,
-      "execution_peak_rss_bytes": 39563264,
-      "sampled_incremental_rss_bytes": 3207168,
-      "process_peak_rss_bytes": 39632896,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.1443916996305594e-16,
-        "probability_tvd": 2.2780442896636055e-16,
+        "max_state_error": 1.9279638981753175e-16,
+        "probability_tvd": 2.6790635682116815e-16,
         "probability_state_error": 6.38378239159465e-16,
-        "normalization_error": 2.886579864025407e-15,
+        "normalization_error": 2.6645352591003757e-15,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
         "tolerance": 1e-09
@@ -18086,21 +16727,7 @@
           "architecture": "Barcelona"
         }
       ],
-      "preparation_seconds": 0.3317851020001399,
-      "seconds": [
-        0.0030567260000680108
-      ],
-      "median_seconds": 0.0030567260000680108,
-      "min_seconds": 0.0030567260000680108,
-      "max_seconds": 0.0030567260000680108,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 111333376,
-      "execution_peak_rss_bytes": 112406528,
-      "sampled_incremental_rss_bytes": 1073152,
-      "process_peak_rss_bytes": 112447488,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -18149,21 +16776,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.2603140740002345,
-      "seconds": [
-        0.0038520739999512443
-      ],
-      "median_seconds": 0.0038520739999512443,
-      "min_seconds": 0.0038520739999512443,
-      "max_seconds": 0.0038520739999512443,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 178106368,
-      "execution_peak_rss_bytes": 179490816,
-      "sampled_incremental_rss_bytes": 1384448,
-      "process_peak_rss_bytes": 179515392,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -18209,30 +16822,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.00898611599996002,
-      "seconds": [
-        0.00920653199955268
-      ],
-      "median_seconds": 0.00920653199955268,
-      "min_seconds": 0.00920653199955268,
-      "max_seconds": 0.00920653199955268,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 38203392,
-      "execution_peak_rss_bytes": 41009152,
-      "sampled_incremental_rss_bytes": 2805760,
-      "process_peak_rss_bytes": 41078784,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 4.6676634942849736e-17,
-        "probability_tvd": 2.502338614096544e-16,
-        "probability_state_error": 0.0,
-        "normalization_error": 2.417490500342938e-17,
-        "hermiticity_error": 5.1577036902917074e-17,
-        "minimum_eigenvalue": 0.00023951189061207173,
+        "max_state_error": 5.1315733604939806e-17,
+        "probability_tvd": 2.40692882291782e-16,
+        "probability_state_error": 1.3877787807814457e-17,
+        "normalization_error": 3.361614824185176e-16,
+        "hermiticity_error": 4.906538933386797e-17,
+        "minimum_eigenvalue": 0.00023951189061208834,
         "tolerance": 1e-09
       }
     },
@@ -18256,16 +16855,6 @@
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
-          "prefix": "libopenblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
-          "version": null,
-          "threading_layer": "disabled",
-          "architecture": "Barcelona"
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
           "prefix": "libscipy_openblas",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
           "version": "0.3.34.106.0",
@@ -18279,23 +16868,19 @@
           "prefix": "libgomp",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
           "version": null
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libopenblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
+          "version": null,
+          "threading_layer": "disabled",
+          "architecture": "Barcelona"
         }
       ],
-      "preparation_seconds": 0.26144641500013677,
-      "seconds": [
-        0.0027076149999629706
-      ],
-      "median_seconds": 0.0027076149999629706,
-      "min_seconds": 0.0027076149999629706,
-      "max_seconds": 0.0027076149999629706,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 113074176,
-      "execution_peak_rss_bytes": 114139136,
-      "sampled_incremental_rss_bytes": 1064960,
-      "process_peak_rss_bytes": 114176000,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -18344,21 +16929,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1948398340000494,
-      "seconds": [
-        0.01615713399996821
-      ],
-      "median_seconds": 0.01615713399996821,
-      "min_seconds": 0.01615713399996821,
-      "max_seconds": 0.01615713399996821,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 178257920,
-      "execution_peak_rss_bytes": 178331648,
-      "sampled_incremental_rss_bytes": 73728,
-      "process_peak_rss_bytes": 178352128,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -18404,30 +16975,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.011595959000260336,
-      "seconds": [
-        0.01274964899994302
-      ],
-      "median_seconds": 0.01274964899994302,
-      "min_seconds": 0.01274964899994302,
-      "max_seconds": 0.01274964899994302,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 36540416,
-      "execution_peak_rss_bytes": 39620608,
-      "sampled_incremental_rss_bytes": 3080192,
-      "process_peak_rss_bytes": 39690240,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 4.4328888959487825e-17,
-        "probability_tvd": 1.5352302762394743e-16,
-        "probability_state_error": 1.0408340855860843e-16,
-        "normalization_error": 1.7763624138289154e-15,
-        "hermiticity_error": 5.292190230640848e-17,
-        "minimum_eigenvalue": 0.0016835022468977337,
+        "max_state_error": 6.361966793964977e-17,
+        "probability_tvd": 2.96637714392034e-16,
+        "probability_state_error": 7.632783294297951e-17,
+        "normalization_error": 1.332270299307157e-15,
+        "hermiticity_error": 5.003707553108402e-17,
+        "minimum_eigenvalue": 0.00168350224689771,
         "tolerance": 1e-09
       }
     },
@@ -18448,6 +17005,16 @@
       },
       "threadpools": [
         {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
           "user_api": "openmp",
           "internal_api": "openmp",
           "num_threads": 1,
@@ -18464,33 +17031,9 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
-          "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
-          "threading_layer": "pthreads",
-          "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.26132392799991067,
-      "seconds": [
-        0.002834205999988626
-      ],
-      "median_seconds": 0.002834205999988626,
-      "min_seconds": 0.002834205999988626,
-      "max_seconds": 0.002834205999988626,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 109047808,
-      "execution_peak_rss_bytes": 110620672,
-      "sampled_incremental_rss_bytes": 1572864,
-      "process_peak_rss_bytes": 110653440,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -18523,8 +17066,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -18533,27 +17076,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1572908040002403,
-      "seconds": [
-        0.015022523999959958
-      ],
-      "median_seconds": 0.015022523999959958,
-      "min_seconds": 0.015022523999959958,
-      "max_seconds": 0.015022523999959958,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 177520640,
-      "execution_peak_rss_bytes": 177598464,
-      "sampled_incremental_rss_bytes": 77824,
-      "process_peak_rss_bytes": 177618944,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -18598,28 +17127,14 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.00898458399979063,
-      "seconds": [
-        0.005052571000305761
-      ],
-      "median_seconds": 0.005052571000305761,
-      "min_seconds": 0.005052571000305761,
-      "max_seconds": 0.005052571000305761,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 37158912,
-      "execution_peak_rss_bytes": 39915520,
-      "sampled_incremental_rss_bytes": 2756608,
-      "process_peak_rss_bytes": 39993344,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 1.5515838457795457e-16,
-        "probability_tvd": 2.9257195624521337e-16,
+        "max_state_error": 2.280617143682994e-16,
+        "probability_tvd": 4.040821496853475e-16,
         "probability_state_error": 2.7755575615628914e-17,
-        "normalization_error": 4.440892098500626e-16,
+        "normalization_error": 0.0,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
         "tolerance": 1e-09
@@ -18653,38 +17168,24 @@
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
-          "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
-          "threading_layer": "pthreads",
-          "architecture": "SkylakeX"
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
           "prefix": "libopenblas",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.27939647899984266,
-      "seconds": [
-        0.001979161000235763
-      ],
-      "median_seconds": 0.001979161000235763,
-      "min_seconds": 0.001979161000235763,
-      "max_seconds": 0.001979161000235763,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 107663360,
-      "execution_peak_rss_bytes": 109031424,
-      "sampled_incremental_rss_bytes": 1368064,
-      "process_peak_rss_bytes": 109068288,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -18733,21 +17234,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1762853039999754,
-      "seconds": [
-        0.0029297780001797946
-      ],
-      "median_seconds": 0.0029297780001797946,
-      "min_seconds": 0.0029297780001797946,
-      "max_seconds": 0.0029297780001797946,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 178958336,
-      "execution_peak_rss_bytes": 179093504,
-      "sampled_incremental_rss_bytes": 135168,
-      "process_peak_rss_bytes": 179122176,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -18791,21 +17278,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.007506805000048189,
-      "seconds": [
-        0.005656786000145075
-      ],
-      "median_seconds": 0.005656786000145075,
-      "min_seconds": 0.005656786000145075,
-      "max_seconds": 0.005656786000145075,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 38191104,
-      "execution_peak_rss_bytes": 41074688,
-      "sampled_incremental_rss_bytes": 2883584,
-      "process_peak_rss_bytes": 41144320,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -18838,21 +17311,21 @@
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
-          "prefix": "libopenblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
-          "version": null,
-          "threading_layer": "disabled",
-          "architecture": "Barcelona"
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
           "prefix": "libscipy_openblas",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
           "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libopenblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
+          "version": null,
+          "threading_layer": "disabled",
+          "architecture": "Barcelona"
         },
         {
           "user_api": "openmp",
@@ -18863,21 +17336,7 @@
           "version": null
         }
       ],
-      "preparation_seconds": 0.2642805010000302,
-      "seconds": [
-        0.0020163149997642904
-      ],
-      "median_seconds": 0.0020163149997642904,
-      "min_seconds": 0.0020163149997642904,
-      "max_seconds": 0.0020163149997642904,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 107507712,
-      "execution_peak_rss_bytes": 108892160,
-      "sampled_incremental_rss_bytes": 1384448,
-      "process_peak_rss_bytes": 108929024,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -18926,21 +17385,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.20017107700005,
-      "seconds": [
-        0.0023113430002013047
-      ],
-      "median_seconds": 0.0023113430002013047,
-      "min_seconds": 0.0023113430002013047,
-      "max_seconds": 0.0023113430002013047,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 179695616,
-      "execution_peak_rss_bytes": 181227520,
-      "sampled_incremental_rss_bytes": 1531904,
-      "process_peak_rss_bytes": 181252096,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -18984,28 +17429,14 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.008816085000034946,
-      "seconds": [
-        0.005663570999786316
-      ],
-      "median_seconds": 0.005663570999786316,
-      "min_seconds": 0.005663570999786316,
-      "max_seconds": 0.005663570999786316,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 36990976,
-      "execution_peak_rss_bytes": 38535168,
-      "sampled_incremental_rss_bytes": 1544192,
-      "process_peak_rss_bytes": 39940096,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 2.68024601344063e-16,
-        "probability_tvd": 4.58942779613114e-16,
-        "probability_state_error": 4.996003610813204e-16,
-        "normalization_error": 3.1086244689504383e-15,
+        "max_state_error": 2.306595211858756e-16,
+        "probability_tvd": 2.484720328793655e-16,
+        "probability_state_error": 3.885780586188048e-16,
+        "normalization_error": 2.6645352591003757e-15,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
         "tolerance": 1e-09
@@ -19028,6 +17459,14 @@
       },
       "threadpools": [
         {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
+        },
+        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -19036,14 +17475,6 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
-        },
-        {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
         },
         {
           "user_api": "blas",
@@ -19056,21 +17487,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.29323603199964055,
-      "seconds": [
-        0.0024857200000951707
-      ],
-      "median_seconds": 0.0024857200000951707,
-      "min_seconds": 0.0024857200000951707,
-      "max_seconds": 0.0024857200000951707,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 107675648,
-      "execution_peak_rss_bytes": 109002752,
-      "sampled_incremental_rss_bytes": 1327104,
-      "process_peak_rss_bytes": 109035520,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -19119,21 +17536,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1674771809998674,
-      "seconds": [
-        0.0040125209998223
-      ],
-      "median_seconds": 0.0040125209998223,
-      "min_seconds": 0.0040125209998223,
-      "max_seconds": 0.0040125209998223,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 177680384,
-      "execution_peak_rss_bytes": 178933760,
-      "sampled_incremental_rss_bytes": 1253376,
-      "process_peak_rss_bytes": 178962432,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -19179,30 +17582,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.010182028000144783,
-      "seconds": [
-        0.010182387999975617
-      ],
-      "median_seconds": 0.010182387999975617,
-      "min_seconds": 0.010182387999975617,
-      "max_seconds": 0.010182387999975617,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 37183488,
-      "execution_peak_rss_bytes": 39989248,
-      "sampled_incremental_rss_bytes": 2805760,
-      "process_peak_rss_bytes": 40058880,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 6.206335383118183e-17,
-        "probability_tvd": 1.8995222061946038e-16,
+        "max_state_error": 1.1102713300038177e-16,
+        "probability_tvd": 2.6020852139652106e-16,
         "probability_state_error": 0.0,
-        "normalization_error": 2.2561216208646e-16,
-        "hermiticity_error": 4.906538933386797e-17,
-        "minimum_eigenvalue": 0.00020536117252727907,
+        "normalization_error": 1.254488882291538e-16,
+        "hermiticity_error": 5.561946577567963e-17,
+        "minimum_eigenvalue": 0.0002053611725272421,
         "tolerance": 1e-09
       }
     },
@@ -19223,6 +17612,16 @@
       },
       "threadpools": [
         {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libopenblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
+          "version": null,
+          "threading_layer": "disabled",
+          "architecture": "Barcelona"
+        },
+        {
           "user_api": "openmp",
           "internal_api": "openmp",
           "num_threads": 1,
@@ -19239,33 +17638,9 @@
           "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
-          "prefix": "libopenblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
-          "version": null,
-          "threading_layer": "disabled",
-          "architecture": "Barcelona"
         }
       ],
-      "preparation_seconds": 0.27527248299975327,
-      "seconds": [
-        0.002878671999951621
-      ],
-      "median_seconds": 0.002878671999951621,
-      "min_seconds": 0.002878671999951621,
-      "max_seconds": 0.002878671999951621,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 112967680,
-      "execution_peak_rss_bytes": 114130944,
-      "sampled_incremental_rss_bytes": 1163264,
-      "process_peak_rss_bytes": 114163712,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -19298,8 +17673,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -19308,27 +17683,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.1921170529999472,
-      "seconds": [
-        0.015219832999719074
-      ],
-      "median_seconds": 0.015219832999719074,
-      "min_seconds": 0.015219832999719074,
-      "max_seconds": 0.015219832999719074,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 177438720,
-      "execution_peak_rss_bytes": 177635328,
-      "sampled_incremental_rss_bytes": 196608,
-      "process_peak_rss_bytes": 177655808,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -19374,30 +17735,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.009511484000086057,
-      "seconds": [
-        0.011463765999906173
-      ],
-      "median_seconds": 0.011463765999906173,
-      "min_seconds": 0.011463765999906173,
-      "max_seconds": 0.011463765999906173,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 38227968,
-      "execution_peak_rss_bytes": 41029632,
-      "sampled_incremental_rss_bytes": 2801664,
-      "process_peak_rss_bytes": 41099264,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 5.0306980803327406e-17,
-        "probability_tvd": 1.2923689896027213e-16,
-        "probability_state_error": 1.942890293094024e-16,
-        "normalization_error": 2.2204604934215573e-15,
-        "hermiticity_error": 5.553824967135427e-17,
-        "minimum_eigenvalue": 0.0018513271487670215,
+        "max_state_error": 8.469999434971913e-17,
+        "probability_tvd": 3.378373969464832e-16,
+        "probability_state_error": 1.5265566588595902e-16,
+        "normalization_error": 1.3340527631566249e-15,
+        "hermiticity_error": 5.96906223549092e-17,
+        "minimum_eigenvalue": 0.0018513271487670302,
         "tolerance": 1e-09
       }
     },
@@ -19418,6 +17765,16 @@
       },
       "threadpools": [
         {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
           "user_api": "openmp",
           "internal_api": "openmp",
           "num_threads": 1,
@@ -19434,33 +17791,9 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
-          "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
-          "threading_layer": "pthreads",
-          "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.24830439800007298,
-      "seconds": [
-        0.002397019999989425
-      ],
-      "median_seconds": 0.002397019999989425,
-      "min_seconds": 0.002397019999989425,
-      "max_seconds": 0.002397019999989425,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 109305856,
-      "execution_peak_rss_bytes": 110870528,
-      "sampled_incremental_rss_bytes": 1564672,
-      "process_peak_rss_bytes": 110907392,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -19509,21 +17842,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.283677803000046,
-      "seconds": [
-        0.01734728700012056
-      ],
-      "median_seconds": 0.01734728700012056,
-      "min_seconds": 0.01734728700012056,
-      "max_seconds": 0.01734728700012056,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 178937856,
-      "execution_peak_rss_bytes": 179015680,
-      "sampled_incremental_rss_bytes": 77824,
-      "process_peak_rss_bytes": 179036160,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -19568,28 +17887,14 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.008455481000055443,
-      "seconds": [
-        0.0048611879997224605
-      ],
-      "median_seconds": 0.0048611879997224605,
-      "min_seconds": 0.0048611879997224605,
-      "max_seconds": 0.0048611879997224605,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 36442112,
-      "execution_peak_rss_bytes": 39505920,
-      "sampled_incremental_rss_bytes": 3063808,
-      "process_peak_rss_bytes": 39575552,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 2.0026854743534788e-16,
-        "probability_tvd": 4.25251197103127e-16,
-        "probability_state_error": 2.7755575615628914e-17,
-        "normalization_error": 3.3306690738754696e-16,
+        "max_state_error": 1.6971944417402975e-16,
+        "probability_tvd": 1.5260145577733475e-16,
+        "probability_state_error": 5.551115123125783e-17,
+        "normalization_error": 2.220446049250313e-16,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
         "tolerance": 1e-09
@@ -19623,38 +17928,24 @@
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
-          "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
-          "threading_layer": "pthreads",
-          "architecture": "SkylakeX"
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
           "prefix": "libopenblas",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.2652404979999119,
-      "seconds": [
-        0.00285233300019172
-      ],
-      "median_seconds": 0.00285233300019172,
-      "min_seconds": 0.00285233300019172,
-      "max_seconds": 0.00285233300019172,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 107618304,
-      "execution_peak_rss_bytes": 108859392,
-      "sampled_incremental_rss_bytes": 1241088,
-      "process_peak_rss_bytes": 108892160,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -19703,21 +17994,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.163787720000073,
-      "seconds": [
-        0.003059340000163502
-      ],
-      "median_seconds": 0.003059340000163502,
-      "min_seconds": 0.003059340000163502,
-      "max_seconds": 0.003059340000163502,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 179015680,
-      "execution_peak_rss_bytes": 179159040,
-      "sampled_incremental_rss_bytes": 143360,
-      "process_peak_rss_bytes": 179183616,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -19761,21 +18038,7 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.008997001999887289,
-      "seconds": [
-        0.005865866000021924
-      ],
-      "median_seconds": 0.005865866000021924,
-      "min_seconds": 0.005865866000021924,
-      "max_seconds": 0.005865866000021924,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 38027264,
-      "execution_peak_rss_bytes": 41017344,
-      "sampled_incremental_rss_bytes": 2990080,
-      "process_peak_rss_bytes": 41086976,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -19805,6 +18068,14 @@
       },
       "threadpools": [
         {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
+        },
+        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -19823,31 +18094,9 @@
           "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
-        },
-        {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
         }
       ],
-      "preparation_seconds": 0.26765595799997755,
-      "seconds": [
-        0.0019572879996303527
-      ],
-      "median_seconds": 0.0019572879996303527,
-      "min_seconds": 0.0019572879996303527,
-      "max_seconds": 0.0019572879996303527,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 111222784,
-      "execution_peak_rss_bytes": 112312320,
-      "sampled_incremental_rss_bytes": 1089536,
-      "process_peak_rss_bytes": 112345088,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -19880,8 +18129,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -19890,27 +18139,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.172357015000216,
-      "seconds": [
-        0.0022629009999945993
-      ],
-      "median_seconds": 0.0022629009999945993,
-      "min_seconds": 0.0022629009999945993,
-      "max_seconds": 0.0022629009999945993,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 177938432,
-      "execution_peak_rss_bytes": 179204096,
-      "sampled_incremental_rss_bytes": 1265664,
-      "process_peak_rss_bytes": 179232768,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -19954,28 +18189,14 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.008186041000044497,
-      "seconds": [
-        0.005452794000120775
-      ],
-      "median_seconds": 0.005452794000120775,
-      "min_seconds": 0.005452794000120775,
-      "max_seconds": 0.005452794000120775,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 37466112,
-      "execution_peak_rss_bytes": 40550400,
-      "sampled_incremental_rss_bytes": 3084288,
-      "process_peak_rss_bytes": 40620032,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 2.7809732887839817e-16,
-        "probability_tvd": 4.1486996130157827e-16,
-        "probability_state_error": 3.0531133177191805e-16,
-        "normalization_error": 2.1094237467877974e-15,
+        "max_state_error": 2.368405834029776e-16,
+        "probability_tvd": 3.399515911828299e-16,
+        "probability_state_error": 3.3306690738754696e-16,
+        "normalization_error": 2.220446049250313e-15,
         "hermiticity_error": null,
         "minimum_eigenvalue": null,
         "tolerance": 1e-09
@@ -20001,6 +18222,16 @@
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
+          "prefix": "libopenblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
+          "version": null,
+          "threading_layer": "disabled",
+          "architecture": "Barcelona"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
           "prefix": "libscipy_openblas",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
           "version": "0.3.34.106.0",
@@ -20014,33 +18245,9 @@
           "prefix": "libgomp",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
           "version": null
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
-          "prefix": "libopenblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
-          "version": null,
-          "threading_layer": "disabled",
-          "architecture": "Barcelona"
         }
       ],
-      "preparation_seconds": 0.32523361700032183,
-      "seconds": [
-        0.002113349999945058
-      ],
-      "median_seconds": 0.002113349999945058,
-      "min_seconds": 0.002113349999945058,
-      "max_seconds": 0.002113349999945058,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 111714304,
-      "execution_peak_rss_bytes": 112693248,
-      "sampled_incremental_rss_bytes": 978944,
-      "process_peak_rss_bytes": 112726016,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -20073,8 +18280,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -20083,27 +18290,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.2502625940001053,
-      "seconds": [
-        0.0032642139999552455
-      ],
-      "median_seconds": 0.0032642139999552455,
-      "min_seconds": 0.0032642139999552455,
-      "max_seconds": 0.0032642139999552455,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 512,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 178774016,
-      "execution_peak_rss_bytes": 180293632,
-      "sampled_incremental_rss_bytes": 1519616,
-      "process_peak_rss_bytes": 180318208,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -20149,30 +18342,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.010368412999923748,
-      "seconds": [
-        0.013640657999985706
-      ],
-      "median_seconds": 0.013640657999985706,
-      "min_seconds": 0.013640657999985706,
-      "max_seconds": 0.013640657999985706,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 38277120,
-      "execution_peak_rss_bytes": 41168896,
-      "sampled_incremental_rss_bytes": 2891776,
-      "process_peak_rss_bytes": 41238528,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 7.351626287044711e-17,
-        "probability_tvd": 1.927711462679227e-16,
+        "max_state_error": 8.449607453052956e-17,
+        "probability_tvd": 3.1138286393783687e-16,
         "probability_state_error": 2.7755575615628914e-17,
-        "normalization_error": 4.469578763221447e-16,
-        "hermiticity_error": 6.933504681542271e-17,
-        "minimum_eigenvalue": 0.00016920236133851596,
+        "normalization_error": 1.6136798082390802e-17,
+        "hermiticity_error": 6.938893903907228e-17,
+        "minimum_eigenvalue": 0.00016920236133851247,
         "tolerance": 1e-09
       }
     },
@@ -20196,16 +18375,6 @@
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
-          "prefix": "libopenblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
-          "version": null,
-          "threading_layer": "disabled",
-          "architecture": "Barcelona"
-        },
-        {
-          "user_api": "blas",
-          "internal_api": "openblas",
-          "num_threads": 1,
           "prefix": "libscipy_openblas",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
           "version": "0.3.34.106.0",
@@ -20219,23 +18388,19 @@
           "prefix": "libgomp",
           "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
           "version": null
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libopenblas",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libopenblas-r0-f650aae0.3.3.so",
+          "version": null,
+          "threading_layer": "disabled",
+          "architecture": "Barcelona"
         }
       ],
-      "preparation_seconds": 0.2707546060000823,
-      "seconds": [
-        0.0023669550000704476
-      ],
-      "median_seconds": 0.0023669550000704476,
-      "min_seconds": 0.0023669550000704476,
-      "max_seconds": 0.0023669550000704476,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 109121536,
-      "execution_peak_rss_bytes": 110522368,
-      "sampled_incremental_rss_bytes": 1400832,
-      "process_peak_rss_bytes": 110559232,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -20268,8 +18433,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -20278,27 +18443,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.368696299000021,
-      "seconds": [
-        0.015870339999764838
-      ],
-      "median_seconds": 0.015870339999764838,
-      "min_seconds": 0.015870339999764838,
-      "max_seconds": 0.015870339999764838,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 179261440,
-      "execution_peak_rss_bytes": 179392512,
-      "sampled_incremental_rss_bytes": 131072,
-      "process_peak_rss_bytes": 179412992,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -20344,30 +18495,16 @@
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 0.009186252000290551,
-      "seconds": [
-        0.012460911000289343
-      ],
-      "median_seconds": 0.012460911000289343,
-      "min_seconds": 0.012460911000289343,
-      "max_seconds": 0.012460911000289343,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 37584896,
-      "execution_peak_rss_bytes": 40755200,
-      "sampled_incremental_rss_bytes": 3170304,
-      "process_peak_rss_bytes": 40828928,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
-        "max_state_error": 5.3072333128159466e-17,
-        "probability_tvd": 1.739060284666749e-16,
-        "probability_state_error": 1.6653345369377348e-16,
-        "normalization_error": 1.77803971113841e-15,
-        "hermiticity_error": 5.76648802964689e-17,
-        "minimum_eigenvalue": 0.001146395997561694,
+        "max_state_error": 8.882233694641294e-17,
+        "probability_tvd": 3.1008182133085427e-16,
+        "probability_state_error": 1.249000902703301e-16,
+        "normalization_error": 1.5546022440325284e-15,
+        "hermiticity_error": 4.5556685868864645e-17,
+        "minimum_eigenvalue": 0.001146395997561708,
         "tolerance": 1e-09
       }
     },
@@ -20398,6 +18535,14 @@
           "architecture": "SkylakeX"
         },
         {
+          "user_api": "openmp",
+          "internal_api": "openmp",
+          "num_threads": 1,
+          "prefix": "libgomp",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
+          "version": null
+        },
+        {
           "user_api": "blas",
           "internal_api": "openblas",
           "num_threads": 1,
@@ -20406,31 +18551,9 @@
           "version": null,
           "threading_layer": "disabled",
           "architecture": "Barcelona"
-        },
-        {
-          "user_api": "openmp",
-          "internal_api": "openmp",
-          "num_threads": 1,
-          "prefix": "libgomp",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/qiskit_aer.libs/libgomp-a34b3233.so.1.0.0",
-          "version": null
         }
       ],
-      "preparation_seconds": 0.2929940300000453,
-      "seconds": [
-        0.0024997610003083537
-      ],
-      "median_seconds": 0.0024997610003083537,
-      "min_seconds": 0.0024997610003083537,
-      "max_seconds": 0.0024997610003083537,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 113266688,
-      "execution_peak_rss_bytes": 114290688,
-      "sampled_incremental_rss_bytes": 1024000,
-      "process_peak_rss_bytes": 114327552,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
@@ -20463,8 +18586,8 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
-          "version": "0.3.34.106.0",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
+          "version": "0.3.31.dev",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         },
@@ -20473,27 +18596,13 @@
           "internal_api": "openblas",
           "num_threads": 1,
           "prefix": "libscipy_openblas",
-          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-5f890258.so",
-          "version": "0.3.31.dev",
+          "filepath": "/workspace/scratch/56fd6c55d453/sdk-dev/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "version": "0.3.34.106.0",
           "threading_layer": "pthreads",
           "architecture": "SkylakeX"
         }
       ],
-      "preparation_seconds": 1.2820045270000264,
-      "seconds": [
-        0.01643402400031846
-      ],
-      "median_seconds": 0.01643402400031846,
-      "min_seconds": 0.01643402400031846,
-      "max_seconds": 0.01643402400031846,
-      "stdev_seconds": 0,
       "output_dtype": "complex128",
-      "state_bytes": 16384,
-      "probabilities_bytes": 256,
-      "baseline_rss_bytes": 178925568,
-      "execution_peak_rss_bytes": 178999296,
-      "sampled_incremental_rss_bytes": 73728,
-      "process_peak_rss_bytes": 179019776,
       "reference": "independent dense oracle (complex128)",
       "accuracy": {
         "passed": true,
