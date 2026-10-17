@@ -6,6 +6,8 @@
   rotation, atom selection, distance/angle measurement and SVG/XYZ/JSON export.
 - Attach actual H2 VQE energies to its geometry, centralize the fixed reference
   coefficients and add Windows-compatible molecular examples and lesson 10.
+- Reassemble Jupyter stdout fragments before validating the printed SDK version,
+  fixing a false Windows notebook failure without weakening the version check.
 
 - Separate native Windows QGAN/tutorial installation from the optional PySCF
   driver (Linux/macOS/WSL), add notebook API/path diagnostics and recovery

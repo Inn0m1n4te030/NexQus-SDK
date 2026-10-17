@@ -31,6 +31,26 @@ def source_version():
     raise ValueError('Missing source version')
 
 
+def reported_sdk_version(notebook):
+    """Read complete stdout lines; Jupyter may split a single print() message.
+
+    Join each cell's stdout chunks before parsing. Do not mix stderr or rich
+    display data into the marker, or join incomplete lines across cells.
+    """
+    versions=[]
+    for cell in notebook['cells']:
+        if cell['cell_type']!='code': continue
+        chunks=[]
+        for output in cell.get('outputs',[]):
+            if output.get('output_type')!='stream' or output.get('name')!='stdout': continue
+            value=output.get('text','')
+            chunks.append(value if isinstance(value,str) else ''.join(value))
+        for line in ''.join(chunks).splitlines():
+            if line.startswith('NexQus SDK: '):
+                versions.append(line.removeprefix('NexQus SDK: ').strip())
+    return versions[0] if len(versions)==1 and versions[0] else None
+
+
 def python_worker(path):
     os.environ['MPLBACKEND']='Agg'
     import matplotlib
@@ -144,14 +164,8 @@ def main():
                 status='failed'; execution_error=str(exc); print(execution_error,flush=True)
             skips=sum(output.get('text','').count('SKIPPED optional CUDA') for cell in notebook.cells
                       if cell.cell_type=='code' for output in cell.get('outputs',[]))
-            versions=[]
-            for cell in notebook.cells:
-                if cell.cell_type!='code': continue
-                for output in cell.get('outputs',[]):
-                    for line in output.get('text','').splitlines():
-                        if line.startswith('NexQus SDK: '): versions.append(line.removeprefix('NexQus SDK: ').strip())
             record=dict(notebook=path.name,engine='jupyter',status=status,transport=args.transport,
-                        sdk_version=versions[0] if len(versions)==1 else None,
+                        sdk_version=reported_sdk_version(notebook),
                         code_cells=sum(c.cell_type=='code' for c in notebook.cells),
                         optional_skips=skips,seconds=time.perf_counter()-started)
             if execution_error is not None: record['error']=execution_error
