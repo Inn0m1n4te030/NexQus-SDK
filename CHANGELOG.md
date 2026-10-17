@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Add a bounded local pure-state execution explorer with self-contained HTML,
+  gate/block navigation, probability/phase plots, reduced Bloch states,
+  purity/entropy, Z covariance and observable readout traces.
+- Preserve symbolic feature/weight occurrence in reports, support explicit
+  QNN block annotations, and add Bell/interference/trained-QNN examples.
+- Validate analytic states, trace limits, injection safety and report controls
+  with core and offline DOM regressions. Noise/dynamic tracing and predictive
+  feature attribution are outside this first milestone.
+
 - Add an optional Amazon Braket bridge: offline gate translation/capability and
   cost checks, local simulation, explicit paid QPU submission, job lifecycle and
   sparse q0-first measurement results. Cloud execution is mocked, not hardware-validated.

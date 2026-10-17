@@ -11,6 +11,11 @@ QML helpers require no additional runtime dependencies.
 
 ## Circuit construction
 
+For the unreleased local circuit explorer, see [EXPLAINABILITY.md](EXPLAINABILITY.md).
+`Circuit.explain(...)` returns an `Explanation` with `to_dict()` and
+`to_html(filename=None)`. The generated HTML works offline; this addition is
+not in the published PyPI 1.2.0 wheel.
+
 For the unreleased optional Amazon Braket bridge, see [BRAKET.md](BRAKET.md).
 Import its public interfaces from `nexqus.braket`: `prepare_braket`,
 `BraketProgram`, `BraketBackend`, `BraketJob` and `BraketResult`. The published

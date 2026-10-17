@@ -292,6 +292,11 @@ class Circuit:
     def _repr_svg_(self):
         return str(self.draw('svg'))
 
+    def explain(self, **options):
+        """Calculate a bounded local trace; see nexqus.explain.explain."""
+        from .explain import explain
+        return explain(self, **options)
+
     def __repr__(self):
         return f"Circuit(n_qubits={self.n_qubits}, operations={len(self.operations)})"
 
