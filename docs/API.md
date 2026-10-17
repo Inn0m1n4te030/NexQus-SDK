@@ -11,6 +11,11 @@ QML helpers require no additional runtime dependencies.
 
 ## Circuit construction
 
+For the unreleased molecular geometry/viewer APIs `Molecule`, `MolecularView`,
+`molecule`, `molecular_gallery`, `MolecularProblem.molecule()` and the fixed
+`h2_reference_problem()` fixture, see [MOLECULES.md](MOLECULES.md). The viewer
+and fixed H₂ example work on native Windows without PySCF.
+
 For unreleased `QuantumDistribution`, `QGAN`, `distribution_metrics`,
 `PauliHamiltonian`, `HamiltonianFunction` and the optional `nexqus.chemistry`
 interfaces, see [QGAN_CHEMISTRY.md](QGAN_CHEMISTRY.md). These are source-checkout

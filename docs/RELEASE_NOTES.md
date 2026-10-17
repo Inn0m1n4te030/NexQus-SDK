@@ -2,6 +2,11 @@
 
 ## Unreleased source-checkout addition
 
+The [native molecular viewer](MOLECULES.md) adds rotatable atom/bond structures,
+distance/angle measurements, SVG/XYZ/JSON export and H₂ geometry linked to VQE
+energies. Methane, water, ethene and benzene geometry examples work on native
+Windows without PySCF. Lessons 09/10 show the structure and the calculation.
+
 Local [QGAN and H₂ chemistry tools](QGAN_CHEMISTRY.md) add probability gradients,
 hybrid adversarial training with a classical baseline, probability sensitivities,
 weighted Hamiltonians, optional PySCF integrals/Jordan–Wigner mapping and

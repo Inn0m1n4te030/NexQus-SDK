@@ -26,6 +26,14 @@ Examples and notebooks are available in the source repository and source archive
 
 ## Your first circuit
 
+The development checkout also has a [molecular structure viewer](docs/MOLECULES.md).
+Rotate H₂, methane (CH₄), water, ethene and benzene, measure bond lengths/angles
+and view H₂ with its calculated VQE energies. Run `python examples/molecular_viewer.py`
+and open the generated `gallery.html` or `h2_vqe.html`; native Windows needs no
+PySCF for this example. Lessons 09/10 include the molecular views.
+Prepared previews in `examples/molecular_previews/` open directly in a browser
+without installing Python dependencies.
+
 The development checkout adds [explainable QGANs and H₂ molecular simulation](docs/QGAN_CHEMISTRY.md):
 quantum/classical distribution learning, probability sensitivities, weighted
 Hamiltonians and H₂ VQE curves checked against classical FCI. Install the

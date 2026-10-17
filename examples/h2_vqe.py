@@ -51,6 +51,10 @@ def generate(output, distances=(.5, .735, 1., 1.5, 2.)):
     explanation = circuit.explain(bindings=parameters, observable='ZZII',
         parameter_roles={'theta': 'weight'}, title='H₂ · mixing occupied and excited determinants')
     explanation.to_html(filename=output/'circuit.html')
+    problem.molecule().view(energies_hartree={'Classical Hartree–Fock': row['hartree_fock'],
+        'Classical FCI': row['pyscf_fci'], 'NexQus VQE': row['nexqus_vqe']},
+        calculation_note=f"H2 at {row['bond_angstrom']} Angstrom; STO-3G; total energies include nuclear repulsion. "
+        'Integrals regenerated locally with PySCF; VQE executed with NexQus.').to_html(output/'molecule.html')
     # Every prefix is inspectable, but only the final ansatz state is guaranteed
     # to lie in the two-electron sector. Prefix energies are not physical VQE iterates.
     trace = []

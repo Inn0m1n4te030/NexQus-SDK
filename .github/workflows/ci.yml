@@ -151,12 +151,17 @@ jobs:
       - run: python examples/explain_circuits.py
       - run: npm install --no-save --no-package-lock jsdom@26.1.0
       - run: node scripts/check_explain_ui.cjs
+      - run: python -m unittest discover -s tests -p test_molecules.py -v
+      - run: python examples/molecular_viewer.py
+      - run: node scripts/check_molecule_ui.cjs
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           include-hidden-files: true
           name: circuit-explanation-examples
-          path: .release-artifacts/explanations
+          path: |
+            .release-artifacts/explanations
+            .release-artifacts/molecules
 
   braket-local:
     runs-on: ubuntu-latest

@@ -1,0 +1,102 @@
+"""Native SVG molecular views; no remote libraries, textures or services."""
+import html
+import json
+import numpy as np
+
+
+def static_svg(data):
+    xyz = np.array([a['position'] for a in data['atoms']]); xyz -= xyz.mean(axis=0)
+    a, b = .2, .28
+    if len(xyz) == 2:
+        dx, dy, dz = xyz[1]-xyz[0]
+        a, b = np.arctan2(dy, dz), np.arctan2(np.hypot(dy, dz), dx)
+    rx = np.array([[1, 0, 0], [0, np.cos(a), -np.sin(a)], [0, np.sin(a), np.cos(a)]])
+    ry = np.array([[np.cos(b), 0, np.sin(b)], [0, 1, 0], [-np.sin(b), 0, np.cos(b)]])
+    xyz = xyz@(ry@rx).T
+    scale = 180/(max(np.linalg.norm(xyz, axis=1))+.55)
+    points = np.column_stack((400+scale*xyz[:, 0], 260-scale*xyz[:, 1]))
+    parts = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" font-family="sans-serif">',
+             '<rect width="800" height="520" rx="18" fill="#f4f7fc"/>',
+             '<text x="28" y="40" fill="#202b40" font-size="25" font-weight="700">'+html.escape(data['name']+' · '+data['formula'])+'</text>',
+             '<text x="28" y="67" fill="#5d6b80" font-size="13">Fixed geometry · coordinates in Angstrom · illustrative atom sizes</text>']
+    for bond in data['bonds']:
+        p, q = points[bond['a']], points[bond['b']]
+        normal = np.array([-(q-p)[1], (q-p)[0]])/max(np.linalg.norm(q-p), 1e-12)
+        offsets = [-4, 4] if bond['order'] == 2 else [-6, 0, 6] if bond['order'] == 3 else [0]
+        for offset in offsets:
+            start = p+offset*normal; end = q+offset*normal
+            dash = ' stroke-dasharray="7 5"' if bond['order'] == 1.5 else ''
+            parts.append(f'<line x1="{start[0]:.5f}" y1="{start[1]:.5f}" x2="{end[0]:.5f}" y2="{end[1]:.5f}" stroke="#8f9cb1" stroke-width="9" stroke-linecap="round"{dash}/>')
+    for i in np.argsort(xyz[:, 2]):
+        atom = data['atoms'][i]; p = points[i]; r = atom['display_radius']*scale
+        parts.append(f'<circle cx="{p[0]:.5f}" cy="{p[1]:.5f}" r="{r:.5f}" fill="{atom["color"]}" stroke="#a5b0c2" stroke-width="1.5"/>')
+        parts.append(f'<text x="{p[0]:.5f}" y="{p[1]+5:.5f}" text-anchor="middle" fill="'+('#233047' if atom['symbol'] in ('H', 'He') else '#ffffff')+f'" font-size="16" font-weight="700">{html.escape(atom["symbol"])}</text>')
+    parts.append('<text x="28" y="480" fill="#5d6b80" font-size="13">'+html.escape(f'{len(data["atoms"])} atoms · {data["n_electrons"]} electrons · geometry visualization')+'</text></svg>')
+    return ''.join(parts)
+
+
+def render_molecules(data):
+    payload = json.dumps(data, ensure_ascii=False, allow_nan=False)
+    for char, escaped in [('&', r'\u0026'), ('<', r'\u003c'), ('>', r'\u003e'),
+                          ('\u2028', r'\u2028'), ('\u2029', r'\u2029')]:
+        payload = payload.replace(char, escaped)
+    return _HTML.replace('__MOLECULE_DATA__', payload)
+
+
+_HTML = r'''<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NexQus · Molecular explorer</title><style>
+:root{color-scheme:light;--ink:#253149;--muted:#64728a;--purple:#6854ce;--line:#dce3ee}*{box-sizing:border-box}body{margin:0;background:#f3f6fb;color:var(--ink);font:14px/1.5 system-ui,Segoe UI,sans-serif}header{padding:18px 28px;background:#25283d;color:white;display:flex;justify-content:space-between;gap:15px}.brand{font-size:12px;letter-spacing:.15em;font-weight:750}.tag{font-size:12px;color:#d4d1ef}main{max-width:1280px;margin:auto;padding:25px}h1{font-size:31px;letter-spacing:-.03em;margin:0 0 5px}h2{font-size:16px;margin:0 0 10px}p{margin:4px 0 13px}.muted{color:var(--muted)}.intro{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}.stats{display:flex;gap:22px}.stats strong{display:block;font-size:24px}.stats span{font-size:12px;color:var(--muted)}.layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(280px,1fr);gap:18px}.card{padding:18px;border:1px solid var(--line);border-radius:14px;background:white;min-width:0}.stack{display:grid;gap:15px;align-content:start}button,select,input{font:inherit}button,select{padding:7px 11px;border:1px solid #cfd8e6;border-radius:8px;background:white;color:var(--ink);cursor:pointer}button:hover{border-color:var(--purple)}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #b8a9ec;outline-offset:2px}button.active{background:#eee9fc;border-color:var(--purple)}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.toolbar select{max-width:100%}#scene{display:block;width:100%;background:#f4f7fc;border-radius:12px;touch-action:none;cursor:grab;margin:14px 0 9px}.note{font-size:12px;color:var(--muted)}.pill{font-size:11px;letter-spacing:.05em;border-radius:20px;display:inline-block;padding:4px 10px;background:#edf1fb;color:#4d6092;margin-bottom:9px}.calculated{background:#ece7fb;color:#5b43aa}.measure{padding:12px;background:#f4f1fc;border-radius:9px;margin:10px 0}.measure strong{display:block;font-size:19px}.scroll{overflow:auto;max-height:215px}table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}td,th{text-align:right;padding:6px;border-bottom:1px solid #edf0f5}td:first-child,th:first-child{text-align:left}th{color:var(--muted);font-weight:500}tr.selectable{cursor:pointer}tr.selected{background:#eee8fc}.downloads{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}#legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}.swatch{display:inline-block;width:12px;height:12px;border:1px solid #acb6c7;border-radius:50%;margin-right:4px;vertical-align:-1px}input[type=range]{accent-color:var(--purple);width:100px}.energies td{font-size:13px}footer{font-size:12px;color:var(--muted);margin-top:20px}summary{cursor:pointer;font-weight:600}details{margin-top:14px}noscript{display:block;padding:20px;background:#fff0d9}@media(max-width:850px){.layout{grid-template-columns:1fr}.intro{display:block}.stats{margin-top:12px}main{padding:16px}header{padding:15px}.card{padding:14px}}@media print{.toolbar,.downloads{display:none}.layout{display:block}.card{break-inside:avoid;margin-bottom:12px}}
+</style></head><body><header><div class="brand">NEXQUS / MOLECULAR INSIGHT</div><div class="tag">Local · Interactive geometry</div></header>
+<noscript>Enable JavaScript to rotate the molecule. This file works offline.</noscript>
+<main><div class="intro"><div><h1 id="title"></h1><p class="muted" id="subtitle"></p></div><div class="stats"><div><strong id="atom-count"></strong><span>atoms</span></div><div><strong id="electron-count"></strong><span>electrons</span></div><div><strong id="mode-count"></strong><span>STO-3G qubit estimate</span></div></div></div>
+<div class="layout"><section class="card"><div class="toolbar"><select id="molecule" aria-label="Choose molecule"></select><button id="reset">Reset view</button><button id="rotate" aria-pressed="false">Auto rotate</button><select id="representation" aria-label="Representation"><option value="ball">Atoms + bonds</option><option value="bonds">Bonds only</option><option value="atoms">Atoms only</option></select><label><input id="labels" type="checkbox" checked> Labels</label></div>
+<svg id="scene" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" font-family="system-ui, sans-serif" role="img" aria-label="Rotatable molecular geometry"></svg>
+<div class="toolbar"><span class="note">Drag to rotate · scroll to zoom · select two atoms to measure</span><label class="note">Zoom <input id="zoom" type="range" min="60" max="190" value="100"></label></div><div id="legend"></div>
+<div class="measure"><select id="measurement-mode" aria-label="Measurement type"><option value="distance">Distance · two atoms</option><option value="angle">Angle · three atoms</option></select><strong id="measurement">Select two atoms</strong><span id="selection" class="note">Atom labels use one-based global atom indices.</span></div>
+<div class="downloads"><button id="save-svg">Download view SVG</button><button id="save-xyz">Download geometry XYZ</button><button id="save-json">Download data JSON</button></div>
+<details><summary>What am I looking at?</summary><p class="note">Spheres mark atomic positions; sticks show supplied or inferred chemical connectivity. Atom sizes are illustrative. Rotation changes the camera, not the molecule's coordinates. These spheres are not electron-density surfaces.</p><p class="note">The qubit estimate uses all STO-3G spin orbitals, with no active-space or symmetry reduction. It is a basis-size estimate, not a completed quantum calculation.</p></details></section>
+<div class="stack"><section class="card"><span class="pill" id="result-status"></span><h2>Geometry and calculation</h2><p id="geometry-note" class="note"></p><p id="calculation-note" class="note"></p><table class="energies"><tbody id="energies"></tbody></table><p id="basis-note" class="note"></p></section>
+<section class="card"><h2>Atoms · coordinates / Å</h2><div class="scroll"><table><thead><tr><th>Atom</th><th>x</th><th>y</th><th>z</th></tr></thead><tbody id="atoms"></tbody></table></div></section>
+<section class="card"><h2>Bonds · distances / Å</h2><p id="bond-source" class="note"></p><div class="scroll"><table><thead><tr><th>Bond</th><th>Order</th><th>Length</th></tr></thead><tbody id="bonds"></tbody></table></div></section></div></div>
+<footer>No external assets, accounts or network requests. Energy values appear only when supplied with method information. Geometry-only examples have no energy calculation attached.</footer></main>
+<script type="application/json" id="molecule-data">__MOLECULE_DATA__</script><script>
+(()=>{'use strict';
+const data=JSON.parse(document.getElementById('molecule-data').textContent),$=id=>document.getElementById(id),scene=$('scene'),NS='http://www.w3.org/2000/svg';
+let index=0,rx=.2,ry=.28,zoom=1,selected=[],timer=null,drag=null;
+const current=()=>data.molecules[index],text=(id,value)=>{$(id).textContent=value;};
+function initialAngles(){const m=current();if(m.atoms.length!==2)return [.2,.28];const [dx,dy,dz]=m.atoms[1].position.map((v,i)=>v-m.atoms[0].position[i]);return [Math.atan2(dy,dz),Math.atan2(Math.hypot(dy,dz),dx)];}
+function node(tag,attrs,parent,label){const e=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,String(v));if(label!==undefined)e.textContent=label;parent.appendChild(e);return e;}
+function cell(row,value){let c=document.createElement('td');c.textContent=value;row.appendChild(c);}
+function row(parent,values){let r=document.createElement('tr');values.forEach(v=>cell(r,v));parent.appendChild(r);return r;}
+function selectAtom(i){const count=$('measurement-mode').value==='angle'?3:2;if(selected.includes(i))selected=selected.filter(v=>v!==i);else selected=selected.length===count?[i]:[...selected,i];render();atomTable();measure();}
+function measure(){const m=current(),angle=$('measurement-mode').value==='angle';if(angle&&selected.length===3){const [a,b,c]=selected.map(i=>m.atoms[i]),u=a.position.map((v,i)=>v-b.position[i]),v=c.position.map((v,i)=>v-b.position[i]),cos=u.reduce((s,x,i)=>s+x*v[i],0)/(Math.hypot(...u)*Math.hypot(...v));text('measurement',`${a.label} — ${b.label} — ${c.label}: ${(Math.acos(Math.max(-1,Math.min(1,cos)))*180/Math.PI).toFixed(3)}°`);text('selection','The second selected atom is the angle vertex. Computed from the fixed coordinates.');}else if(!angle&&selected.length===2){const [a,b]=selected,p=m.atoms[a],q=m.atoms[b];text('measurement',`${p.label} — ${q.label}: ${Math.hypot(...p.position.map((v,i)=>v-q.position[i])).toFixed(4)} Å`);text('selection','Distance is calculated from the fixed atomic coordinates; bonded or nonbonded pairs can be selected.');}else{text('measurement',angle?`Select three atoms · ${selected.length} selected`:(selected.length?`Selected ${m.atoms[selected[0]].label} · choose a second atom`:'Select two atoms'));text('selection',angle?'Select an outer atom, then the central atom, then another outer atom.':'Atom labels use one-based global atom indices.');}}
+function atomTable(){const target=$('atoms');target.replaceChildren();current().atoms.forEach((a,i)=>{let r=row(target,[a.label,...a.position.map(v=>v.toFixed(4))]);r.className='selectable'+(selected.includes(i)?' selected':'');r.tabIndex=0;r.setAttribute('aria-label','Select atom '+a.label);r.addEventListener('click',()=>selectAtom(i));r.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectAtom(i);}});});}
+function transformed(){const atoms=current().atoms,center=[0,1,2].map(k=>atoms.reduce((s,a)=>s+a.position[k],0)/atoms.length);return atoms.map(a=>{let [x,y,z]=a.position.map((v,k)=>v-center[k]);let y1=y*Math.cos(rx)-z*Math.sin(rx),z1=y*Math.sin(rx)+z*Math.cos(rx);return [x*Math.cos(ry)+z1*Math.sin(ry),y1,-x*Math.sin(ry)+z1*Math.cos(ry)];});}
+function render(){const m=current(),xyz=transformed(),extent=Math.max(...xyz.map(p=>Math.hypot(...p)))+.55,scale=180/extent*zoom,points=xyz.map(p=>[400+scale*p[0],260-scale*p[1],p[2]]),mode=$('representation').value;
+scene.replaceChildren();node('rect',{width:800,height:520,rx:12,fill:'#f4f7fc'},scene);const defs=node('defs',{},scene);
+m.atoms.forEach((a,i)=>{let g=node('radialGradient',{id:'fill'+i,cx:'32%',cy:'25%',r:'75%'},defs);node('stop',{offset:0,'stop-color':'#ffffff','stop-opacity':.8},g);node('stop',{offset:.38,'stop-color':a.color},g);node('stop',{offset:1,'stop-color':a.color},g);});
+node('text',{x:25,y:35,fill:'#283650','font-size':20,'font-weight':700},scene,m.name+' · '+m.formula);
+node('text',{x:25,y:58,fill:'#64728a','font-size':12},scene,'Fixed geometry · Angstrom · illustrative atom sizes');
+if(mode!=='atoms')m.bonds.forEach(b=>{const p=points[b.a],q=points[b.b],length=Math.hypot(q[0]-p[0],q[1]-p[1]),normal=[-(q[1]-p[1])/Math.max(length,1e-12),(q[0]-p[0])/Math.max(length,1e-12)],offsets=b.order===2?[-4,4]:b.order===3?[-6,0,6]:[0];for(const off of offsets){let attrs={x1:p[0]+off*normal[0],y1:p[1]+off*normal[1],x2:q[0]+off*normal[0],y2:q[1]+off*normal[1],stroke:'#98a6bc','stroke-width':mode==='bonds'?7:10,'stroke-linecap':'round','data-bond':`${b.a}-${b.b}`};if(b.order===1.5)attrs['stroke-dasharray']='7 5';node('line',attrs,scene);}});
+const order=m.atoms.map((_,i)=>i).sort((a,b)=>xyz[a][2]-xyz[b][2]);for(const i of order){const a=m.atoms[i],p=points[i],radius=mode==='bonds'?9:a.display_radius*scale,g=node('g',{'data-atom':i,role:'button',tabindex:0,'aria-label':'Select atom '+a.label,style:'cursor:pointer'},scene);
+node('circle',{cx:p[0],cy:p[1],r:radius,fill:'url(#fill'+i+')',stroke:selected.includes(i)?'#6854ce':'#9aa9c0','stroke-width':selected.includes(i)?4:1.3},g);
+if($('labels').checked)node('text',{x:p[0],y:p[1]+5,'text-anchor':'middle',fill:a.symbol==='H'||a.symbol==='He'?'#273650':'#ffffff','font-size':mode==='bonds'?11:16,'font-weight':700,'pointer-events':'none'},g,mode==='bonds'?a.symbol:a.label);
+g.addEventListener('click',()=>selectAtom(i));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectAtom(i);}});}
+node('text',{x:25,y:485,fill:'#64728a','font-size':12},scene,`${m.atoms.length} atoms · ${m.n_electrons} electrons · ${m.energies_hartree?'energy results attached':'geometry only'}`);
+}
+function load(){const m=current();selected=[];[rx,ry]=initialAngles();zoom=1;$('zoom').value=100;text('title',m.name+' · '+m.formula);document.title=m.name+' · NexQus';text('subtitle','See the structure. Measure the geometry. Connect it to the calculation.');text('atom-count',m.atoms.length);text('electron-count',m.n_electrons);text('mode-count',m.sto3g_qubits_estimate===null?'—':m.sto3g_qubits_estimate);text('geometry-note',m.geometry_note);text('bond-source',m.bond_source);text('basis-note',m.sto3g_qubits_estimate===null?'STO-3G size estimate is unavailable for these elements.':`${m.sto3g_qubits_estimate} spin orbitals before active-space or symmetry reduction. Each spin orbital maps to one qubit in Jordan–Wigner.`);
+const attached=Boolean(m.energies_hartree);text('result-status',attached?'ENERGY RESULTS ATTACHED':'GEOMETRY ONLY');$('result-status').classList.toggle('calculated',attached);text('calculation-note',attached?m.calculation_note:'No quantum or classical energy calculation is attached to this structure.');$('energies').replaceChildren();if(attached)for(const [label,value]of Object.entries(m.energies_hartree))row($('energies'),[label,value.toFixed(12)+' Ha']);
+$('bonds').replaceChildren();for(const b of m.bonds)row($('bonds'),[m.atoms[b.a].label+'–'+m.atoms[b.b].label,b.order,b.length.toFixed(4)]);
+$('legend').replaceChildren();for(const symbol of new Set(m.atoms.map(a=>a.symbol))){let a=m.atoms.find(a=>a.symbol===symbol),s=document.createElement('span'),dot=document.createElement('i');dot.className='swatch';dot.style.background=a.color;s.appendChild(dot);s.appendChild(document.createTextNode(symbol));$('legend').appendChild(s);}atomTable();measure();render();}
+function download(contents,name,type){const blob=new Blob([contents],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),0);}
+for(const [i,m]of data.molecules.entries()){const o=document.createElement('option');o.value=i;o.textContent=m.name+' · '+m.formula;$('molecule').appendChild(o);}$('molecule').addEventListener('change',()=>{index=Number($('molecule').value);load();});
+$('representation').addEventListener('change',render);$('labels').addEventListener('change',render);$('zoom').addEventListener('input',()=>{zoom=Number($('zoom').value)/100;render();});
+$('measurement-mode').addEventListener('change',()=>{selected=[];atomTable();measure();render();});
+$('reset').addEventListener('click',()=>{[rx,ry]=initialAngles();zoom=1;$('zoom').value=100;render();});
+$('rotate').addEventListener('click',()=>{if(timer!==null){clearInterval(timer);timer=null;}else timer=setInterval(()=>{ry+=.015;render();},50);$('rotate').textContent=timer!==null?'Pause rotation':'Auto rotate';$('rotate').setAttribute('aria-pressed',String(timer!==null));});
+scene.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];if(scene.setPointerCapture)scene.setPointerCapture(e.pointerId);});scene.addEventListener('pointermove',e=>{if(!drag)return;ry+=(e.clientX-drag[0])*.009;rx+=(e.clientY-drag[1])*.009;drag=[e.clientX,e.clientY];render();});scene.addEventListener('pointerup',()=>{drag=null;});scene.addEventListener('pointercancel',()=>{drag=null;});scene.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.6,Math.min(1.9,zoom-e.deltaY*.001));$('zoom').value=Math.round(zoom*100);render();},{passive:false});
+$('save-svg').addEventListener('click',()=>download(new XMLSerializer().serializeToString(scene),'nexqus-molecule.svg','image/svg+xml'));
+$('save-json').addEventListener('click',()=>download(JSON.stringify({schema_version:data.schema_version,molecule:current()},null,2),'nexqus-molecule.json','application/json'));
+$('save-xyz').addEventListener('click',()=>{const m=current();download(m.atoms.length+'\n'+m.name.replace(/[\r\n]/g,' ')+' | Angstrom | '+m.geometry_note.replace(/[\r\n]/g,' ')+'\n'+m.atoms.map(a=>a.symbol+' '+a.position.map(v=>v.toFixed(10)).join(' ')).join('\n')+'\n','nexqus-molecule.xyz','chemical/x-xyz');});load();
+})();</script></body></html>'''
