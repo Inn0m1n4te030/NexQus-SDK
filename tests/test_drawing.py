@@ -12,8 +12,8 @@ class DrawingTests(unittest.TestCase):
         q = Circuit(8).rx(.5, 0).cx(0, 1).ry(.8, 3).cx(3, 7)
         rows = q.draw().splitlines()
         self.assertEqual(len(rows), 8)
-        self.assertIn('[RX]', rows[0])
-        self.assertIn('[RY]', rows[3])
+        self.assertIn('[RX(0.5)]', rows[0])
+        self.assertIn('[RY(0.8)]', rows[3])
         self.assertIn('⊕', rows[7])
         root = ET.fromstring(q.draw('svg'))
         labels = [node.text for node in root.findall('.//{*}text')]
@@ -78,7 +78,7 @@ class DrawingTests(unittest.TestCase):
             for kind in ('svg', 'text'):
                 path = Path(directory) / ('circuit.' + kind)
                 self.assertEqual(q.draw(kind, filename=path), path.read_text(encoding='utf-8'))
-        for kind in ['png', 'html', None]:
+        for kind in ['html', None]:
             with self.assertRaises(ValueError): q.draw(kind)
         for fold in [True, 0, -1, 1.5]:
             with self.assertRaises(ValueError): q.draw(fold=fold)

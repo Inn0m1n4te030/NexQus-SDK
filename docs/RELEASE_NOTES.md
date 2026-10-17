@@ -1,5 +1,13 @@
 # NexQus SDK 1.1.0
 
+## Unreleased source-checkout additions
+
+Numerical circuit angle labels, logical depth/counts, optional PNG/PDF export,
+reusable QML templates and independent simulator benchmarks are available in
+the development checkout. See [API.md](API.md), [QML_TEMPLATES.md](QML_TEMPLATES.md)
+and [the benchmark protocol](../benchmarks/README.md). They have not been added
+to the existing PyPI 1.1.0 archives. No publication is triggered by these docs.
+
 NexQus provides a Python quantum circuit simulator for education and small
 research experiments, with NumPy CPU and optional PyTorch CPU/NVIDIA CUDA execution.
 The package is distributed under the MIT license.

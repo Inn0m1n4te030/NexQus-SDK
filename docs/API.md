@@ -4,6 +4,11 @@ Applies to NexQus SDK 1.1.0; additions for 1.1 are marked below. Read API_STABIL
 contract. Internal tensor adapters and direct operation-list mutation are not
 supported public APIs.
 
+Numerical angle labels, inspection, PNG/PDF export and `nexqus.templates` below
+are **unreleased source-checkout additions**. Install this checkout with
+`python -m pip install -e '.[tutorial,visualization]'` to try them; the existing
+PyPI 1.1.0 archives do not contain these additions.
+
 ## Circuit construction
 
 `Circuit(n_qubits)` requires a positive integer. Wire 0 is the leftmost/MSB bit;
@@ -259,7 +264,7 @@ Algorithm background: [IBM Quantum, Shor’s algorithm](https://quantum.cloud.ib
 
 ### Circuit drawing (added in 1.1)
 
-`Circuit.draw(output='text', *, filename=None, fold=12)` returns a diagram without
+`Circuit.draw(output='text', *, filename=None, fold=12, precision=4)` returns a diagram without
 executing the circuit. Use `print(q.draw())` in a terminal, or `q.draw('svg')` in
 Jupyter. Displaying a Circuit as the last notebook expression also renders SVG.
 The SVG result is a string subclass with `_repr_svg_()` support; it needs no
@@ -273,10 +278,51 @@ Noise and resets are labeled explicitly. General multiwire gates use connected
 boxes with `:0`, `:1`, etc. to preserve operand order, including nonadjacent wires.
 Each operation has its own column; the drawer does not reschedule gates.
 
-Symbolic gates show parameter expressions. Concrete gates show their stored
-names; original numerical angle values are not stored in the current circuit
-representation. Custom names are escaped in SVG and flattened to one line.
-Only `text` and `svg` outputs are supported in this release.
+Symbolic gates show parameter expressions. In the development checkout, built-in
+RX/RY/RZ/P/CP gates retain their supplied numerical angles: `RX(0.5)`.
+`precision` is 1–16 significant digits (default 4); it changes labels only.
+Binding, composition and conditions preserve labels. `RX†(0.5)` denotes the
+adjoint of RX(0.5), including after symbolic binding. Custom matrices are never
+assigned inferred angles. Custom names are escaped and flattened to one line.
+
+Development outputs `png` and `pdf` require the optional `visualization` extra
+and the Cairo system library. Both convert the same native SVG. PNG returns
+bytes with notebook `_repr_png_()` support; PDF returns bytes. `filename` writes
+binary data for these formats. No simulator or external quantum SDK is involved.
+See [CairoSVG installation](https://cairosvg.org/documentation/) for platform
+requirements. Text/SVG continue to work without CairoSVG or Cairo.
+
+```python
+q = Circuit(8).rx(.5, 0).cx(0, 1).ry(.8, 3).cx(3, 7)
+print(q.depth())                 # 2: the two disjoint gate chains are parallel
+print(q.count_ops())             # {'RX': 1, 'CX': 2, 'RY': 1}
+q.draw('png', filename='circuit.png')
+q.draw('pdf', filename='circuit.pdf')
+```
+
+### Logical inspection (unreleased)
+
+`q.count_ops()` counts stored operation names, including noise, measurement and
+reset. `q.count_ops(gates_only=True)` excludes those three kinds. Custom
+unitaries, diagonal gates and permutations each count as one gate; there is no
+decomposition. Adjoint names remain distinct. Results are fresh dictionaries.
+
+`q.depth()` computes critical-path layers across qubit and classical data
+dependencies. Each stored operation costs one layer, including noise,
+measurement and reset. A conditional operation waits for its bit's last write;
+overwriting a bit waits for previous readers. Independent reads can run in
+parallel. Empty circuits have depth zero. This is logical depth, without device
+connectivity, timing, routing, or branch-probability estimates. Drawing still
+uses one column per operation and does not change execution order.
+
+### QML templates (unreleased)
+
+`from nexqus import templates` provides `basis_encoding`, `angle_encoding`,
+`entangling_layer`, `layer_shape`, `variational_layers` and `data_reuploading`.
+They append ordinary gates, return the supplied circuit, support ordered wire
+subsets and validate inputs before changing the caller's circuit. See
+[QML_TEMPLATES.md](QML_TEMPLATES.md) for shapes, connectivity, symbolic parameters
+and a complete gradient example.
 
 ## Numerical validation helpers
 

@@ -1,6 +1,7 @@
 """Analytic parameter-shift gradients for supported symbolic circuit angles."""
 import numpy as np
-from .circuit import Circuit, Operation
+from dataclasses import replace
+from .circuit import Circuit
 from .parameters import Parameter, bindings_dict
 from .simulator import Simulator
 
@@ -76,7 +77,7 @@ class QuantumFunction:
                 shifted_circuit=Circuit(self.template.n_qubits)
                 shifted_circuit.operations=list(bound.operations)
                 # Keep original names, so gate-specific noise rules stay fixed.
-                shifted_circuit.operations[index]=Operation(op.name,concrete.wires,concrete.data,concrete.kind)
+                shifted_circuit.operations[index]=replace(concrete,name=op.name)
                 shifted.append(self._evaluate(shifted_circuit))
             local_derivative=(shifted[0]-shifted[1])/2
             for name in active: gradients[name]+=local_derivative*chain[name]

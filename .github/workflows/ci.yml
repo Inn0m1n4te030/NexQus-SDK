@@ -109,6 +109,25 @@ jobs:
             dist/*
             .release-artifacts/distribution_validation.json
 
+  independent-correctness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.12'
+      - run: python -m pip install ".[benchmark-compare,visualization]"
+      - run: python -m unittest discover -s tests -p test_inspection.py
+      - run: python benchmarks/run.py --suite smoke --threads 1 --warmup 1 --repeats 2
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          include-hidden-files: true
+          name: independent-simulator-correctness
+          path: .release-artifacts/independent-benchmarks
+
   core-dependency-audit:
     runs-on: ubuntu-latest
     steps:

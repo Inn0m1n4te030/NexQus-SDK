@@ -1,4 +1,4 @@
-"""Dependency-free circuit diagrams; drawing never executes a circuit."""
+"""Native diagrams with optional CairoSVG PNG/PDF export; never simulates."""
 from html import escape
 from pathlib import Path
 import numpy as np
@@ -12,18 +12,26 @@ class SVGDiagram(str):
         return str(self)
 
 
-def _expression(value):
+class PNGDiagram(bytes):
+    """PNG bytes that display directly in a Jupyter notebook."""
+    def _repr_png_(self):
+        return bytes(self)
+
+
+def _expression(value, precision=4):
     if not isinstance(value, Expression):
-        return format(value, '.4g')
+        return format(value, f'.{precision}g')
     if value.operation == 'parameter':
         return value.args[0]
     symbol = {'add': '+', 'mul': '*', 'div': '/'}[value.operation]
-    return '(' + symbol.join(_expression(a) for a in value.args) + ')'
+    return '(' + symbol.join(_expression(a, precision) for a in value.args) + ')'
 
 
-def _label(op):
+def _label(op, precision=4):
+    if op.params:
+        return f'{op.name}(' + ', '.join(_expression(p, precision) for p in op.params) + ')'
     if op.kind == 'parameterized':
-        return f'{op.name}({_expression(op.data[1])})'
+        return f'{op.name}({_expression(op.data[1], precision)})'
     if op.kind == 'measure':
         return 'M'
     if op.kind == 'reset':
@@ -55,16 +63,19 @@ def _clean(value):
     return ''.join(c if c.isprintable() else ' ' for c in str(value))
 
 
-def draw(circuit, output='text', *, filename=None, fold=12):
+def draw(circuit, output='text', *, filename=None, fold=12, precision=4):
     """Draw in operation order, returning text or notebook-displayable SVG.
 
     ``fold`` is the maximum number of operations per panel (None disables it).
-    Optional filename writes UTF-8 output. Multiwire boxes include operand
+    Optional filename writes UTF-8 or binary output. Multiwire boxes include operand
     indices, preserving wire order even for nonadjacent/reversed wires.
-    Numeric gates display their stored names; symbolic gates include expressions.
+    precision controls significant digits for stored angles. PNG/PDF conversion
+    uses the same native SVG and requires pip install 'nexqus-sdk[visualization]'.
     """
-    if output not in ('text', 'svg'):
-        raise ValueError("output must be 'text' or 'svg'")
+    if output not in ('text', 'svg', 'png', 'pdf'):
+        raise ValueError("output must be 'text', 'svg', 'png' or 'pdf'")
+    precision = positive_integer(precision, 'precision')
+    if precision > 16: raise ValueError('precision must be between 1 and 16')
     if fold is not None:
         fold = positive_integer(fold, 'fold')
     operations = list(circuit.operations)
@@ -73,15 +84,26 @@ def draw(circuit, output='text', *, filename=None, fold=12):
     key_rows = {key: circuit.n_qubits + i for i, key in enumerate(keys)}
     step = fold or max(1, len(operations))
     panels = [operations[i:i+step] for i in range(0, len(operations), step)] or [[]]
-    rendered = _text(panels, labels, key_rows) if output == 'text' else _svg(panels, labels, key_rows)
+    rendered = (_text(panels, labels, key_rows, precision) if output == 'text'
+                else _svg(panels, labels, key_rows, precision))
+    if output in ('png', 'pdf'):
+        try:
+            import cairosvg
+        except (ImportError, OSError) as exc:
+            raise ImportError("PNG/PDF export requires 'nexqus-sdk[visualization]' and the Cairo system library; "
+                              "see https://cairosvg.org/documentation/") from exc
+        convert = cairosvg.svg2png if output == 'png' else cairosvg.svg2pdf
+        rendered = convert(bytestring=rendered.encode('utf-8'))
+        if output == 'png': rendered = PNGDiagram(rendered)
     if filename is not None:
-        Path(filename).write_text(rendered, encoding='utf-8')
+        if isinstance(rendered, bytes): Path(filename).write_bytes(rendered)
+        else: Path(filename).write_text(rendered, encoding='utf-8')
     return rendered
 
 
-def _cells(op, key_rows):
+def _cells(op, key_rows, precision=4):
     symbol = _symbol(op)
-    label = _clean(_label(op))
+    label = _clean(_label(op, precision))
     cells = {}
     for index, wire in enumerate(op.wires):
         if symbol == 'cx': text = '●' if index == 0 else '⊕'
@@ -97,14 +119,14 @@ def _cells(op, key_rows):
     return cells
 
 
-def _text(panels, labels, key_rows):
+def _text(panels, labels, key_rows, precision=4):
     blocks = []
     margin = max(map(len, labels)) + 2
     classical = set(key_rows.values())
     for panel_index, panel in enumerate(panels):
         rows = [label.ljust(margin) + ('═' if i in classical else '─') * 2 for i, label in enumerate(labels)]
         for op in panel:
-            cells = _cells(op, key_rows)
+            cells = _cells(op, key_rows, precision)
             width = max(map(len, cells.values())) + 4
             low, high = min(cells), max(cells)
             for i in range(len(rows)):
@@ -117,11 +139,11 @@ def _text(panels, labels, key_rows):
     return '\n\n'.join(blocks)
 
 
-def _svg(panels, labels, key_rows):
+def _svg(panels, labels, key_rows, precision=4):
     row_gap, top = 58, 56
     panel_height = top + row_gap * len(labels) + 18
     margin = max(90, max(map(len, labels)) * 8 + 28)
-    widths = [[max(70, max(len(v) for v in _cells(op, key_rows).values()) * 8 + 24)
+    widths = [[max(70, max(len(v) for v in _cells(op, key_rows, precision).values()) * 8 + 24)
                for op in panel] for panel in panels]
     width = max(margin + sum(ws) + 30 for ws in widths)
     height = len(panels) * panel_height
@@ -150,11 +172,11 @@ def _svg(panels, labels, key_rows):
         start = margin
         for op, w in zip(panel, ws):
             x = start + w / 2
-            cells = _cells(op, key_rows)
+            cells = _cells(op, key_rows, precision)
             symbol = _symbol(op)
             low, high = min(cells), max(cells)
             line(x, offset+top+low*row_gap, x, offset+top+high*row_gap, '#2563eb')
-            parts.append('<g><title>' + escape(_clean(_label(op))) + '</title>')
+            parts.append('<g><title>' + escape(_clean(_label(op, precision))) + '</title>')
             for row, label in cells.items():
                 y = offset + top + row * row_gap
                 if row in op.wires and symbol:

@@ -1,5 +1,6 @@
 """Circuit construction. q0 is the LEFTMOST (most significant) bit."""
-from dataclasses import dataclass
+from collections import Counter
+from dataclasses import dataclass, replace
 from functools import wraps
 import numbers
 import numpy as np
@@ -25,6 +26,9 @@ class Operation:
     data: object
     kind: str = "unitary"
     condition: object = None
+    # Display metadata only; simulation always uses data. Never infer angles
+    # from a matrix or a user-supplied gate name.
+    params: tuple = ()
 
 
 class Circuit:
@@ -94,13 +98,17 @@ class Circuit:
     def phase(self, theta, q):
         if isinstance(theta,Expression): return self._parameter_gate('phase',theta,q)
         theta=real_scalar(theta)
-        return self.diagonal([1, np.exp(1j * theta)], q, "P")
+        self.diagonal([1, np.exp(1j * theta)], q, "P")
+        self.operations[-1] = replace(self.operations[-1], params=(theta,))
+        return self
 
     def _rotation(self, theta, q, pauli, name):
         if isinstance(theta,Expression): return self._parameter_gate(name.lower(),theta,q)
         theta=real_scalar(theta)
         u = np.cos(theta / 2) * I - 1j * np.sin(theta / 2) * pauli
-        return self.unitary(u, q, name)
+        self.unitary(u, q, name)
+        self.operations[-1] = replace(self.operations[-1], params=(theta,))
+        return self
 
     def rx(self, theta, q): return self._rotation(theta, q, X, "RX")
     def ry(self, theta, q): return self._rotation(theta, q, Y, "RY")
@@ -119,14 +127,16 @@ class Circuit:
     def cp(self, theta, control, target):
         if isinstance(theta,Expression): return self._parameter_gate('cp',theta,(control,target))
         theta=real_scalar(theta)
-        return self.diagonal([1, 1, 1, np.exp(1j * theta)], (control, target), "CP")
+        self.diagonal([1, 1, 1, np.exp(1j * theta)], (control, target), "CP")
+        self.operations[-1] = replace(self.operations[-1], params=(theta,))
+        return self
 
     def _parameter_gate(self, gate, expression, wires):
         wires=self._wires(wires)
         expected=2 if gate=='cp' else 1
         if len(wires)!=expected: raise ValueError('Incorrect number of gate wires')
         name='P' if gate=='phase' else gate.upper()
-        self.operations.append(Operation(name,wires,(gate,expression),'parameterized'))
+        self.operations.append(Operation(name,wires,(gate,expression),'parameterized',params=(expression,)))
         return self
 
     @property
@@ -149,7 +159,8 @@ class Circuit:
                 gate,expression=op.data
                 getattr(out,gate)(expression.evaluate(values),*op.wires)
                 concrete=out.operations[-1]
-                out.operations[-1]=Operation(op.name,concrete.wires,concrete.data,concrete.kind,op.condition)
+                params=tuple(p.evaluate(values) if isinstance(p,Expression) else p for p in op.params)
+                out.operations[-1]=replace(concrete,name=op.name,condition=op.condition,params=params)
             else: out.operations.append(op)
         return out
 
@@ -199,7 +210,7 @@ class Circuit:
             raise ValueError('Condition value must be integer 0 or 1')
         op=self.operations[-1]
         if op.condition is not None: raise ValueError('Operation already has a condition')
-        self.operations[-1]=Operation(op.name,op.wires,op.data,op.kind,(key,int(value)))
+        self.operations[-1]=replace(op,condition=(key,int(value)))
         return self
 
     def compose(self, other, wires=None, classical_map=None):
@@ -218,7 +229,7 @@ class Circuit:
         for op in list(other.operations):
             data=classical_map.get(op.data,op.data) if op.kind=='measure' else op.data
             condition=None if op.condition is None else (classical_map.get(op.condition[0],op.condition[0]),op.condition[1])
-            self.operations.append(Operation(op.name,tuple(mapped[q] for q in op.wires),data,op.kind,condition))
+            self.operations.append(replace(op,wires=tuple(mapped[q] for q in op.wires),data=data,condition=condition))
         return self
 
     def inverse(self):
@@ -228,19 +239,55 @@ class Circuit:
         for op in reversed(self.operations):
             if op.kind == 'parameterized':
                 gate,expression=op.data
-                out.operations.append(Operation(op.name+'†',op.wires,(gate,-expression),op.kind))
+                out.operations.append(replace(op,name=op.name+'†',data=(gate,-expression)))
                 continue
             if op.kind == 'permutation':
                 out.permutation(np.argsort(op.data), op.wires, op.name + '†')
                 continue
             data = op.data.conj() if op.kind == "diagonal" else op.data.conj().T
-            out.operations.append(Operation(op.name + "†", op.wires, data, op.kind))
+            out.operations.append(replace(op,name=op.name+'†',data=data))
         return out
 
-    def draw(self, output='text', *, filename=None, fold=12):
-        """Return a native text/SVG circuit diagram; optionally save it."""
+    def count_ops(self, *, gates_only=False):
+        """Count stored operation names (no decomposition or simulation).
+
+        gates_only excludes noise, measurement and reset. Parameterized gates,
+        custom unitaries, diagonals and permutations each count as one gate.
+        """
+        if not isinstance(gates_only, bool):
+            raise ValueError('gates_only must be a bool')
+        return dict(Counter(op.name for op in self.operations if not gates_only or
+                            op.kind in ('unitary','diagonal','parameterized','permutation')))
+
+    def depth(self):
+        """Logical critical-path depth including noise, reset and measurement.
+
+        Disjoint wires may run in parallel. Classical reads wait for the last
+        write; overwrites wait for earlier reads. This is not hardware duration
+        or the number of drawing columns. Each stored operation costs one layer.
+        """
+        quantum = [0] * self.n_qubits
+        writes, reads = {}, {}
+        for op in self.operations:
+            dependencies = [quantum[q] for q in op.wires]
+            if op.condition is not None:
+                dependencies.append(writes.get(op.condition[0], 0))
+            if op.kind == 'measure':
+                dependencies.extend((writes.get(op.data, 0), reads.get(op.data, 0)))
+            layer = max(dependencies, default=0) + 1
+            for q in op.wires: quantum[q] = layer
+            if op.condition is not None:
+                key = op.condition[0]
+                reads[key] = max(reads.get(key, 0), layer)
+            if op.kind == 'measure':
+                writes[op.data] = layer
+                reads[op.data] = 0
+        return max(quantum, default=0)
+
+    def draw(self, output='text', *, filename=None, fold=12, precision=4):
+        """Return text/SVG, or PNG/PDF bytes with the visualization extra."""
         from .drawing import draw
-        return draw(self, output=output, filename=filename, fold=fold)
+        return draw(self, output=output, filename=filename, fold=fold, precision=precision)
 
     def _repr_svg_(self):
         return str(self.draw('svg'))

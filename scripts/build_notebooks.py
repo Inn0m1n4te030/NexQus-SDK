@@ -91,6 +91,8 @@ are rotations in radians; `cx` is CNOT. All eight wires appear, including idle
 wires. `draw()` returns terminal text; `draw('svg')` displays in Jupyter.
 To save a vector file, use `custom.draw('svg', filename='custom.svg')`.
 Concrete gates display stored names; symbolic gates include their expressions.
+This development checkout also shows numerical angles. Lesson 07 covers the
+new inspection, export and QML helpers.
 
 မိမိတည်ဆောက်ထားသော circuit ကို simulation မလုပ်ဘဲ ပုံဆွဲနိုင်ပါသည်။
 Jupyter တွင် SVG ပုံကို ကြည့်နိုင်ပြီး file အဖြစ်လည်း သိမ်းနိုင်ပါသည်။
@@ -656,6 +658,103 @@ md('''
 တစ်ကြိမ်လျှင် variable တစ်ခုသာ ပြောင်းပြီး မူလ experiment နှင့် နှိုင်းယှဉ်ပါ။
 သင်ခန်းစာများ၏ passing assertions သည် ဤ example များအတွက်သာ မှန်ကန်ကြောင်း ပြပါသည်။
 ''')])]
+
+
+BOOKS.append(('07_inspection_and_qml_templates',[
+md('''
+# 07 · Circuit inspection and reusable QML / Circuit စစ်ဆေးခြင်းနှင့် QML
+
+**Goal:** inspect/export a circuit and build a differentiable data-reuploading
+model. About 20 minutes. These are unreleased development features: install this
+source checkout with `python -m pip install -e '.[tutorial,visualization]'` and
+restart the kernel. The published PyPI 1.1.0 wheel lacks these additions.
+
+Data encoding နှင့် trainable layer များကို helper များဖြင့် ပြန်သုံးနိုင်ပါသည်။
+ဤ lesson အတွက် source checkout ကို install လုပ်ထားရန် လိုပါသည်။
+'''),SETUP,
+code('''
+from nexqus import templates, QuantumFunction
+assert hasattr(Circuit, 'depth'), 'Install this development source checkout and restart the kernel'
+q = Circuit(8).rx(.5, 0).cx(0, 1).ry(.8, 3).cx(3, 7)
+assert q.depth() == 2
+assert q.count_ops() == {'RX': 1, 'CX': 2, 'RY': 1}
+assert 'RX(0.5)' in q.draw()
+print(q.draw())
+print('Logical depth:', q.depth(), 'gate counts:', q.count_ops(gates_only=True))
+q.draw('svg')
+'''),
+md('''
+## Encode data and choose connections
+
+Features follow the selected wire order. Angles use radians; fit any classical
+scaler using training data. `layer_shape` includes a final rotation-axis
+dimension, even for a single axis. A two-wire ring has one entangling edge.
+'''),
+code('''
+basis = templates.basis_encoding(Circuit(3), [1, 0, 1])
+assert Simulator().run(basis, shots=0).most_likely == '101'
+encoded = templates.angle_encoding(Circuit(4), [.2, -.4], wires=[3, 0], rotation='X')
+shape = templates.layer_shape(2, 2, rotations='YZ')
+templates.variational_layers(encoded, np.zeros(shape), wires=[3, 0], rotations='YZ',
+                            entanglement='ring', entangler='CZ')
+assert encoded.count_ops()['CZ'] == 2
+print('Weight shape:', shape)
+print(encoded.draw())
+'''),
+md('''
+## Reupload data and check a gradient
+
+Each layer encodes the same features, then applies trainable rotations and
+entangling edges. Binding and parameter-shift gradients use the ordinary
+Circuit API. `wrt` selects weights while the feature bindings stay fixed.
+'''),
+code('''
+features = [Parameter('x0'), Parameter('x1')]
+weights = np.array([Parameter(f'w{i}') for i in range(np.prod(shape))],
+                   dtype=object).reshape(shape)
+model = templates.data_reuploading(Circuit(2), features, weights,
+                                  rotations='YZ', entangler='CZ')
+values = {'x0': .2, 'x1': -.4, **{f'w{i}': .1 for i in range(weights.size)}}
+function = QuantumFunction(model, 'ZI')
+value, gradients = function.value_and_grad(values, wrt=['w0'])
+plus, minus = dict(values), dict(values)
+plus['w0'] += 1e-6; minus['w0'] -= 1e-6
+finite_difference = (function(plus)-function(minus))/2e-6
+assert np.isclose(gradients['w0'], finite_difference, atol=1e-8)
+print('Expectation:', value, 'weight gradient:', gradients['w0'])
+print('Depth:', model.depth(), 'gate counts:', model.count_ops(gates_only=True))
+model.bind(values).draw('svg')
+'''),
+md('''
+## Optional PNG/PDF export
+
+PNG/PDF convert the same native SVG using the visualization extra and system
+Cairo. This example uses a temporary folder; choose your own filename to keep
+an export. Text/SVG work without Cairo. Logical depth counts dependencies,
+not drawing columns or hardware duration.
+'''),
+code('''
+import importlib.util
+import tempfile
+from pathlib import Path
+if importlib.util.find_spec('cairosvg') is None:
+    print("Optional PNG/PDF export: install this checkout with '.[visualization]'")
+else:
+    with tempfile.TemporaryDirectory() as folder:
+        png = q.draw('png', filename=Path(folder)/'circuit.png')
+        pdf = q.draw('pdf', filename=Path(folder)/'circuit.pdf')
+        assert png.startswith(b'\\x89PNG') and pdf.startswith(b'%PDF-')
+        assert (Path(folder)/'circuit.png').read_bytes() == png
+        print('PNG and PDF exports passed:', len(png), len(pdf), 'bytes')
+'''),
+md('''
+**Try it:** choose explicit entangling edges, add a data-reuploading layer, and
+compare depth, gate counts and a finite-difference weight gradient. See the
+[independent benchmark protocol](../benchmarks/README.md) for SDK comparisons.
+
+Connection များနှင့် layer အရေအတွက်ကို ပြောင်းကာ circuit depth၊ gate count နှင့်
+gradient ရလဒ်များကို နှိုင်းယှဉ်ကြည့်ပါ။
+''')]))
 
 
 def main():

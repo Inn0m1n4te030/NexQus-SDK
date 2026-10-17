@@ -6,7 +6,7 @@ from .parameters import Parameter
 from .gradients import QuantumFunction
 from .optimizers import Adam, SGD
 from .learning import QuantumRegressor, QuantumBinaryClassifier
-from . import algorithms
+from . import algorithms, templates
 
 __version__ = "1.1.0"
-__all__ = ["Circuit", "circuit", "Parameter", "Noise", "NoiseModel", "Simulator", "Result", "CompiledCircuit", "QuantumFunction", "QuantumRegressor", "QuantumBinaryClassifier", "Adam", "SGD", "algorithms"]
+__all__ = ["Circuit", "circuit", "Parameter", "Noise", "NoiseModel", "Simulator", "Result", "CompiledCircuit", "QuantumFunction", "QuantumRegressor", "QuantumBinaryClassifier", "Adam", "SGD", "algorithms", "templates"]
