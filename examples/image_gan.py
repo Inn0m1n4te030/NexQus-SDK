@@ -1,0 +1,184 @@
+"""Train both image QGANs and a classical baseline locally; no QPU calls.
+
+python examples/image_gan.py --mode all --steps 20
+python examples/image_gan.py --data data/pets --size 16 --channels 3 --steps 100
+python examples/image_gan.py --cifar10 data/cifar10 --download --size 16 --channels 3
+See docs/IMAGE_GANS.md for installation, interpretation and resuming.
+"""
+import argparse
+import base64
+import html
+import json
+import math
+from pathlib import Path
+import platform
+from time import perf_counter
+import numpy as np
+import torch
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import nexqus
+from nexqus.image_gan import (QuantumPatchGenerator, HybridImageGenerator,
+    ClassicalImageGenerator, ImageGAN, ImageDataset, synthetic_bars,
+    load_cifar10_cats_dogs, save_image_grid)
+
+
+def image_diagnostics(generated, labels, reference):
+    """Descriptive pixel statistics, never a semantic/fidelity score."""
+    result = {}
+    for label, name in enumerate(reference.class_names):
+        fake = generated[labels == label].flatten(1)
+        real = reference.images[reference.labels == label].flatten(1)
+        result[name] = dict(class_mean_pixel_mae=float((fake.mean(0)-real.mean(0)).abs().mean()),
+                            generated_pixel_std=float(fake.std(0, unbiased=False).mean()))
+    return result
+
+
+def make_effect_plot(model, folder, seed):
+    noise = torch.randn(1, model.latent_dim, generator=torch.Generator().manual_seed(seed))
+    labels = torch.zeros(1, dtype=torch.long)
+    effect = model.parameter_effect(noise, labels, delta=.25)
+    figure, axes = plt.subplots(1, 4, figsize=(11, 3))
+    for axis, key, title in zip(axes[:3], ('minus', 'center', 'plus'), ('w − 0.25', 'w', 'w + 0.25')):
+        pixels = effect[key][0].numpy().transpose(1, 2, 0)
+        axis.imshow(pixels[:, :, 0] if model.channels == 1 else pixels, cmap='gray', vmin=0, vmax=1,
+                    interpolation='nearest'); axis.set_title(title); axis.axis('off')
+    sensitivity = effect['sensitivity'][0].mean(0).numpy()
+    limit = max(float(np.max(np.abs(sensitivity))), 1e-9)
+    artist = axes[3].imshow(sensitivity, cmap='RdBu_r', vmin=-limit, vmax=limit, interpolation='nearest')
+    axes[3].set_title('Pixel change / radian\n(mean over channels)'); axes[3].axis('off')
+    figure.colorbar(artist, ax=axes[3], shrink=.65)
+    figure.suptitle(effect['parameter']+' · same noise and class'); figure.tight_layout()
+    figure.savefig(folder/'parameter_effect.png', dpi=130); plt.close(figure)
+    model.circuit_report(noise, labels).to_html(filename=folder/'circuit.html')
+    return dict(parameter=effect['parameter'], value=effect['value'], delta=effect['delta'],
+                max_abs_pixel_sensitivity=float(effect['sensitivity'].abs().max()))
+
+
+def write_report(folder, payload):
+    def picture(path, caption):
+        data = base64.b64encode(path.read_bytes()).decode('ascii')
+        return '<figure><img src="data:image/png;base64,'+data+'"><figcaption>'+html.escape(caption)+'</figcaption></figure>'
+    pieces = ['<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width">',
+        '<title>NexQus image GAN comparison</title><style>body{font:16px system-ui;max-width:1120px;margin:32px auto;padding:0 20px;background:#101621;color:#e5ecf8}h1,h2{color:#8edcfa}img{max-width:100%;image-rendering:pixelated}figure{margin:20px 0}figcaption,p{line-height:1.6}pre{white-space:pre-wrap;background:#202b3e;padding:16px;border-radius:12px}a{color:#9de4ff}</style>',
+        '<h1>Images from quantum and classical generators</h1><p>'+html.escape(payload['source'])+'</p>',
+        '<p>Rows show requested classes in this order: '+html.escape(', '.join(payload['classes']))+'. Each class has eight samples. Before/after use identical noise and labels. These are actual model outputs.</p>',
+        picture(folder/'training_images.png', 'Training examples (up to eight unique per class; small datasets repeat to fill rows).'),
+        '<p>The three models use the same data split, minibatch order, latent prior, discriminator initialization, losses, learning rate and update count. Generator architecture and parameter counts differ. Pixel diagnostics describe averages and variation; they do not assess whether an image looks like a cat or dog. GAN losses are not image-quality scores.</p>']
+    for record in payload['models']:
+        mode = record['kind']; directory = folder/mode
+        pieces += ['<h2>'+html.escape(mode)+'</h2>',
+                   picture(directory/'before.png', 'Before this training session.'),
+                   picture(directory/'after.png', 'After '+str(record['session_steps'])+' updates in this session.'),
+                   picture(directory/'losses.png', 'Adversarial training losses at alternating updates.')]
+        if mode != 'classical':
+            pieces += [picture(directory/'parameter_effect.png', 'One local parameter intervention. Color is signed image sensitivity, not feature importance.'),
+                       '<p><a href="'+mode+'/circuit.html">Open the gate-by-gate circuit explanation</a></p>']
+        pieces += ['<pre>'+html.escape(json.dumps(record, indent=2))+'</pre>']
+    pieces += ['<h2>Run settings</h2><pre>'+html.escape(json.dumps({k:v for k,v in payload.items() if k != 'models'}, indent=2))+'</pre></html>']
+    (folder/'report.html').write_text('\n'.join(pieces), encoding='utf-8')
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--mode', choices=['all', 'patch', 'hybrid', 'classical'], default='all')
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument('--data', type=Path, help='Root with class subfolders, e.g. cats/ and dogs/')
+    source.add_argument('--cifar10', type=Path, help='Optional torchvision CIFAR-10 root')
+    parser.add_argument('--download', action='store_true', help='Explicitly allow CIFAR-10 download')
+    parser.add_argument('--size', type=int, default=8); parser.add_argument('--channels', type=int, choices=[1,3], default=1)
+    parser.add_argument('--patch-size', type=int, choices=[2,4,8])
+    parser.add_argument('--depth', type=int, default=1); parser.add_argument('--qubits', type=int, default=4)
+    parser.add_argument('--latent-dim', type=int, default=4); parser.add_argument('--hidden', type=int, default=64)
+    parser.add_argument('--samples', type=int, default=64); parser.add_argument('--steps', type=int, default=20)
+    parser.add_argument('--batch-size', type=int, default=4); parser.add_argument('--learning-rate', type=float, default=.002)
+    parser.add_argument('--seed', type=int, default=7); parser.add_argument('--threads', type=int, default=1)
+    parser.add_argument('--resume', type=Path, help='Resume one mode with identical data/split/batch size')
+    parser.add_argument('--output-dir', type=Path, default=Path('.release-artifacts/image-gans'))
+    args = parser.parse_args(argv)
+    if args.download and args.cifar10 is None: parser.error('--download requires --cifar10')
+    if args.steps < 1 or args.threads < 1: parser.error('--steps and --threads must be positive')
+    if args.resume and args.mode == 'all': parser.error('--resume requires one specific --mode')
+    torch.set_num_threads(args.threads)
+    if args.data:
+        data = ImageDataset.from_folder(args.data, image_size=args.size, channels=args.channels, max_images=args.samples)
+    elif args.cifar10:
+        data = load_cifar10_cats_dogs(args.cifar10, image_size=args.size, channels=args.channels,
+                                     max_images=args.samples, download=args.download)
+    else:
+        data = synthetic_bars(samples=args.samples, image_size=args.size, channels=args.channels, seed=args.seed)
+    training, validation = data.split(seed=args.seed)
+    folder = args.output_dir; folder.mkdir(parents=True, exist_ok=True)
+    real_rows = []
+    for i in range(len(data.class_names)):
+        images = training.images[training.labels == i]
+        real_rows.append(images[torch.arange(8) % len(images)])
+    real = torch.cat(real_rows)
+    save_image_grid(real, folder/'training_images.png', columns=8)
+    labels = torch.arange(len(data.class_names)).repeat_interleave(8)
+    if len(labels) > 128: parser.error('The comparison preview supports at most 16 classes')
+    modes = ['patch', 'hybrid', 'classical'] if args.mode == 'all' else [args.mode]
+    payload = dict(sdk_version=nexqus.__version__, torch_version=str(torch.__version__), numpy_version=np.__version__,
+        platform=platform.platform(), device='cpu', precision='float32 Torch / complex128 native quantum simulation',
+        threads=torch.get_num_threads(), source=data.source, classes=list(data.class_names),
+        shape=list(data.images.shape[1:]), training_samples=len(training), validation_samples=len(validation),
+        training_fingerprint=training.fingerprint, validation_fingerprint=validation.fingerprint,
+        seed=args.seed, batch_size=args.batch_size, learning_rate=args.learning_rate,
+        requested_session_steps=args.steps, comparison='Matched updates/data/D initialization; generator parameter budgets differ',
+        diagnostic_definition='Per-class held-out mean-pixel MAE and generated per-pixel standard deviation; neither is semantic quality',
+        models=[])
+    for mode in modes:
+        output = folder/mode; output.mkdir(parents=True, exist_ok=True)
+        common = dict(image_size=args.size, channels=args.channels, latent_dim=args.latent_dim,
+                      num_classes=len(data.class_names), seed=args.seed)
+        if args.resume:
+            trainer = ImageGAN.load(args.resume)
+            if trainer.generator.config['kind'] != mode: parser.error('Checkpoint kind differs from --mode')
+            if trainer.config['seed'] != args.seed: parser.error('Keep --seed identical to checkpoint for a matched continuation')
+            g = trainer.generator
+            if any(g.config[key] != value for key, value in common.items()):
+                parser.error('Keep image size, channels, latent dimension, class count and seed identical to the checkpoint')
+            if trainer.config['learning_rate'] != args.learning_rate or trainer.config['discriminator_hidden'] != args.hidden:
+                parser.error('Keep learning rate and discriminator hidden size identical to the checkpoint')
+        else:
+            if mode == 'patch':
+                g = QuantumPatchGenerator(**common, depth=args.depth, patch_size=args.patch_size or (8 if args.size >= 32 else 4))
+            elif mode == 'hybrid': g = HybridImageGenerator(**common, n_qubits=args.qubits, depth=args.depth, hidden=args.hidden)
+            else: g = ClassicalImageGenerator(**common, hidden=args.hidden)
+            trainer = ImageGAN(g, learning_rate=args.learning_rate, discriminator_hidden=args.hidden, seed=args.seed)
+        before = trainer.sample(len(labels), labels=labels, seed=1000+args.seed)
+        save_image_grid(before, output/'before.png', columns=8)
+        start_steps = trainer.steps
+        def progress(record):
+            if record['step'] == start_steps+1 or (record['step']-start_steps) % 10 == 0:
+                print(f"{mode}: step {record['step']}  D={record['discriminator_loss']:.4f} G={record['generator_loss']:.4f}", flush=True)
+        started = perf_counter()
+        trainer.fit(training, epochs=math.ceil(args.steps/max(1, math.ceil(len(training)/args.batch_size)))+1,
+                    batch_size=args.batch_size, max_steps=args.steps, callback=progress)
+        elapsed = perf_counter()-started
+        after = trainer.sample(len(labels), labels=labels, seed=1000+args.seed)
+        save_image_grid(after, output/'after.png', columns=8); trainer.save(output/'checkpoint.pt')
+        figure, axis = plt.subplots(figsize=(6,3))
+        for key in ('discriminator_loss', 'generator_loss'):
+            axis.plot([row['step'] for row in trainer.history], [row[key] for row in trainer.history], label=key)
+        axis.set(xlabel='Alternating update', ylabel='Loss', title=mode+' training'); axis.legend(); figure.tight_layout()
+        figure.savefig(output/'losses.png', dpi=130); plt.close(figure)
+        record = dict(kind=mode, generator_config=g.config, trainer_config=trainer.config,
+            session_steps=trainer.steps-start_steps, total_steps=trainer.steps,
+            generator_parameters=sum(p.numel() for p in g.parameters()),
+            quantum_parameters=sum(q.weights.numel() for q in g.quantum_layers()),
+            discriminator_parameters=sum(p.numel() for p in trainer.discriminator.parameters()),
+            session_training_seconds=elapsed, timing_scope='Full CPU training loop including parameter shifts and optimizers; no setup/export',
+            before=image_diagnostics(before, labels, validation), after=image_diagnostics(after, labels, validation),
+            final_losses=trainer.history[-1])
+        if mode != 'classical': record['parameter_effect'] = make_effect_plot(g, output, args.seed)
+        payload['models'].append(record)
+        print(f'{mode}: saved checkpoint and previews ({elapsed:.2f}s training)', flush=True)
+    (folder/'metrics.json').write_text(json.dumps(payload, indent=2)+'\n', encoding='utf-8')
+    write_report(folder, payload)
+    print('Open', (folder/'report.html').resolve())
+    return payload
+
+
+if __name__ == '__main__': main()

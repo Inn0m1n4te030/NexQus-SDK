@@ -26,6 +26,14 @@ Examples and notebooks are available in the source repository and source archive
 
 ## Your first circuit
 
+The development checkout adds [two conditional image QGANs](docs/IMAGE_GANS.md):
+quantum pixel patches and quantum features with a classical decoder, plus a
+classical GAN comparison, training checkpoints and parameter-to-pixel views.
+Install `.[tutorial,image-gan]` from source, then run
+`python examples/image_gan.py --mode all --steps 20`. Use `--data data/pets
+--size 16 --channels 3` for your own cat/dog folders. Lesson 11 shows both models.
+All training runs locally on CPU; these APIs are not in the PyPI 1.2.0 wheel.
+
 The development checkout also has a [molecular structure viewer](docs/MOLECULES.md).
 Rotate H₂, methane (CH₄), water, ethene and benzene, measure bond lengths/angles
 and view H₂ with its calculated VQE energies. Run `python examples/molecular_viewer.py`

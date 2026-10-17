@@ -1002,6 +1002,160 @@ print(xyz)
 ''')]))
 
 
+BOOKS.append(('11_image_gans', [
+md('''
+# 11 · Quantum image generators and a classical comparison
+
+Train two different image QGAN architectures: quantum pixel patches, and
+quantum features feeding a classical decoder. Compare a conditional classical
+GAN on the same data, minibatch order, noise prior, discriminator and updates.
+This short offline lesson uses vertical/horizontal bars so it runs without a
+dataset download. For real cat/dog images use the folder/CIFAR-10 commands below.
+No pretrained model is included, and nothing submits work to a QPU.
+
+From the **current source checkout**, in your terminal (Windows supported):
+
+```bash
+python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+python -m pip install -e ".[tutorial,image-gan]"
+python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)"
+```
+
+Restart the kernel and select **Python (NexQus)**. These new optional APIs are
+not in the published 1.2.0 wheel, even though the source version is still 1.2.0.
+The chemistry extra and PySCF are not needed. If PyTorch is absent this optional
+lesson explicitly skips; image-GAN CI executes it with PyTorch installed.
+'''), SETUP,
+code('''
+import importlib.util
+import sys
+print('Python:', sys.executable)
+print('Imported SDK:', nexqus.__file__)
+image_gan_available = importlib.util.find_spec('torch') is not None
+if image_gan_available:
+    try:
+        import torch
+        from IPython.display import display
+        from nexqus.image_gan import (QuantumPatchGenerator, HybridImageGenerator,
+            ClassicalImageGenerator, ImageGAN, synthetic_bars)
+    except ImportError as error:
+        raise ImportError('Install the current source checkout with .[tutorial,image-gan] in this kernel and restart it') from error
+    torch.set_num_threads(1)
+else:
+    print('SKIPPED optional image GAN: install .[image-gan] to run this lesson')
+'''),
+md('''
+## Train all three models
+
+The patch generator maps each circuit's ancilla=0 probabilities into a pixel
+patch, then tiles the patches. Each patch is normalized to a brightest pixel of
+one. The hybrid generator reads Z expectations from its circuit and sends them
+through a trainable classical decoder. Noise/class inputs reach that decoder
+through quantum features. Both have trainable classical angle encoders.
+
+Circuit derivatives use NexQus's native parameter shifts; classical layers use
+PyTorch autograd. This first bridge supports local CPU, exact pure states and
+first derivatives. The classical GAN has its own MLP generator. Parameter
+budgets differ; they are printed rather than implied to be matched.
+'''),
+code('''
+if image_gan_available:
+    dataset = synthetic_bars(samples=16, image_size=4, seed=7)
+    training, validation = dataset.split(seed=7)
+    classes = (QuantumPatchGenerator, HybridImageGenerator, ClassicalImageGenerator)
+    trainers = {}
+    for constructor in classes:
+        generator = constructor(image_size=4, latent_dim=2, seed=7)
+        trainer = ImageGAN(generator, seed=7)
+        before = trainer.sample(8, seed=19)
+        trainer.fit(training, epochs=1, batch_size=2, max_steps=2)
+        after = trainer.sample(8, seed=19)
+        assert trainer.steps == 2 and torch.isfinite(after).all()
+        assert not torch.equal(before, after)
+        name = generator.config['kind']
+        trainers[name] = trainer
+        print(name, 'parameters:', sum(p.numel() for p in generator.parameters()),
+              'quantum:', sum(q.weights.numel() for q in generator.quantum_layers()))
+        fig, axes = plt.subplots(2, 8, figsize=(10, 3))
+        for row, images in enumerate((before, after)):
+            for i, image in enumerate(images):
+                axes[row, i].imshow(image[0], cmap='gray', vmin=0, vmax=1)
+                axes[row, i].axis('off')
+        fig.suptitle(name+' · before / after two updates · labels alternate vertical/horizontal')
+        plt.tight_layout(); plt.show()
+'''),
+md('''
+## Change one quantum parameter and see the pixels change
+
+Hold noise and requested class fixed. The first three panels are actual outputs
+at w−δ, w, w+δ. The last is their central finite-difference pixel sensitivity.
+This experiment shows a local causal intervention in the model. It does not
+explain an entire dataset or establish that the model learned animal semantics.
+'''),
+code('''
+if image_gan_available:
+    for name in ('patch', 'hybrid'):
+        generator = trainers[name].generator
+        noise = torch.tensor([[.2, -.4]])
+        label = torch.tensor([0])
+        effect = generator.parameter_effect(noise, label, delta=.25)
+        fig, axes = plt.subplots(1, 4, figsize=(10, 3))
+        for ax, key in zip(axes[:3], ('minus', 'center', 'plus')):
+            ax.imshow(effect[key][0, 0], cmap='gray', vmin=0, vmax=1); ax.set_title(key); ax.axis('off')
+        sensitivity = effect['sensitivity'][0, 0].numpy()
+        bound = max(float(np.max(np.abs(sensitivity))), 1e-9)
+        artist = axes[3].imshow(sensitivity, cmap='RdBu_r', vmin=-bound, vmax=bound)
+        axes[3].set_title('Pixel change / radian'); axes[3].axis('off')
+        fig.colorbar(artist, ax=axes[3], shrink=.65)
+        fig.suptitle(name+' · '+effect['parameter']); plt.tight_layout(); plt.show()
+        display(generator.circuit_report(noise, label))
+'''),
+md('''
+## Checkpoint and continue
+
+Checkpoints contain the model, discriminator, optimizers, training RNG, shuffled
+data order and cursor. Resume with the same preprocessed data and batch size.
+Fixed-seed sampling uses a separate RNG and does not change future training.
+'''),
+code('''
+if image_gan_available:
+    import tempfile
+    from pathlib import Path
+    with tempfile.TemporaryDirectory() as directory:
+        checkpoint = Path(directory)/'hybrid.pt'
+        trainers['hybrid'].save(checkpoint)
+        loaded = ImageGAN.load(checkpoint)
+        torch.testing.assert_close(loaded.sample(4), trainers['hybrid'].sample(4), rtol=0, atol=0)
+        loaded.fit(training, epochs=1, batch_size=2, max_steps=1)
+        assert loaded.steps == 3
+    print('Checkpoint round trip and continued training passed')
+'''),
+md('''
+## Your own cats and dogs
+
+Put photos under `data/pets/cats/` and `data/pets/dogs/`. The loader center-crops,
+resizes and scales RGB pixels to [0,1]. Use the terminal example for longer runs:
+
+```bash
+python examples/image_gan.py --data data/pets --mode all --size 16 --channels 3 --samples 256 --steps 100 --batch-size 4
+```
+
+Or optionally install compatible torchvision from the same CPU index and use
+`--cifar10 data/cifar10 --download` instead of `--data data/pets`.
+The example saves real/before/after images, losses, checkpoints, held-out pixel
+diagnostics, parameter sensitivity plots and gate-by-gate circuit reports.
+`report.html` ties the images and settings together. See `docs/IMAGE_GANS.md`.
+
+Two updates verify the training path; recognizable animal images require much
+more training, appropriate models and visual evaluation. GAN losses and mean
+pixel errors alone do not measure semantic image quality.
+
+**Try it:** increase the update count, inspect both class labels at fixed noise,
+and compare patch/hybrid/classical outputs. Investigate whether changing a
+quantum parameter affects one patch or the entire decoded image.
+''')]))
+
+
 def main():
     directory=ROOT/'notebooks'; directory.mkdir(exist_ok=True)
     for name,cells in BOOKS:

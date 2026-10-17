@@ -1,5 +1,11 @@
 # Trainable quantum circuits
 
+The unreleased optional [image-GAN module](IMAGE_GANS.md) adds a bounded CPU
+Torch `nn.Module` bridge for probability vectors and first derivatives, plus
+patch/hybrid/classical image generators. Import it from `nexqus.image_gan`.
+The core `QuantumFunction` and learning APIs below keep their existing explicit
+gradient interfaces; this does not add general Torch autograd to every circuit.
+
 For reusable encoding, entangling layers and data reuploading in the development
 checkout, see [QML_TEMPLATES.md](QML_TEMPLATES.md) and lesson 07. Those helpers
 build ordinary circuits compatible with the gradients described here.
@@ -186,9 +192,10 @@ loss rather than relying only on the built-in MSE models.
 
 ## Scope
 
-NexQus 1.2.0 provides explicit analytic gradients. PyTorch autograd, torch.nn.Module
-integration, trajectory gradients, dynamic-circuit gradients and hardware training
-are outside the supported API. The small learning examples demonstrate circuit
+The published NexQus 1.2.0 APIs provide explicit analytic gradients. General
+PyTorch autograd integration, trajectory gradients, dynamic-circuit gradients
+and hardware training remain outside those APIs; the source image module has
+the narrower Torch bridge described above. The small learning examples demonstrate circuit
 optimization; they do not establish an advantage over classical learning.
 
 ## Burmese notes

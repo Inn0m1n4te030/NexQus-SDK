@@ -13,6 +13,12 @@ def stream(text, name='stdout'):
 
 
 class NotebookRunnerTests(unittest.TestCase):
+    def test_optional_image_skip_fragments_and_separate_gpu_counts(self):
+        notebook=dict(cells=[dict(cell_type='code',outputs=[stream('SKIPPED optional '),
+            stream(['image GAN: install extra\nSKIPPED optional CUDA: unavailable\n']),
+            stream('SKIPPED optional image GAN: not stdout\n','stderr')])])
+        self.assertEqual(runner.optional_skip_counts(notebook), {'cuda':1,'image_gan':1})
+
     def test_windows_split_print(self):
         # Actual Windows artifact: print('NexQus SDK:', version) arrived as
         # two stream outputs, with the version in the second chunk.

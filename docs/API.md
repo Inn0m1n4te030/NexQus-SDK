@@ -11,6 +11,13 @@ QML helpers require no additional runtime dependencies.
 
 ## Circuit construction
 
+For unreleased optional image-generation APIs, see [IMAGE_GANS.md](IMAGE_GANS.md).
+Import `QuantumProbabilityLayer`, `QuantumPatchGenerator`, `HybridImageGenerator`,
+`ClassicalImageGenerator`, `ImageDiscriminator`, `ImageGAN`, `ImageDataset`,
+`synthetic_bars`, `load_cifar10_cats_dogs` and `save_image_grid` from
+`nexqus.image_gan` after installing `.[image-gan]` from source. PyTorch/Pillow
+are optional; these interfaces are not re-exported by core `nexqus`.
+
 For the unreleased molecular geometry/viewer APIs `Molecule`, `MolecularView`,
 `molecule`, `molecular_gallery`, `MolecularProblem.molecule()` and the fixed
 `h2_reference_problem()` fixture, see [MOLECULES.md](MOLECULES.md). The viewer
