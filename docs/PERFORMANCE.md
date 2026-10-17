@@ -4,6 +4,10 @@ For independent Qiskit Aer/PennyLane comparisons, see the
 [benchmark protocol and measured reports](../benchmarks/README.md). These new
 source-checkout tools record full accuracy, runtime and RSS results using
 optional development dependencies, including slower NexQus workloads.
+Correctness reports contain accuracy diagnostics only. Performance uses equal
+warmups for each engine and measures memory in separate subprocesses. See the
+[before/after optimization comparison](../benchmarks/results/optimization_20261017.md)
+for matched reruns of the unoptimized and optimized SDK.
 
 This guide applies to NexQus SDK 1.1.0. For order-finding workloads, call
 `algorithms.shor_resources(modulus)` before simulation. Compact permutation gates
@@ -114,7 +118,10 @@ PRNG quality. Increase trajectories or repeat seeds for further experiments.
 - `Simulator(local_gates=False)` or benchmark `--no-local-gates`: generic
   matrix/permutation kernels instead of local/broadcast kernels.
 - `run(noise_fastpath=False)` or benchmark `--no-fast-noise`: generic Kraus
-  sampling on device instead of specialized channels.
+  sampling/evolution instead of specialized channels. The development checkout
+  adds exact NumPy density-block updates for value-recognized Pauli mixtures
+  and amplitude/phase damping; arbitrary channels and Torch retain generic
+  density evolution. Compiled circuits cache channel recognition.
 - `--cpu-threads 1`, `4`, or another positive count: controlled CPU comparisons.
 - `--uncompiled`: ordinary execution with the bounded gate cache.
 

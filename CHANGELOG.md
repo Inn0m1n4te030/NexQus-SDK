@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Remove all latency metrics from correctness/smoke reports. Warm every engine
+  equally for performance and sample memory in a separate fresh subprocess.
+- Optimize NumPy single-wire rotations/diagonals and exact Pauli/damping noise,
+  cache compiled channel recognition and avoid RNG setup for exact zero-shot runs.
+- Publish a newly measured unoptimized baseline and matched optimization results.
+
 - Retain numeric RX/RY/RZ/P/CP angle labels through binding, composition,
   conditions and inverses; expose logical depth and operation/gate counts.
 - Add optional PNG/PDF export from the native SVG renderer.
