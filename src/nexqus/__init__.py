@@ -6,7 +6,10 @@ from .parameters import Parameter
 from .gradients import QuantumFunction
 from .optimizers import Adam, SGD
 from .learning import QuantumRegressor, QuantumBinaryClassifier
+from .generative import QuantumDistribution, QGAN, distribution_metrics
+from .hamiltonian import PauliHamiltonian, HamiltonianFunction
 from . import algorithms, templates
 
 __version__ = "1.2.0"
 __all__ = ["Circuit", "circuit", "Parameter", "Noise", "NoiseModel", "Simulator", "Result", "CompiledCircuit", "QuantumFunction", "QuantumRegressor", "QuantumBinaryClassifier", "Adam", "SGD", "algorithms", "templates"]
+__all__ += ["QuantumDistribution", "QGAN", "distribution_metrics", "PauliHamiltonian", "HamiltonianFunction"]

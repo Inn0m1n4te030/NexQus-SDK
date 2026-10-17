@@ -26,6 +26,13 @@ Examples and notebooks are available in the source repository and source archive
 
 ## Your first circuit
 
+The development checkout adds [explainable QGANs and H₂ molecular simulation](docs/QGAN_CHEMISTRY.md):
+quantum/classical distribution learning, probability sensitivities, weighted
+Hamiltonians and H₂ VQE curves checked against classical FCI. Run
+`python examples/qgan_distribution.py` or `python examples/h2_vqe.py` after
+`python -m pip install -e '.[tutorial,chemistry]'`. These local-only additions
+and lessons 08/09 are not in the published PyPI 1.2.0 wheel.
+
 The development checkout includes a [local explainability explorer](docs/EXPLAINABILITY.md):
 step through a circuit and inspect probabilities, phases, reduced-qubit states,
 correlations and QNN parameter occurrences in a standalone HTML report.

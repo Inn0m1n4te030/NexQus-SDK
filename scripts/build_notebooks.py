@@ -756,6 +756,145 @@ gradient ရလဒ်များကို နှိုင်းယှဉ်က�
 ''')]))
 
 
+BOOKS.append(('08_qgan_distribution', [
+md('''
+# 08 · Explainable QGAN / Quantum generator သင်ယူပုံ
+
+**Unreleased source-checkout lesson.** Install this checkout with
+`python -m pip install -e '.[tutorial]'`; the published 1.2.0 wheel does not
+include these APIs. Everything runs locally without a QPU.
+
+The quantum generator produces a Born probability distribution. A classical
+discriminator tries to distinguish its outcomes from the target. We alternate
+five discriminator updates with one generator update. This is adversarial
+training, not direct minimization of distribution error.
+
+Quantum circuit မှ probability များ ထုတ်ပေးပြီး classical discriminator နှင့်
+အပြိုင် သင်ယူပါသည်။ အောက်တွင် classical model နှင့်လည်း နှိုင်းယှဉ်ထားပါသည်။
+'''), SETUP,
+code('''
+from nexqus import QuantumDistribution, QGAN, Adam, distribution_metrics
+theta = Parameter('theta')
+generator = QuantumDistribution(Circuit(1).ry(theta, 0))
+model = QGAN(generator, {'theta': 1.3})
+target = np.array([.25, .75])
+initial = model.probabilities()
+model.fit(target, epochs=160)
+final = model.probabilities()
+print('Initial:', initial, 'Final:', final)
+print(distribution_metrics(target, final))
+assert distribution_metrics(target, final)['total_variation'] < .03
+'''),
+md('''
+## Compare against classical, then inspect the generator
+
+A two-category classical model can represent this distribution directly with
+probabilities `[1-p, p]`. The target itself is therefore an exact classical
+representability reference, not a trained performance comparison. The full
+`examples/qgan_distribution.py` example trains both quantum and classical GANs
+with identical initial distributions, discriminator initialization, learning
+rates and update counts across three seeds; it reports every result.
+
+`jacobian['theta'][i]` tells us the local change in probability of outcome i
+per radian, with the current circuit and all other weights fixed. It is not
+a global causal explanation or a feature attribution method.
+'''),
+code('''
+p, jacobian = generator.value_and_grad(model.parameters)
+fig, axes = plt.subplots(1, 2, figsize=(9, 3), layout='constrained')
+x = np.arange(2)
+axes[0].bar(x-.15, target, width=.3, label='Target / exact classical representation')
+axes[0].bar(x+.15, p, width=.3, label='Quantum GAN')
+axes[0].set_xticks(x, ['0', '1']); axes[0].set_ylabel('Probability'); axes[0].legend(fontsize=7)
+axes[1].plot([r['total_variation'] for r in model.history])
+axes[1].set(xlabel='Adversarial update', ylabel='Total variation error')
+plt.show()
+print('Probability derivatives:', jacobian)
+assert abs(jacobian['theta'].sum()) < 1e-10
+'''),
+code('''
+from IPython.display import display
+display(generator.template.explain(bindings=model.parameters,
+    parameter_roles={'theta': 'weight'}, title='QGAN · inspect the trained generator'))
+''')]))
+
+BOOKS.append(('09_h2_energy_explained', [
+md('''
+# 09 · Explain H₂ energy / မော်လီကျူး စွမ်းအင်ကို လေ့လာခြင်း
+
+**Unreleased source-checkout lesson.** Install this checkout with the tutorial
+extra. This fixed-geometry lesson does not need PySCF. To regenerate integrals
+and compare a bond-length curve against independent PySCF FCI, install
+`python -m pip install -e '.[chemistry,tutorial]'` and run
+`python examples/h2_vqe.py`.
+
+The coefficients below were generated with PySCF 2.14.0, RHF/STO-3G, neutral
+singlet H₂ at 0.735 Å. They use Jordan–Wigner mapping and interleaved alpha/beta
+spin orbitals in q0-first order. Total energies include nuclear repulsion.
+The saved classical FCI reference is -1.1373060357534004 Hartree.
+
+H₂ ကိုသာ အခြေခံထားသော ဥပမာဖြစ်ပြီး molecule အကြီးများ သို့မဟုတ် ဆေးဝါး၏
+ထိရောက်မှုကို တွက်ချက်ထားခြင်း မဟုတ်ပါ။
+'''), SETUP,
+code('''
+from nexqus import PauliHamiltonian, Adam
+from nexqus.chemistry import h2_pair_ansatz
+terms = [
+    (-.09057898608834797, 'IIII'), (-.22575349222402394, 'IIIZ'),
+    (-.22575349222402394, 'IIZI'), (.17464343068300442, 'IIZZ'),
+    (.1721839326191555, 'IZII'), (.1209126326177663, 'IZIZ'),
+    (.16614543256382414, 'IZZI'), (-.04523279994605785, 'XXYY'),
+    (.04523279994605785, 'XYYX'), (.04523279994605785, 'YXXY'),
+    (-.04523279994605785, 'YYXX'), (.1721839326191555, 'ZIII'),
+    (.16614543256382414, 'ZIIZ'), (.1209126326177663, 'ZIZI'),
+    (.16892753870087907, 'ZZII')]
+hamiltonian = PauliHamiltonian(4, terms)
+ansatz = h2_pair_ansatz(Parameter('theta'))
+energy = hamiltonian.function(ansatz)
+parameters = {'theta': 0.}; optimizer = Adam(.04); energies = []
+hf_energy = energy(parameters)
+for epoch in range(180):
+    value, gradient = energy.value_and_grad(parameters)
+    energies.append(value)
+    parameters = optimizer.step(parameters, gradient)
+vqe_energy = energy(parameters)
+fci_energy = -1.1373060357534004
+print('Classical Hartree–Fock:', hf_energy)
+print('Classical FCI reference:', fci_energy)
+print('NexQus VQE:', vqe_energy)
+assert abs(hf_energy - (-1.116998996754004)) < 1e-8
+assert abs(vqe_energy-fci_energy) < 2e-7
+'''),
+md('''
+## What is learned, and where does the energy come from?
+
+The ansatz output is `cos(theta/2)|1100> + sin(theta/2)|0011>`.
+It mixes a doubly occupied bonding orbital with a doubly excited determinant.
+Every final state contains two electrons. This is a specialized H₂ family,
+not a general-purpose chemistry ansatz.
+
+The gate decomposition can temporarily leave the two-electron sector.
+Intermediate Bloch states are circuit internals, not a molecular reaction
+path. The explorer's `ZZII` readout is a single Pauli observable, not the
+whole molecular energy. The plot below explicitly sums all energy terms.
+'''),
+code('''
+result = Simulator().run(ansatz.bind(parameters), shots=0, retain_state=True)
+contributions = [c*result.expectation(word) for c, word in hamiltonian.terms]
+assert abs(sum(contributions)-vqe_energy) < 1e-10
+fig, axes = plt.subplots(1, 2, figsize=(10, 4), layout='constrained')
+axes[0].plot(energies, label='NexQus VQE')
+axes[0].axhline(fci_energy, linestyle='--', label='Classical FCI')
+axes[0].set(xlabel='Update', ylabel='Total energy / Hartree'); axes[0].legend()
+axes[1].barh([word for _, word in hamiltonian.terms], contributions)
+axes[1].set_xlabel('Energy contribution / Hartree')
+plt.show()
+from IPython.display import display
+display(ansatz.explain(bindings=parameters, observable='ZZII',
+    parameter_roles={'theta': 'weight'}, title='H₂ · determinant mixing'))
+''')]))
+
+
 def main():
     directory=ROOT/'notebooks'; directory.mkdir(exist_ok=True)
     for name,cells in BOOKS:

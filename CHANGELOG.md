@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add bounded exact probability Jacobians, a hybrid discrete QGAN, classical
+  distribution comparisons and local probability-sensitivity visualization.
+- Add weighted Pauli Hamiltonians/gradients, optional PySCF closed-shell
+  integrals and Jordan–Wigner mapping, plus H₂ VQE/FCI energy curves and
+  energy-term explanations. Add lessons 08/09 and independent physics tests.
+
 - Add a bounded local pure-state execution explorer with self-contained HTML,
   gate/block navigation, probability/phase plots, reduced Bloch states,
   purity/entropy, Z covariance and observable readout traces.
