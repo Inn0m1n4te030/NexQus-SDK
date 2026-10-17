@@ -2,6 +2,8 @@
 
 This policy covers the documented public API beginning with version 1.0.0.
 The current stable release is 1.1.0, including the additions documented in API.md.
+Sections explicitly marked unreleased describe source-checkout additions and
+do not imply availability in the published 1.1.0 archives.
 
 ## Supported surface
 

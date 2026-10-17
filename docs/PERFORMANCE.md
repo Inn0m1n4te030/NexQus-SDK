@@ -1,5 +1,10 @@
 # Performance and numerical comparison
 
+For independent Qiskit Aer/PennyLane comparisons, see the
+[benchmark protocol and measured reports](../benchmarks/README.md). These new
+source-checkout tools record full accuracy, runtime and RSS results using
+optional development dependencies, including slower NexQus workloads.
+
 This guide applies to NexQus SDK 1.1.0. For order-finding workloads, call
 `algorithms.shor_resources(modulus)` before simulation. Compact permutation gates
 avoid dense modular matrices; state storage still grows exponentially in the

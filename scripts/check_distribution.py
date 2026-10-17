@@ -56,12 +56,14 @@ def main():
     with tarfile.open(sdists[0],'r:gz') as archive:
         names=archive.getnames(); base=names[0].split('/')[0]
         expected=['pyproject.toml','LICENSE','README.md','scripts/check_release.py',
-                  'tests/test_release.py','notebooks/00_start_here.ipynb','.github/workflows/ci.yml']
+                  'tests/test_release.py','notebooks/00_start_here.ipynb',
+                  'notebooks/07_inspection_and_qml_templates.ipynb','benchmarks/run.py',
+                  '.github/workflows/ci.yml']
         if not all(f'{base}/{path}' in names for path in expected):
             raise ValueError('Source distribution lacks release, test or tutorial files')
         public_docs={'API.md','API_STABILITY.md','BURMESE_QUICKSTART.md',
                      'PERFORMANCE.md','LEARNING.md','DYNAMIC_CIRCUITS.md',
-                     'RELEASE_NOTES.md','RELEASING.md',
+                     'RELEASE_NOTES.md','RELEASING.md','QML_TEMPLATES.md',
                      'images/teleportation.svg','images/custom_8_qubits.svg',
                      'images/sine_comparison.svg','images/sine_comparison.png'}
         packaged_docs={name.removeprefix(f'{base}/docs/') for name in names

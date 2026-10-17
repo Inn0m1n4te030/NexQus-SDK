@@ -2,6 +2,7 @@ include README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md
 recursive-include src *.py
 recursive-include tests *.py
 recursive-include examples *.py
+recursive-include benchmarks *.py *.md *.json *.csv *.txt
 recursive-include scripts *.py *.sh
 recursive-include docs *.md *.svg *.png
 recursive-include notebooks *.md *.ipynb

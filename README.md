@@ -6,6 +6,11 @@ tutorials. NexQus implements its own circuit representation and evolution kernel
 other quantum SDKs are not execution dependencies.
 
 **Version 1.1.0 · MIT license.**
+
+Development checkout additions: numerical circuit angles, depth/counts,
+optional PNG/PDF export, reusable QML templates and independent simulator
+benchmarks. Try them with `python -m pip install -e '.[tutorial,visualization]'`;
+they are not in the existing PyPI 1.1.0 wheel.
 [Source and issue tracking](https://github.com/Inn0m1n4te030/NexQus-SDK).
 
 ## Install
@@ -152,13 +157,15 @@ python scripts/run_notebooks.py --engine jupyter --kernel nexqus
 python scripts/check_release.py
 ```
 
-Seven bilingual notebooks target SDK 1.1.0 and cover circuits, native drawing,
+Eight bilingual notebooks cover circuits, native drawing,
 algorithms including Shor/resources, noise, devices, gradients, learning,
 measurement/reset and an end-to-end experiment. Start with
 `notebooks/00_start_here.ipynb`; the learning map is in `notebooks/README.md`.
 Lesson 04 includes quantum versus classical sine predictions, loss curves and
 held-out errors. A [rendered comparison and terminal instructions](docs/LEARNING.md)
 are available without executing a notebook.
+Lessons 00–06 target SDK 1.1.0; lesson 07 requires this development checkout
+and covers inspection, binary export and reusable QML building blocks.
 The source distribution includes tutorials, tests, examples and documentation;
 the small runtime wheel contains the importable SDK and package metadata.
 
@@ -237,5 +244,27 @@ q = Circuit(8).rx(0.5, 0).cx(0, 1).ry(0.8, 3).cx(3, 7)
 print(q.draw())
 q.draw('svg', filename='custom_8_qubits.svg')
 ```
+
+In the development checkout, built-in rotations retain labels such as
+`RX(0.5)`. Inspect and export with:
+
+```python
+print(q.depth())                      # 2 logical layers
+print(q.count_ops(gates_only=True))   # {'RX': 1, 'CX': 2, 'RY': 1}
+q.draw('png', filename='circuit.png') # visualization extra and system Cairo
+q.draw('pdf', filename='circuit.pdf')
+```
+
+## Reusable QML blocks and independent benchmarks
+
+`from nexqus import templates` supplies basis/angle encoding, configurable
+entangling layers, trainable rotation layers and data reuploading. All build
+ordinary circuits and accept symbolic parameters. Start with the
+[template guide](docs/QML_TEMPLATES.md) and `examples/qml_templates.py`.
+
+The [independent benchmark suite](benchmarks/README.md) compares matched CPU
+circuits against Qiskit Aer and PennyLane with optional development dependencies.
+Published JSON/CSV/Markdown reports include accuracy, raw timings, RSS memory,
+hardware, versions and settings, including workloads where NexQus is slower.
 
 ![Native NexQus teleportation diagram](docs/images/teleportation.svg)

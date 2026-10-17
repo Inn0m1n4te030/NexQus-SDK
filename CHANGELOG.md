@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Retain numeric RX/RY/RZ/P/CP angle labels through binding, composition,
+  conditions and inverses; expose logical depth and operation/gate counts.
+- Add optional PNG/PDF export from the native SVG renderer.
+- Add basis/angle encoding, configurable entangling and variational layers,
+  data reuploading, symbolic gradients, examples and a bilingual notebook.
+- Add independent dense-oracle correctness and CPU performance comparisons
+  against optional Qiskit Aer and PennyLane development dependencies, with
+  raw accuracy/timing/RSS reports and a correctness-only CI gate.
+
 ## 1.1.0 — 2026-10-16
 
 - Add native text/SVG circuit drawing, Jupyter display, export, wrapping, and

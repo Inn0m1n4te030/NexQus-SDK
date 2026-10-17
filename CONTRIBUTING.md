@@ -16,6 +16,9 @@ reference. Include seeds, precision, method and batch size. An agreement between
 two implementations sharing a kernel is not sufficient evidence on its own.
 
 Update the API documentation and changelog when observable behavior changes.
+For inspection exports and independent simulator comparisons, install
+`python -m pip install -e '.[visualization,benchmark-compare]'` and follow
+benchmarks/README.md. Do not turn noisy timing measurements into CI speed gates.
 Write clear English docstrings and preserve Burmese explanations. New notebooks
 should be generated from scripts/build_notebooks.py and executed using a real
 Jupyter kernel before release. Keep optional-device skips explicit.

@@ -1,4 +1,4 @@
-# NexQus SDK 1.1.0 learning path
+# NexQus learning path
 
 Work through these lessons in order. Each notebook starts from its own imports
 and can run independently after installing the SDK. English explanations include
@@ -13,6 +13,7 @@ Burmese summaries/comments; figures use English labels for broad font support.
 | [04 — Gradients and learning](04_gradients_and_learning.ipynb) | Gradients, quantum/classical sine predictions, loss/error plots, toy classification | 25 min |
 | [05 — Dynamic protocols](05_measurement_reset_teleportation.ipynb) | Collapse, reset, feed-forward, teleportation and correlations | 20 min |
 | [06 — Your first experiment](06_your_first_experiment.ipynb) | Compare methods with controlled variables and an experiment report | 15 min |
+| [07 — Inspection and QML templates](07_inspection_and_qml_templates.ipynb) | Angles, depth/counts, optional PNG/PDF, encoding, layers and reuploading | 20 min |
 
 ## Run with Jupyter
 
@@ -20,12 +21,14 @@ Download the source checkout for the notebook files. From its root, activate
 the environment where you want to learn and install the tutorial dependencies:
 
 ```bash
-python -m pip install 'nexqus-sdk[tutorial]==1.1.0'
+python -m pip install -e '.[tutorial,visualization]'
 python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)"
 jupyter lab notebooks
 ```
 
-These notebooks target SDK 1.1.0; each setup cell checks the imported version.
+Lessons 00–06 target SDK 1.1.0; lesson 07 requires the unreleased source-checkout
+additions. The existing PyPI 1.1.0 wheel cannot run lesson 07. Each setup cell
+checks the imported version, and lesson 07 also checks its required API.
 Restart the kernel after an upgrade. Select **Python (NexQus)**.
 Use **Restart Kernel and Run All** to verify a lesson
 from a clean state. A lesson should not depend on variables from another file.
@@ -74,10 +77,11 @@ IPC instead of TCP; neither transport is available in every restricted container
 
 ## Checked behavior
 
-CI executes all seven notebooks through real Jupyter kernels. Their assertions
+CI executes all eight notebooks through real Jupyter kernels. Their assertions
 cover state normalization, bit order, gates, entanglement, noise conventions,
 gradients, learning, reset, teleportation, native circuit drawing, quantum-path
-factoring and agreement between simulation methods.
+factoring, QML templates, inspection and agreement between simulation methods.
+The independent-correctness CI job tests real PNG/PDF exports with visualization installed.
 GPU execution is optional for learners; maintainers can require it with the
 command above. Reports remain separate from the public teaching material.
 
@@ -95,7 +99,7 @@ For a visible preview without executing a notebook, see the
 
 ## Burmese guidance
 
-Notebook များကို 00 မှ 06 အထိ အစဉ်လိုက် လေ့လာပါ။ Lesson တစ်ခုစီသည် သီးခြား
+Notebook များကို 00 မှ 07 အထိ အစဉ်လိုက် လေ့လာပါ။ Lesson တစ်ခုစီသည် သီးခြား
 run နိုင်ပါသည်။ Jupyter တွင် **Python (NexQus)** kernel ကို ရွေးပါ။
 
 Code ပြောင်းပြီး စမ်းသပ်ရာတွင် kernel ကို restart လုပ်ကာ cell အားလုံးကို

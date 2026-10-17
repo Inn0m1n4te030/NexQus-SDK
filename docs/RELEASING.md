@@ -13,17 +13,19 @@ RELEASE_NOTES.md. Generated test reports and audit outputs belong in
    them for validation. Keep generated source notebooks free of saved outputs.
 3. Review API compatibility, license metadata, documentation links and package contents.
 4. Obtain passing CI on the reviewed commit. CI covers Python 3.10–3.14 on
-   Linux/macOS/Windows, minimum NumPy, Torch CPU, Jupyter and installed distributions.
+   Linux/macOS/Windows, minimum NumPy, Torch CPU, Jupyter, installed distributions
+   and independent simulator correctness. Optional comparison tools use Python 3.11+.
 
 ## Validate
 
 In an activated environment from the source checkout:
 
 ```bash
-python -m pip install -e '.[tutorial,release]'
+python -m pip install -e '.[tutorial,release,visualization,benchmark-compare]'
 python scripts/check_release.py --public
 python -m ipykernel install --user --name nexqus --display-name 'Python (NexQus)'
 python scripts/run_notebooks.py --engine jupyter --kernel nexqus
+python benchmarks/run.py --suite smoke
 ```
 
 On a compatible CUDA machine, keep the intended CUDA-enabled PyTorch build and run:

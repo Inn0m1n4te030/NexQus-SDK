@@ -1,5 +1,9 @@
 # Trainable quantum circuits
 
+For reusable encoding, entangling layers and data reuploading in the development
+checkout, see [QML_TEMPLATES.md](QML_TEMPLATES.md) and lesson 07. Those helpers
+build ordinary circuits compatible with the gradients described here.
+
 ## Install and run
 
 From the NexQus 1.1.0 source checkout, in your existing environment:
