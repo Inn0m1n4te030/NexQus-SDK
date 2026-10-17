@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add conditional quantum patch and quantum-feature/classical-decoder image
+  generators, a Torch/native-parameter-shift bridge, classical GAN baseline,
+  image loaders, minibatch training, resumable checkpoints and pixel effects.
+- Add optional image-GAN dependencies, comparison report/example, lesson 11,
+  gradient/data/resume tests and Linux/Windows image-training CI.
+
 - Add an offline native molecular viewer with H2/CH4/H2O/C2H4/C6H6 structures,
   rotation, atom selection, distance/angle measurement and SVG/XYZ/JSON export.
 - Attach actual H2 VQE energies to its geometry, centralize the fixed reference

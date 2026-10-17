@@ -51,6 +51,22 @@ def reported_sdk_version(notebook):
     return versions[0] if len(versions)==1 and versions[0] else None
 
 
+def optional_skip_counts(notebook):
+    """Join fragmented stdout before counting explicit optional skip markers."""
+    counts={'cuda':0, 'image_gan':0}
+    for cell in notebook['cells']:
+        if cell['cell_type']!='code': continue
+        chunks=[]
+        for output in cell.get('outputs',[]):
+            if output.get('output_type')=='stream' and output.get('name')=='stdout':
+                value=output.get('text','')
+                chunks.append(value if isinstance(value,str) else ''.join(value))
+        for line in ''.join(chunks).splitlines():
+            if line.startswith('SKIPPED optional CUDA'): counts['cuda']+=1
+            if line.startswith('SKIPPED optional image GAN'): counts['image_gan']+=1
+    return counts
+
+
 def python_worker(path):
     os.environ['MPLBACKEND']='Agg'
     import matplotlib
@@ -93,15 +109,15 @@ def python_worker(path):
             outputs.append(dict(output_type='error',ename=type(exc).__name__,evalue=str(exc),
                                 traceback=traceback.format_exc().splitlines()))
         if stderr.getvalue(): outputs.append(dict(output_type='stream',name='stderr',text=stderr.getvalue()))
-        optional_skips+=sum(output.get('text','').count('SKIPPED optional CUDA') for output in outputs)
         if status=='failed': break
+    skip_counts=optional_skip_counts(notebook); optional_skips=sum(skip_counts.values())
     notebook['metadata']['language_info']['version']=platform.python_version()
     notebook['metadata']['nexqus']['execution']=dict(engine='standalone_python',status=status,
-                          code_cells=code_cells,optional_skips=optional_skips,
+                          code_cells=code_cells,optional_skips=optional_skips,skip_counts=skip_counts,
                           note='Plain Python cells executed; not a Jupyter/IPython kernel execution')
     path.write_text(json.dumps(notebook,ensure_ascii=False,indent=1)+'\n',encoding='utf-8')
     record=dict(notebook=path.name,engine='standalone_python',status=status,code_cells=code_cells,
-                optional_skips=optional_skips,seconds=time.perf_counter()-started,
+                optional_skips=optional_skips,skip_counts=skip_counts,seconds=time.perf_counter()-started,
                 sdk_version=getattr(namespace.get('nexqus'),'__version__',None))
     print(json.dumps(record))
     return 0 if status=='passed' else 1
@@ -115,6 +131,7 @@ def main():
                    help='Jupyter transport; IPC is useful on Unix hosts without local TCP sockets')
     p.add_argument('--timeout',type=int,default=120,help='Jupyter cell timeout / standalone notebook process timeout')
     p.add_argument('--require-gpu',action='store_true')
+    p.add_argument('--require-image-gan',action='store_true',help='Fail if lesson 11 skips optional image GAN training')
     p.add_argument('--report',type=Path,default=ROOT/'.release-artifacts'/'notebook_execution.json')
     p.add_argument('--worker',type=Path,help=argparse.SUPPRESS)
     args=p.parse_args()
@@ -125,11 +142,15 @@ def main():
             import torch
         except ImportError: p.error('--require-gpu needs compatible PyTorch/CUDA')
         if not torch.cuda.is_available(): p.error('--require-gpu requested but CUDA unavailable')
+    if args.require_image_gan and importlib.util.find_spec('torch') is None:
+        p.error('--require-image-gan needs .[image-gan] with compatible PyTorch')
     available=all(importlib.util.find_spec(name) is not None for name in ['nbformat','nbclient','ipykernel'])
     engine=('jupyter' if available else 'python') if args.engine=='auto' else args.engine
     if engine=='jupyter' and not available: p.error('Install the tutorial extra before --engine jupyter')
     paths=sorted((ROOT/'notebooks').glob('*.ipynb'))
     if not paths: p.error('No notebooks found; run scripts/build_notebooks.py')
+    if args.require_image_gan and not any(path.name=='11_image_gans.ipynb' for path in paths):
+        p.error('--require-image-gan needs lesson 11')
     records=[]
     expected_version=source_version()
     for path in paths:
@@ -162,14 +183,15 @@ def main():
                 status='passed'
             except Exception as exc:
                 status='failed'; execution_error=str(exc); print(execution_error,flush=True)
-            skips=sum(output.get('text','').count('SKIPPED optional CUDA') for cell in notebook.cells
-                      if cell.cell_type=='code' for output in cell.get('outputs',[]))
+            skip_counts=optional_skip_counts(notebook); skips=sum(skip_counts.values())
             record=dict(notebook=path.name,engine='jupyter',status=status,transport=args.transport,
                         sdk_version=reported_sdk_version(notebook),
                         code_cells=sum(c.cell_type=='code' for c in notebook.cells),
-                        optional_skips=skips,seconds=time.perf_counter()-started)
+                        optional_skips=skips,skip_counts=skip_counts,seconds=time.perf_counter()-started)
             if execution_error is not None: record['error']=execution_error
         record['expected_sdk_version']=expected_version
+        if args.require_image_gan and record.get('skip_counts',{}).get('image_gan',0):
+            record['status']='failed'; record['error']='Required image GAN lesson skipped training'
         if record.get('sdk_version')!=expected_version and record['status']=='passed':
             record['status']='failed'
             record['error']='Notebook kernel did not report the expected SDK version'
@@ -184,8 +206,8 @@ def main():
         print(f"  {record['status']} ({record.get('code_cells',0)} code cells)",flush=True)
     report=dict(engine=engine,python=platform.python_version(),sdk_version=expected_version,notebooks=records,
                 all_passed=all(r['status']=='passed' for r in records) and
-                           not (args.require_gpu and any(r.get('optional_skips',0)>0 for r in records)),
-                gpu_required=args.require_gpu,
+                           not (args.require_gpu and any(r.get('skip_counts',{}).get('cuda',0)>0 for r in records)),
+                gpu_required=args.require_gpu,image_gan_required=args.require_image_gan,
                 execution_note=('Jupyter kernel execution; see per-notebook status and SDK version' if engine=='jupyter' else
                                 'Standalone engine tests plain Python cells, not a Jupyter kernel'))
     destination=args.report.resolve()

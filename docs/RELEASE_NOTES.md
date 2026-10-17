@@ -2,6 +2,13 @@
 
 ## Unreleased source-checkout addition
 
+Two [conditional image QGANs](IMAGE_GANS.md) add quantum pixel patches and
+quantum features with a classical decoder, a matched-update classical GAN,
+folder/optional CIFAR-10 loading, minibatch training, exact checkpoint
+continuation and parameter-to-pixel explanations. Lesson 11 runs locally on
+CPU with optional PyTorch, including native Windows. No pretrained pet model
+or QPU execution is included. Core installation remains NumPy-only.
+
 The [native molecular viewer](MOLECULES.md) adds rotatable atom/bond structures,
 distance/angle measurements, SVG/XYZ/JSON export and H₂ geometry linked to VQE
 energies. Methane, water, ethene and benzene geometry examples work on native

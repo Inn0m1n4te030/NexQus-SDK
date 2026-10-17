@@ -17,6 +17,7 @@ Burmese summaries/comments; figures use English labels for broad font support.
 | [08 — QGAN distribution](08_qgan_distribution.ipynb) | Adversarial learning, classical reference and local probability sensitivity (source checkout) | 20 min |
 | [09 — H₂ energy explained](09_h2_energy_explained.ipynb) | VQE, classical HF/FCI references and energy contributions (source checkout) | 25 min |
 | [10 — Molecular visualization](10_molecular_visualization.ipynb) | Rotate H₂/CH₄/organic structures, measure distances/angles and export custom geometry | 20 min |
+| [11 — Image QGANs](11_image_gans.ipynb) | Quantum patches, quantum features/classical decoder, classical GAN, pixel interventions and checkpoints | 25 min |
 
 ## Run with Jupyter
 
@@ -39,6 +40,11 @@ QGAN and the fixed-H₂ lesson work on native Windows without PySCF. The optiona
 PySCF driver requires Linux, macOS or WSL on Windows; install `.[chemistry]`
 only in one of those environments. See [import recovery](../docs/QGAN_CHEMISTRY.md#recover-from-a-missing-qgan-import).
 Restart the kernel after an upgrade. Select **Python (NexQus)**.
+Lesson 11 additionally requires optional PyTorch: install CPU Torch with
+`python -m pip install torch --index-url https://download.pytorch.org/whl/cpu`
+then `python -m pip install -e ".[tutorial,image-gan]"`. It explicitly skips
+when Torch is absent. The [image-GAN guide](../docs/IMAGE_GANS.md) covers your
+own cat/dog images and optional CIFAR-10 loading. No PySCF is needed.
 Use **Restart Kernel and Run All** to verify a lesson
 from a clean state. A lesson should not depend on variables from another file.
 An import/version error usually means the selected kernel uses a different
@@ -86,13 +92,17 @@ IPC instead of TCP; neither transport is available in every restricted container
 
 ## Checked behavior
 
-CI executes all eleven notebooks through real Jupyter kernels on Linux and Windows. Their assertions
+CI executes all twelve notebooks through real Jupyter kernels on Linux and Windows.
+Dedicated image-GAN jobs install Torch and require the lesson 11 training path;
+tutorial-only jobs explicitly skip its optional cells. Their assertions
 cover state normalization, bit order, gates, entanglement, noise conventions,
 gradients, learning, reset, teleportation, native circuit drawing, quantum-path
 factoring, QML templates, inspection and agreement between simulation methods.
 The independent-correctness CI job tests real PNG/PDF exports with visualization installed.
 GPU execution is optional for learners; maintainers can require it with the
 command above. Reports remain separate from the public teaching material.
+Use `--require-image-gan` to require lesson 11 rather than accept its optional
+skip. The execution report counts image-GAN and CUDA skips separately.
 
 Each lesson includes a **Try it** exercise. Exercises are prompts for changing
 the tested examples; they do not contain intentionally broken code cells.

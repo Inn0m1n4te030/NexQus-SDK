@@ -30,6 +30,8 @@ Documentation = "https://github.com/Inn0m1n4te030/NexQus-SDK#readme"
 
 [project.optional-dependencies]
 gpu = ["torch>=2.2,<3"]
+image-gan = ["torch>=2.2,<3", "Pillow>=10,<14", "matplotlib>=3.7"]
+image-datasets = ["torchvision>=0.17,<1"]
 benchmark = ["threadpoolctl>=3.1"]
 benchmark-compare = ["threadpoolctl>=3.1", "psutil>=5.9", "qiskit>=2.4,<3", "qiskit-aer>=0.17,<1", "pennylane>=0.45,<0.46"]
 visualization = ["cairosvg>=2.7,<3"]
