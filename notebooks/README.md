@@ -23,16 +23,20 @@ Download the source checkout for the notebook files. From its root, activate
 the environment where you want to learn and install the tutorial dependencies:
 
 ```bash
-python -m pip install 'nexqus-sdk[tutorial,visualization]==1.2.0'
+python -m pip install -e ".[tutorial]"
 python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)"
 jupyter lab notebooks
 ```
 
 The original eight lessons target SDK 1.2.0. Lessons 08/09 require the unreleased
 source checkout; the published 1.2.0 wheel does not include their new APIs.
-For editable development, install
-`python -m pip install -e '.[tutorial,visualization]'` instead. Each setup cell
-checks the imported version, and lesson 07 also checks its required API.
+The command above installs the current checkout into the activated environment.
+Add `.[visualization]` separately if you need optional PNG/PDF export. Lessons
+08/09 check required APIs and show the imported package and Python paths because
+the source additions and published wheel both currently report version 1.2.0.
+QGAN and the fixed-H₂ lesson work on native Windows without PySCF. The optional
+PySCF driver requires Linux, macOS or WSL on Windows; install `.[chemistry]`
+only in one of those environments. See [import recovery](../docs/QGAN_CHEMISTRY.md#recover-from-a-missing-qgan-import).
 Restart the kernel after an upgrade. Select **Python (NexQus)**.
 Use **Restart Kernel and Run All** to verify a lesson
 from a clean state. A lesson should not depend on variables from another file.
