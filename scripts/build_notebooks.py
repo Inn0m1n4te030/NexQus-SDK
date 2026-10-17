@@ -529,7 +529,6 @@ md('''
 
 တစ်ကြိမ်လျှင် variable တစ်ခုသာ ပြောင်းပြီး မူလ experiment နှင့် နှိုင်းယှဉ်ပါ။
 သင်ခန်းစာများ၏ passing assertions သည် ဤ example များအတွက်သာ မှန်ကန်ကြောင်း ပြပါသည်။
-Production readiness သို့မဟုတ် quantum advantage ကို အတည်ပြုခြင်း မဟုတ်ပါ။
 ''')])]
 
 
