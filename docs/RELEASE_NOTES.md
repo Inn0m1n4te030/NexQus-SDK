@@ -1,5 +1,12 @@
 # NexQus SDK 1.2.0
 
+## Unreleased source-checkout addition
+
+The optional [Amazon Braket bridge](BRAKET.md) adds offline preparation, local
+simulation, explicit paid submission and job/result handling. It is not included
+in the published 1.2.0 wheel. Tests use local simulation and mocked AWS calls;
+no cloud task has been submitted and actual QPU execution is unverified.
+
 ## New in 1.2
 
 - Visual quantum-versus-classical sine regression with prediction/loss/error
