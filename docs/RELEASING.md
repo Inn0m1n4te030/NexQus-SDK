@@ -68,7 +68,7 @@ first, then retrieve only the SDK from TestPyPI with --no-deps. After a producti
 upload, verify a fresh installation from ordinary PyPI and run smoke examples:
 
 ```bash
-python -m pip install nexqus-sdk==1.1.0
+python -m pip install nexqus-sdk==1.2.0
 python -c 'import nexqus; print(nexqus.__version__)'
 ```
 

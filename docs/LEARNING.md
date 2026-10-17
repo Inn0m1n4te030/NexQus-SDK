@@ -6,7 +6,7 @@ build ordinary circuits compatible with the gradients described here.
 
 ## Install and run
 
-From the NexQus 1.1.0 source checkout, in your existing environment:
+From the NexQus 1.2.0 source checkout, in your existing environment:
 
 ```bash
 python -m pip install --upgrade -e .
@@ -147,7 +147,7 @@ and gradients are evaluated sequentially, not as a differentiable batch.
 CSV. For the visual classical/quantum comparison, use lesson 04 or:
 
 ```bash
-python -m pip install 'nexqus-sdk[tutorial]==1.1.0'
+python -m pip install 'nexqus-sdk[tutorial]==1.2.0'
 python examples/compare_sine.py --output-dir results/sine
 ```
 
@@ -186,7 +186,7 @@ loss rather than relying only on the built-in MSE models.
 
 ## Scope
 
-NexQus 1.1.0 provides explicit analytic gradients. PyTorch autograd, torch.nn.Module
+NexQus 1.2.0 provides explicit analytic gradients. PyTorch autograd, torch.nn.Module
 integration, trajectory gradients, dynamic-circuit gradients and hardware training
 are outside the supported API. The small learning examples demonstrate circuit
 optimization; they do not establish an advantage over classical learning.

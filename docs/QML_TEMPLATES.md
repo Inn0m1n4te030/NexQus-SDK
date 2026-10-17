@@ -1,8 +1,8 @@
 # Reusable QML building blocks
 
-These are unreleased source-checkout additions. From this repository, install
-`python -m pip install -e '.[tutorial,visualization]'`. They are not present in
-the previously published PyPI 1.1.0 wheel.
+These helpers are available in NexQus SDK 1.2.0. Install with
+`python -m pip install nexqus-sdk==1.2.0`. For notebooks and PNG/PDF export, use
+`python -m pip install 'nexqus-sdk[tutorial,visualization]==1.2.0'`.
 
 Every helper appends ordinary NexQus gates and returns the same Circuit. You
 can draw, bind, compose, invert or compile the result using the regular APIs.

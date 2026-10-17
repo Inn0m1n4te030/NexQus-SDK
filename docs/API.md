@@ -1,13 +1,13 @@
 # NexQus public API reference
 
-Applies to NexQus SDK 1.1.0; additions for 1.1 are marked below. Read API_STABILITY.md for the supported 1.x
+Applies to NexQus SDK 1.2.0; additions for 1.1 and 1.2 are marked below. Read API_STABILITY.md for the supported 1.x
 contract. Internal tensor adapters and direct operation-list mutation are not
 supported public APIs.
 
 Numerical angle labels, inspection, PNG/PDF export and `nexqus.templates` below
-are **unreleased source-checkout additions**. Install this checkout with
-`python -m pip install -e '.[tutorial,visualization]'` to try them; the existing
-PyPI 1.1.0 archives do not contain these additions.
+were added in **1.2.0**. For PNG/PDF export, install
+`python -m pip install 'nexqus-sdk[visualization]==1.2.0'`; native text/SVG and
+QML helpers require no additional runtime dependencies.
 
 ## Circuit construction
 
@@ -98,7 +98,7 @@ sim.run(circuit, shots=1024, seed=None, noise=None, trajectories=256,
 - local_gates and noise_fastpath: diagnostic optimization switches. Static noise
   fast paths recognize actual Kraus values. Dynamic sampling currently uses
   generic Kraus kernels; noise_fastpath does not enable a dynamic specialization.
-  In the development checkout, noise_fastpath also enables exact NumPy density
+  Since 1.2, noise_fastpath also enables exact NumPy density
   updates for Pauli mixtures and amplitude/phase damping. Arbitrary channels
   and Torch density evolution keep the generic Kraus path.
 
@@ -284,14 +284,14 @@ Noise and resets are labeled explicitly. General multiwire gates use connected
 boxes with `:0`, `:1`, etc. to preserve operand order, including nonadjacent wires.
 Each operation has its own column; the drawer does not reschedule gates.
 
-Symbolic gates show parameter expressions. In the development checkout, built-in
+Symbolic gates show parameter expressions. Since 1.2, built-in
 RX/RY/RZ/P/CP gates retain their supplied numerical angles: `RX(0.5)`.
 `precision` is 1–16 significant digits (default 4); it changes labels only.
 Binding, composition and conditions preserve labels. `RX†(0.5)` denotes the
 adjoint of RX(0.5), including after symbolic binding. Custom matrices are never
 assigned inferred angles. Custom names are escaped and flattened to one line.
 
-Development outputs `png` and `pdf` require the optional `visualization` extra
+Outputs `png` and `pdf` require the optional `visualization` extra
 and the Cairo system library. Both convert the same native SVG. PNG returns
 bytes with notebook `_repr_png_()` support; PDF returns bytes. `filename` writes
 binary data for these formats. No simulator or external quantum SDK is involved.
@@ -306,7 +306,7 @@ q.draw('png', filename='circuit.png')
 q.draw('pdf', filename='circuit.pdf')
 ```
 
-### Logical inspection (unreleased)
+### Logical inspection (added in 1.2)
 
 `q.count_ops()` counts stored operation names, including noise, measurement and
 reset. `q.count_ops(gates_only=True)` excludes those three kinds. Custom
@@ -321,7 +321,7 @@ parallel. Empty circuits have depth zero. This is logical depth, without device
 connectivity, timing, routing, or branch-probability estimates. Drawing still
 uses one column per operation and does not change execution order.
 
-### QML templates (unreleased)
+### QML templates (added in 1.2)
 
 `from nexqus import templates` provides `basis_encoding`, `angle_encoding`,
 `entangling_layer`, `layer_shape`, `variational_layers` and `data_reuploading`.

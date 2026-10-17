@@ -1,12 +1,26 @@
-# NexQus SDK 1.1.0
+# NexQus SDK 1.2.0
 
-## Unreleased source-checkout additions
+## New in 1.2
 
-Numerical circuit angle labels, logical depth/counts, optional PNG/PDF export,
-reusable QML templates and independent simulator benchmarks are available in
-the development checkout. See [API.md](API.md), [QML_TEMPLATES.md](QML_TEMPLATES.md)
-and [the benchmark protocol](../benchmarks/README.md). They have not been added
-to the existing PyPI 1.1.0 archives. No publication is triggered by these docs.
+- Visual quantum-versus-classical sine regression with prediction/loss/error
+  plots, held-out scores across three seeds and a matched sinusoidal baseline.
+- Numerical RX/RY/RZ/P/CP angle labels, logical circuit depth and operation/gate counts.
+- Optional PNG/PDF export from the native SVG renderer through CairoSVG/native Cairo.
+- Basis/angle encoding, configurable entangling and variational layers, data
+  reuploading and a new bilingual tutorial. Helpers support symbolic parameters
+  and the existing analytic gradients.
+- Independent correctness and CPU performance comparisons against optional
+  Qiskit Aer and PennyLane development dependencies. Correctness reports contain
+  accuracy only; performance uses equal warmups and separate memory sampling.
+  Reports retain workloads where NexQus is slower.
+- Faster NumPy single-wire kernels and exact Pauli/damping channels, compiled
+  channel recognition and no RNG setup for unseeded exact zero-shot runs.
+
+See [API.md](API.md), [QML_TEMPLATES.md](QML_TEMPLATES.md),
+[the benchmark protocol](../benchmarks/README.md) and
+[measured before/after results](../benchmarks/results/optimization_20261017.md).
+The recorded benchmark runs identify their original runtime source hashes and
+pre-release version label; those historical measurements are preserved unchanged.
 
 NexQus provides a Python quantum circuit simulator for education and small
 research experiments, with NumPy CPU and optional PyTorch CPU/NVIDIA CUDA execution.
@@ -15,10 +29,20 @@ The package is distributed under the MIT license.
 ## Install
 
 ```bash
-python -m pip install nexqus-sdk==1.1.0
+python -m pip install nexqus-sdk==1.2.0
 ```
 
-## New in 1.1
+For tutorials and PNG/PDF export:
+
+```bash
+python -m pip install 'nexqus-sdk[tutorial,visualization]==1.2.0'
+```
+
+Native Cairo must also be available for PNG/PDF conversion. Text/SVG and QML
+templates require no optional runtime dependencies. Simulator comparisons need
+Python 3.11+ and the `benchmark-compare` extra in a source checkout.
+
+## Retained from 1.1
 
 - Native text/SVG circuit drawing, Jupyter display, file export and wrapping,
   including custom circuits, idle wires, measurements and classical conditions.
@@ -29,9 +53,8 @@ python -m pip install nexqus-sdk==1.1.0
 
 Shor uses logical modular permutation gates, not an elementary-gate hardware
 arithmetic decomposition. Statevector storage still grows exponentially in total
-qubits. Memory estimates are not hard process-RAM caps. Circuit drawings show
-stored gate names and symbolic expressions; concrete original angles are not
-retained by the current circuit representation.
+qubits. Memory estimates are not hard process-RAM caps. Circuit drawings now
+retain numerical angles for supported built-in gates as well as symbolic expressions.
 
 ## Included features
 
@@ -40,7 +63,7 @@ retained by the current circuit representation.
 - Built-in algorithms including Bell/GHZ, QFT, Grover, phase estimation and teleportation.
 - Parameter-shift gradients, Adam/SGD, regression, binary classification and VQE examples.
 - Mid-circuit measurement, reset, single-bit feed-forward and reduced density matrices.
-- Seven English/Burmese teaching notebooks and a Burmese quick start.
+- Eight English/Burmese teaching notebooks and a Burmese quick start.
 
 ## Compatibility and limits
 

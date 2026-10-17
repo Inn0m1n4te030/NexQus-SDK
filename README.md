@@ -5,12 +5,11 @@ with noise channels, reusable algorithms, analytic gradients and Burmese/English
 tutorials. NexQus implements its own circuit representation and evolution kernels;
 other quantum SDKs are not execution dependencies.
 
-**Version 1.1.0 · MIT license.**
+**Version 1.2.0 · MIT license.**
 
-Development checkout additions: numerical circuit angles, depth/counts,
-optional PNG/PDF export, reusable QML templates and independent simulator
-benchmarks. Try them with `python -m pip install -e '.[tutorial,visualization]'`;
-they are not in the existing PyPI 1.1.0 wheel.
+Version 1.2 adds numerical circuit angles, depth/counts, optional PNG/PDF export,
+reusable QML templates and independent simulator benchmarks. Install tutorial
+and export dependencies with `python -m pip install 'nexqus-sdk[tutorial,visualization]==1.2.0'`.
 [Source and issue tracking](https://github.com/Inn0m1n4te030/NexQus-SDK).
 
 ## Install
@@ -18,7 +17,7 @@ they are not in the existing PyPI 1.1.0 wheel.
 In an activated Python 3.10+ virtual environment:
 
 ```bash
-python -m pip install nexqus-sdk==1.1.0
+python -m pip install nexqus-sdk==1.2.0
 ```
 
 The distribution name is **nexqus-sdk**; the Python import is **nexqus**.
@@ -164,8 +163,8 @@ measurement/reset and an end-to-end experiment. Start with
 Lesson 04 includes quantum versus classical sine predictions, loss curves and
 held-out errors. A [rendered comparison and terminal instructions](docs/LEARNING.md)
 are available without executing a notebook.
-Lessons 00–06 target SDK 1.1.0; lesson 07 requires this development checkout
-and covers inspection, binary export and reusable QML building blocks.
+All eight lessons target SDK 1.2.0. Lesson 07 covers inspection, binary export
+and reusable QML building blocks.
 The source distribution includes tutorials, tests, examples and documentation;
 the small runtime wheel contains the importable SDK and package metadata.
 
@@ -245,7 +244,7 @@ print(q.draw())
 q.draw('svg', filename='custom_8_qubits.svg')
 ```
 
-In the development checkout, built-in rotations retain labels such as
+Since version 1.2, built-in rotations retain labels such as
 `RX(0.5)`. Inspect and export with:
 
 ```python
