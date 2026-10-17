@@ -63,9 +63,9 @@ def main():
             raise ValueError('Source distribution lacks release, test or tutorial files')
         public_docs={'API.md','API_STABILITY.md','BURMESE_QUICKSTART.md',
                      'PERFORMANCE.md','LEARNING.md','DYNAMIC_CIRCUITS.md',
-                     'RELEASE_NOTES.md','RELEASING.md','QML_TEMPLATES.md','BRAKET.md','EXPLAINABILITY.md','QGAN_CHEMISTRY.md',
+                     'RELEASE_NOTES.md','RELEASING.md','QML_TEMPLATES.md','BRAKET.md','EXPLAINABILITY.md','QGAN_CHEMISTRY.md','MOLECULES.md',
                      'images/teleportation.svg','images/custom_8_qubits.svg',
-                     'images/sine_comparison.svg','images/sine_comparison.png'}
+                     'images/sine_comparison.svg','images/sine_comparison.png','images/methane.svg','images/benzene.svg'}
         packaged_docs={name.removeprefix(f'{base}/docs/') for name in names
                        if name.startswith(f'{base}/docs/') and archive.getmember(name).isfile()}
         if packaged_docs!=public_docs:

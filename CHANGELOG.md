@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add an offline native molecular viewer with H2/CH4/H2O/C2H4/C6H6 structures,
+  rotation, atom selection, distance/angle measurement and SVG/XYZ/JSON export.
+- Attach actual H2 VQE energies to its geometry, centralize the fixed reference
+  coefficients and add Windows-compatible molecular examples and lesson 10.
+
 - Separate native Windows QGAN/tutorial installation from the optional PySCF
   driver (Linux/macOS/WSL), add notebook API/path diagnostics and recovery
   instructions, and execute all lessons on Windows/Python 3.13 in CI.

@@ -841,6 +841,15 @@ display(generator.template.explain(bindings=model.parameters,
     parameter_roles={'theta': 'weight'}, title='QGAN · inspect the trained generator'))
 ''')]))
 
+MOLECULE_SETUP=code('''
+import nexqus
+if not all(hasattr(nexqus, name) for name in ('Molecule', 'molecule', 'molecular_gallery')):
+    raise ImportError('Install the updated source checkout with python -m pip install -e ".[tutorial]", '
+                      'then restart the notebook kernel. The molecular viewer is a new source addition. '
+                      'Imported package: ' + str(nexqus.__file__))
+''')
+
+
 BOOKS.append(('09_h2_energy_explained', [
 md('''
 # 09 · Explain H₂ energy / မော်လီကျူး စွမ်းအင်ကို လေ့လာခြင်း
@@ -860,20 +869,26 @@ The saved classical FCI reference is -1.1373060357534004 Hartree.
 
 H₂ ကိုသာ အခြေခံထားသော ဥပမာဖြစ်ပြီး molecule အကြီးများ သို့မဟုတ် ဆေးဝါး၏
 ထိရောက်မှုကို တွက်ချက်ထားခြင်း မဟုတ်ပါ။
-'''), SOURCE_API_SETUP, SETUP,
+'''), SOURCE_API_SETUP, MOLECULE_SETUP, SETUP,
+md('''
+## See the molecule first
+
+This is the H₂ structure whose energy we calculate below: two hydrogen atoms,
+0.735 Å apart. Drag to rotate. Select both atoms to measure the bond distance.
+The spheres indicate atom positions; they are not electron-density clouds.
+
+မော်လီကျူးကို လှည့်ကြည့်နိုင်ပြီး atom နှစ်ခုကို ရွေးကာ အကွာအဝေးကို တိုင်းနိုင်ပါသည်။
+'''),
+code('''
+from IPython.display import display
+from nexqus import molecule
+display(molecule('H2'))
+'''),
 code('''
 from nexqus import PauliHamiltonian, Adam
-from nexqus.chemistry import h2_pair_ansatz
-terms = [
-    (-.09057898608834797, 'IIII'), (-.22575349222402394, 'IIIZ'),
-    (-.22575349222402394, 'IIZI'), (.17464343068300442, 'IIZZ'),
-    (.1721839326191555, 'IZII'), (.1209126326177663, 'IZIZ'),
-    (.16614543256382414, 'IZZI'), (-.04523279994605785, 'XXYY'),
-    (.04523279994605785, 'XYYX'), (.04523279994605785, 'YXXY'),
-    (-.04523279994605785, 'YYXX'), (.1721839326191555, 'ZIII'),
-    (.16614543256382414, 'ZIIZ'), (.1209126326177663, 'ZIZI'),
-    (.16892753870087907, 'ZZII')]
-hamiltonian = PauliHamiltonian(4, terms)
+from nexqus.chemistry import h2_pair_ansatz, h2_reference_problem
+problem = h2_reference_problem()  # the documented fixed-geometry coefficients
+hamiltonian = problem.hamiltonian
 ansatz = h2_pair_ansatz(Parameter('theta'))
 energy = hamiltonian.function(ansatz)
 parameters = {'theta': 0.}; optimizer = Adam(.04); energies = []
@@ -889,6 +904,10 @@ print('Classical FCI reference:', fci_energy)
 print('NexQus VQE:', vqe_energy)
 assert abs(hf_energy - (-1.116998996754004)) < 1e-8
 assert abs(vqe_energy-fci_energy) < 2e-7
+display(problem.molecule().view(energies_hartree={
+    'Classical Hartree–Fock': hf_energy, 'Classical FCI': fci_energy, 'NexQus VQE': vqe_energy},
+    calculation_note='Fixed H2 at 0.735 Å, STO-3G, two electrons and four qubits. '
+                     'VQE calculated above; total energies include nuclear repulsion.'))
 '''),
 md('''
 ## What is learned, and where does the energy come from?
@@ -917,6 +936,69 @@ plt.show()
 from IPython.display import display
 display(ansatz.explain(bindings=parameters, observable='ZZII',
     parameter_roles={'theta': 'weight'}, title='H₂ · determinant mixing'))
+''')]))
+
+
+BOOKS.append(('10_molecular_visualization', [
+md('''
+# 10 · Molecular structures in 3D / မော်လီကျူး ပုံစံများ
+
+Install the current source with `python -m pip install -e ".[tutorial]"`, then
+restart your kernel. This viewer works on native Windows without PySCF or RDKit.
+
+Choose hydrogen, methane (CH₄), water, ethene or benzene in the gallery. Drag to
+rotate, scroll to zoom, and select atoms in the scene or coordinate table.
+Distance mode uses two atoms. Angle mode uses three, with the second atom at
+the vertex. SVG, XYZ and JSON exports are available in the viewer.
+
+Atom နှင့် bond များကို လှည့်ကြည့်နိုင်ပြီး bond length နှင့် angle ကို တိုင်းနိုင်ပါသည်။
+CH₄ သည် carbon တစ်လုံးနှင့် hydrogen လေးလုံး ပါဝင်သော tetrahedral ပုံစံဖြစ်ပါသည်။
+'''), MOLECULE_SETUP, SETUP,
+code('''
+from nexqus import molecule, molecular_gallery, Molecule
+from IPython.display import display
+display(molecular_gallery())
+'''),
+md('''
+## Methane: five atoms, ten electrons
+
+The carbon sits at the center and four hydrogens occupy tetrahedral directions.
+These idealized coordinates use C–H = 1.09 Å. Try measuring H–C–H in angle mode.
+The viewer's 18-qubit number is the full STO-3G spin-orbital estimate, before
+active-space or symmetry reduction; it does not mean a CH₄ calculation ran.
+The methane, ethene and benzene entries show geometry and connectivity. H₂'s
+actual VQE results are displayed in lesson 09. A CH₄ energy calculation needs
+its own Hamiltonian and variational ansatz.
+'''),
+code('''
+methane = molecule('CH4')
+print('Formula:', methane.formula, 'Electrons:', methane.n_electrons)
+print('C–H distance:', methane.distance(0, 1), 'Angstrom')
+print('H–C–H angle:', methane.angle(1, 0, 2), 'degrees')
+assert abs(methane.distance(0, 1)-1.09) < 1e-12
+assert abs(methane.angle(1, 0, 2)-109.47122063449069) < 1e-10
+display(methane)
+'''),
+md('''
+## Custom geometry and exports
+
+Supply element symbols, Angstrom coordinates and explicit zero-based bond
+indices/orders. Omit bonds to use a labelled distance heuristic, or supply an
+empty list for no bonds. Coordinates remain fixed while you rotate the camera.
+Geometry changes require a newly calculated Hamiltonian to obtain new energies.
+Atom sizes are illustrative; electron densities and orbital surfaces require
+additional electronic-structure data and are not shown by these spheres.
+'''),
+code('''
+custom = Molecule(['H', 'H'], [[0, 0, 0], [0, 0, .735]], [(0, 1, 1)], name='My hydrogen')
+display(custom)
+xyz = custom.to_xyz()
+assert xyz.startswith('2\\n')
+print(xyz)
+# To keep files, use your chosen paths:
+# methane.view().to_html('methane.html')
+# methane.draw('methane.svg')
+# methane.to_xyz('methane.xyz')
 ''')]))
 
 

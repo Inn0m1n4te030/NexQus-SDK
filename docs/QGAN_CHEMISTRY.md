@@ -1,5 +1,9 @@
 # Explainable QGANs and molecular energies
 
+For rotatable atom/bond views, methane and larger organic examples, and H₂
+geometry with calculated energy results, see [MOLECULES.md](MOLECULES.md).
+`python examples/molecular_viewer.py` runs on native Windows without PySCF.
+
 Unreleased source-checkout additions. The published PyPI 1.2.0 wheel does not
 contain these APIs. Install this branch/checkout before using them:
 

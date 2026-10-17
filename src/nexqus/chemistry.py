@@ -108,6 +108,15 @@ class MolecularProblem:
         for wire in range(self.n_electrons): circuit.x(wire)
         return circuit
 
+    def molecule(self):
+        """View the actual input geometry; energy metadata names its method."""
+        from .molecules import Molecule, _ELEMENTS
+        if any(s not in _ELEMENTS for s in self.symbols):
+            raise ValueError('The geometry viewer does not support one of these elements')
+        charge = sum(_ELEMENTS[s][0] for s in self.symbols)-self.n_electrons
+        return Molecule(self.symbols, self.coordinates_angstrom, charge=charge,
+                        name='Molecular problem', geometry_note='Fixed input geometry; '+self.basis+' basis')
+
     def exact_energy(self, max_qubits=10):
         """Dense reference restricted to the correct alpha/beta electron sector."""
         h = self.hamiltonian.dense(max_qubits=max_qubits)
@@ -168,3 +177,23 @@ def h2_pair_ansatz(theta):
     states need not conserve particle number, but every final state does.
     """
     return Circuit(4).ry(theta, 0).cx(0, 1).cx(0, 2).cx(0, 3).x(0).x(1)
+
+
+def h2_reference_problem():
+    """Frozen H2/STO-3G problem at 0.735 Å; no PySCF installation required.
+
+    PySCF 2.14.0 RHF integrals, neutral singlet, interleaved alpha/beta modes.
+    Nuclear repulsion is included. Regenerate with molecular_hamiltonian();
+    coefficients and FCI validation are recorded in the 2026-10-17 report.
+    This fixture cannot be used at other bond lengths by moving its geometry.
+    """
+    terms = [(-.09057898608834797, 'IIII'), (-.22575349222402394, 'IIIZ'),
+        (-.22575349222402394, 'IIZI'), (.17464343068300442, 'IIZZ'),
+        (.1721839326191555, 'IZII'), (.1209126326177663, 'IZIZ'),
+        (.16614543256382414, 'IZZI'), (-.04523279994605785, 'XXYY'),
+        (.04523279994605785, 'XYYX'), (.04523279994605785, 'YXXY'),
+        (-.04523279994605785, 'YYXX'), (.1721839326191555, 'ZIII'),
+        (.16614543256382414, 'ZIIZ'), (.1209126326177663, 'ZIZI'),
+        (.16892753870087907, 'ZZII')]
+    return MolecularProblem(PauliHamiltonian(4, terms), 2, -1.116998996754004,
+        .7199689944489797, ('H', 'H'), ((0., 0., 0.), (0., 0., .735)), 'sto-3g')

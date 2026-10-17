@@ -16,6 +16,7 @@ Burmese summaries/comments; figures use English labels for broad font support.
 | [07 — Inspection and QML templates](07_inspection_and_qml_templates.ipynb) | Angles, depth/counts, optional PNG/PDF, encoding, layers and reuploading | 20 min |
 | [08 — QGAN distribution](08_qgan_distribution.ipynb) | Adversarial learning, classical reference and local probability sensitivity (source checkout) | 20 min |
 | [09 — H₂ energy explained](09_h2_energy_explained.ipynb) | VQE, classical HF/FCI references and energy contributions (source checkout) | 25 min |
+| [10 — Molecular visualization](10_molecular_visualization.ipynb) | Rotate H₂/CH₄/organic structures, measure distances/angles and export custom geometry | 20 min |
 
 ## Run with Jupyter
 
@@ -85,7 +86,7 @@ IPC instead of TCP; neither transport is available in every restricted container
 
 ## Checked behavior
 
-CI executes all ten notebooks through real Jupyter kernels. Their assertions
+CI executes all eleven notebooks through real Jupyter kernels on Linux and Windows. Their assertions
 cover state normalization, bit order, gates, entanglement, noise conventions,
 gradients, learning, reset, teleportation, native circuit drawing, quantum-path
 factoring, QML templates, inspection and agreement between simulation methods.
