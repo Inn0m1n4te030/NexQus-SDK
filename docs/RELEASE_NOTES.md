@@ -2,6 +2,13 @@
 
 ## Unreleased source-checkout addition
 
+Local [QGAN and H₂ chemistry tools](QGAN_CHEMISTRY.md) add probability gradients,
+hybrid adversarial training with a classical baseline, probability sensitivities,
+weighted Hamiltonians, optional PySCF integrals/Jordan–Wigner mapping and
+classical-reference-checked VQE examples. Lessons 08/09 explain both workflows.
+These are not included in the published 1.2.0 wheel. General molecular generation,
+active-space chemistry and drug-discovery screening remain future work.
+
 The local [circuit explainability explorer](EXPLAINABILITY.md) adds exact
 gate-by-gate state traces, offline HTML visualization, QNN block/parameter
 annotations and Bell/interference/trained-QNN examples. It is not included in

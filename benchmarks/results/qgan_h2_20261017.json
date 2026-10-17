@@ -1,0 +1,860 @@
+{
+  "qgan": {
+    "sdk_version": "1.2.0",
+    "numpy": "2.5.4",
+    "python": "3.12.14",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "execution": "local NumPy CPU double precision, exact probabilities",
+    "source_sha256": {
+      "__init__.py": "520dbec86de693430f8242fb924513af2f58d484035660f23633546560ae34b0",
+      "algorithms.py": "58e0c469614b12825086628991f369b6b97eca34c0480f3408e83c95123a95e1",
+      "backend.py": "b5c2c470147d0453c6dd8c1d30cbc87a86206120728f8a32e47382f1abd6c632",
+      "braket.py": "62c47fb4463d8b799925022b6ffe43b69a37556d31df19457ce7e90b5ec5aa34",
+      "chemistry.py": "3a27e5b025109c098b5f7f6a9db52463436a8bfac1380cc028db291bc272669b",
+      "circuit.py": "7a61ec4bb73eb5cc42d0539155fe8df7b185037bfb64d70260f46e4bfaa97976",
+      "drawing.py": "15a3846f56b308617e376163bfca93a8a4a0843a95faec972f29f1badac4d412",
+      "dynamic.py": "a015972bbd12e33eaa132a9e9e1306165c9f796e9dd2ac72e30efc0842b86450",
+      "explain.py": "bcd6651c56f2b8fa3c4f4efd12277d1ab22a9cf13d523fb8266ac8925e142119",
+      "explain_html.py": "2448756eb69770d3df03bfd0219c221e4dbe80d8266bc5d05c3264b0b2e0f630",
+      "generative.py": "54a6bbc789099d58c04c2ee2cb4ab76df32a9d5cb875be6b5126090d2096325a",
+      "gradients.py": "d8f3195419af0281a31c47134029d7e0b56485bb817bcbb227ab9c50e604c5b7",
+      "hamiltonian.py": "dbfda21d001ad385df5ba5f94c31c85170e0eb4ea804050baf881782859b76d8",
+      "learning.py": "a936e5eee6af9b8bcd19c95d303daef1435b9c00fdbb0dbc01f4deb8ab0faa71",
+      "noise.py": "4b9e0530c6b534359d293cb87f699040a60dd30e3dcde6969f3e4753a33687f1",
+      "optimizers.py": "ee8ec838c84e5d8eccc64af44725f3c1f03410b990534860b21ba77fb88b71bc",
+      "parameters.py": "b941281fb0b54a89672333b1eb33b5e7f87ebee129a7600a4a389a00bd58d865",
+      "random.py": "16e87842bf1dff4a94bcb0de503c4d09a122aa56e85683c216a5d26d8c6b06bc",
+      "simulator.py": "51f1b63c512be44bc53436f8b9580b711f21f5690b56237f41856a8177ae665d",
+      "templates.py": "d57f5d93bcb99646fbc8dbbde7178f32047af5071232f7148c0b8ea750bc95be",
+      "validation.py": "b21286b342f477d7c94c3c854ade180d30495c9e5fdfe7e5af1ff25286eed0c2"
+    },
+    "example_sha256": "f5531a38c6a67ba99a74857f74bef2f5dd41d9f0bb4753f7a29fb96e8d93715b",
+    "target": [
+      0.03,
+      0.18,
+      0.24,
+      0.05,
+      0.04,
+      0.25,
+      0.18,
+      0.03
+    ],
+    "epochs": 300,
+    "seeds": [
+      7,
+      21,
+      42
+    ],
+    "records": [
+      {
+        "seed": 7,
+        "model": "Quantum",
+        "initial_probabilities": [
+          0.002882674549586644,
+          0.08571067695881206,
+          0.008821264542291596,
+          0.14801013899190488,
+          0.1698993466779854,
+          0.0011283548670291497,
+          0.008367267148147409,
+          0.575180276264243
+        ],
+        "probabilities": [
+          0.030284693596742674,
+          0.17850782967029996,
+          0.2410793376794993,
+          0.049385960110323444,
+          0.039552161103417784,
+          0.24773963742411995,
+          0.1824474486834806,
+          0.03100293173211632
+        ],
+        "total_variation": 0.004814411691838879,
+        "jensen_shannon": 0.000014893216617006431
+      },
+      {
+        "seed": 7,
+        "model": "Classical",
+        "initial_probabilities": [
+          0.002882674549586644,
+          0.08571067695881206,
+          0.008821264542291596,
+          0.14801013899190488,
+          0.1698993466779854,
+          0.0011283548670291497,
+          0.008367267148147409,
+          0.575180276264243
+        ],
+        "probabilities": [
+          0.029760341047159217,
+          0.1758461798610075,
+          0.23899085438569434,
+          0.048893478713166606,
+          0.039426385207231296,
+          0.2497036462729748,
+          0.1791084436309688,
+          0.03827067088179732
+        ],
+        "total_variation": 0.008270670881797358,
+        "jensen_shannon": 0.0002687268527205894
+      },
+      {
+        "seed": 21,
+        "model": "Quantum",
+        "initial_probabilities": [
+          0.3311226993239132,
+          0.02225984512383037,
+          0.08254405206826256,
+          0.03923708474057454,
+          0.0008730086149283897,
+          0.018655917973571433,
+          0.08497328883641993,
+          0.42033410331849946
+        ],
+        "probabilities": [
+          0.029921969193460234,
+          0.17887587474730213,
+          0.24102449867194756,
+          0.05007931726966914,
+          0.03973133165500617,
+          0.24915467508693018,
+          0.18086235703573103,
+          0.030349976339953576
+        ],
+        "total_variation": 0.0023161493173013015,
+        "jensen_shannon": 0.0000030737217395176812
+      },
+      {
+        "seed": 21,
+        "model": "Classical",
+        "initial_probabilities": [
+          0.3311226993239132,
+          0.02225984512383037,
+          0.08254405206826256,
+          0.03923708474057454,
+          0.0008730086149283897,
+          0.018655917973571433,
+          0.08497328883641993,
+          0.42033410331849946
+        ],
+        "probabilities": [
+          0.031602224011762804,
+          0.17904882905310898,
+          0.23775361716960156,
+          0.049380732260820626,
+          0.039920641120705244,
+          0.24902788872682377,
+          0.17806616087207508,
+          0.035199906785101924
+        ],
+        "total_variation": 0.006802130796864727,
+        "jensen_shannon": 0.00012154638563290196
+      },
+      {
+        "seed": 42,
+        "model": "Quantum",
+        "initial_probabilities": [
+          0.38041302746979394,
+          0.2969546612865377,
+          0.09221693132965518,
+          0.03208778385895253,
+          0.009774175238741358,
+          0.027511787018618398,
+          0.08820812857308122,
+          0.07283350522461973
+        ],
+        "probabilities": [
+          0.029656641511798514,
+          0.18003840500114376,
+          0.2407609688260413,
+          0.04971545661186555,
+          0.04032566555908516,
+          0.2491508176807034,
+          0.18006845344673128,
+          0.030283591362631007
+        ],
+        "total_variation": 0.0014770841956325362,
+        "jensen_shannon": 0.00000202723335949236
+      },
+      {
+        "seed": 42,
+        "model": "Classical",
+        "initial_probabilities": [
+          0.38041302746979394,
+          0.2969546612865377,
+          0.09221693132965518,
+          0.03208778385895253,
+          0.009774175238741358,
+          0.027511787018618398,
+          0.08820812857308122,
+          0.07283350522461973
+        ],
+        "probabilities": [
+          0.03482301864306031,
+          0.1794141822382763,
+          0.23852409598834182,
+          0.04969097637787167,
+          0.03978350428204318,
+          0.24901370551108828,
+          0.1788599867089522,
+          0.029890530250366386
+        ],
+        "total_variation": 0.004823018643060232,
+        "jensen_shannon": 0.0000930004100649324
+      }
+    ],
+    "generator_lr": 0.02,
+    "discriminator_lr": 0.05,
+    "discriminator_steps": 5,
+    "quantum_generator_parameters": 9,
+    "classical_generator_parameters": 8,
+    "discriminator_parameters": 8,
+    "objective": "non-saturating generator; balanced BCE discriminator",
+    "methodology": "Exact full distributions; same initial probabilities, D initialization, Adam rates and update counts. Different generator parameterizations and execution costs; synthetic fit, no held-out generalization claim.",
+    "parameters": {
+      "w0_0": 0.9116919958026325,
+      "w0_1": 3.1864877189346954,
+      "w0_2": 1.3394807526795742,
+      "w1_0": 0.8197726845086986,
+      "w1_1": -0.049928493590219884,
+      "w1_2": 1.4414173314664882,
+      "w2_0": 0.6888621305009571,
+      "w2_1": 1.331231431518978,
+      "w2_2": 3.1271366059749486
+    },
+    "probability_jacobian": {
+      "w0_0": [
+        0.032802611327978355,
+        -0.14548921041354623,
+        -0.264905468782614,
+        0.03998963020322788,
+        -0.01702872534400661,
+        0.24198089200649606,
+        0.172518263259802,
+        -0.059867992257337445
+      ],
+      "w0_1": [
+        0.08629388888891125,
+        0.1261717330873584,
+        0.0670210499428133,
+        0.08204098605219563,
+        -0.08920961825068652,
+        -0.12368461548600578,
+        -0.06536757033437159,
+        -0.08326585390021471
+      ],
+      "w0_2": [
+        0.1020122117487297,
+        -0.01987949056057528,
+        0.0324247658028252,
+        -0.15235381911779045,
+        -0.012640644641808859,
+        0.15721663474112232,
+        -0.11572631061786227,
+        0.008946652645359668
+      ],
+      "w1_0": [
+        0.09306461361564364,
+        -0.04906937948425408,
+        -0.11807375218174138,
+        0.08416537645887313,
+        0.07565351441049062,
+        -0.12528124091310025,
+        -0.052935077244317966,
+        0.09247594533840627
+      ],
+      "w1_1": [
+        0.12112228947573334,
+        -0.014820883971515486,
+        -0.015247824519886495,
+        0.13273476189201522,
+        0.012873033259857228,
+        -0.12226166004194627,
+        -0.12634818698240005,
+        0.011948470888142448
+      ],
+      "w1_2": [
+        -0.06555952693216685,
+        -0.10865716286036078,
+        0.05711510308141339,
+        0.1171015867111144,
+        -0.10601004375211377,
+        -0.061648595140149386,
+        0.10036776578411996,
+        0.06729087310814315
+      ],
+      "w2_0": [
+        0.030641708309229004,
+        -0.1804668891884923,
+        -0.2443867993717462,
+        0.044196396352309944,
+        -0.044196396352309944,
+        0.2443867993717462,
+        0.1804668891884923,
+        -0.030641708309229004
+      ],
+      "w2_1": [
+        -0.03867348794616413,
+        0.20744770268074983,
+        -0.20744770268074983,
+        0.038673487946164126,
+        0.035017609149496885,
+        -0.21260165753305219,
+        0.21260165753305219,
+        -0.03501760914949689
+      ],
+      "w2_2": [
+        0.0735258792955553,
+        -0.07352587929555528,
+        0.10911431873985628,
+        -0.10911431873985623,
+        0.09898807024637414,
+        -0.09898807024637414,
+        0.07520908054372656,
+        -0.07520908054372652
+      ]
+    }
+  },
+  "h2": {
+    "sdk_version": "1.2.0",
+    "numpy": "2.5.4",
+    "pyscf": "2.14.0",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "execution": "local NumPy CPU double precision, exact expectations",
+    "source_sha256": {
+      "__init__.py": "520dbec86de693430f8242fb924513af2f58d484035660f23633546560ae34b0",
+      "algorithms.py": "58e0c469614b12825086628991f369b6b97eca34c0480f3408e83c95123a95e1",
+      "backend.py": "b5c2c470147d0453c6dd8c1d30cbc87a86206120728f8a32e47382f1abd6c632",
+      "braket.py": "62c47fb4463d8b799925022b6ffe43b69a37556d31df19457ce7e90b5ec5aa34",
+      "chemistry.py": "3a27e5b025109c098b5f7f6a9db52463436a8bfac1380cc028db291bc272669b",
+      "circuit.py": "7a61ec4bb73eb5cc42d0539155fe8df7b185037bfb64d70260f46e4bfaa97976",
+      "drawing.py": "15a3846f56b308617e376163bfca93a8a4a0843a95faec972f29f1badac4d412",
+      "dynamic.py": "a015972bbd12e33eaa132a9e9e1306165c9f796e9dd2ac72e30efc0842b86450",
+      "explain.py": "bcd6651c56f2b8fa3c4f4efd12277d1ab22a9cf13d523fb8266ac8925e142119",
+      "explain_html.py": "2448756eb69770d3df03bfd0219c221e4dbe80d8266bc5d05c3264b0b2e0f630",
+      "generative.py": "54a6bbc789099d58c04c2ee2cb4ab76df32a9d5cb875be6b5126090d2096325a",
+      "gradients.py": "d8f3195419af0281a31c47134029d7e0b56485bb817bcbb227ab9c50e604c5b7",
+      "hamiltonian.py": "dbfda21d001ad385df5ba5f94c31c85170e0eb4ea804050baf881782859b76d8",
+      "learning.py": "a936e5eee6af9b8bcd19c95d303daef1435b9c00fdbb0dbc01f4deb8ab0faa71",
+      "noise.py": "4b9e0530c6b534359d293cb87f699040a60dd30e3dcde6969f3e4753a33687f1",
+      "optimizers.py": "ee8ec838c84e5d8eccc64af44725f3c1f03410b990534860b21ba77fb88b71bc",
+      "parameters.py": "b941281fb0b54a89672333b1eb33b5e7f87ebee129a7600a4a389a00bd58d865",
+      "random.py": "16e87842bf1dff4a94bcb0de503c4d09a122aa56e85683c216a5d26d8c6b06bc",
+      "simulator.py": "51f1b63c512be44bc53436f8b9580b711f21f5690b56237f41856a8177ae665d",
+      "templates.py": "d57f5d93bcb99646fbc8dbbde7178f32047af5071232f7148c0b8ea750bc95be",
+      "validation.py": "b21286b342f477d7c94c3c854ade180d30495c9e5fdfe7e5af1ff25286eed0c2"
+    },
+    "example_sha256": "411dba1cbd6e83735183f305ca066c112740c366d867d8b7ce0a8da9f5aec7e3",
+    "python": "3.12.14",
+    "basis": "sto-3g",
+    "mapping": "Jordan–Wigner",
+    "mode_order": "q0-first; spatial orbitals interleaved alpha/beta",
+    "n_qubits": 4,
+    "n_electrons": 2,
+    "energy_units": "Hartree, includes nuclear repulsion",
+    "rows": [
+      {
+        "bond_angstrom": 0.5,
+        "hartree_fock": -1.042996274540095,
+        "pyscf_fci": -1.0551597944706248,
+        "nexqus_exact": -1.0551597944706228,
+        "nexqus_vqe": -1.0551597944702478,
+        "absolute_error_hartree": 3.7703173916270316e-13,
+        "nuclear_repulsion": 1.05835442184,
+        "parameters": {
+          "theta": -0.1438084448813109
+        },
+        "terms": [
+          {
+            "coefficient": 0.3798313517809536,
+            "pauli": "IIII"
+          },
+          {
+            "coefficient": -0.3691443152437656,
+            "pauli": "IIIZ"
+          },
+          {
+            "coefficient": -0.3691443152437656,
+            "pauli": "IIZI"
+          },
+          {
+            "coefficient": 0.186209842592471,
+            "pauli": "IIZZ"
+          },
+          {
+            "coefficient": 0.21393531024521276,
+            "pauli": "IZII"
+          },
+          {
+            "coefficient": 0.13459240346368842,
+            "pauli": "IZIZ"
+          },
+          {
+            "coefficient": 0.17680996038612223,
+            "pauli": "IZZI"
+          },
+          {
+            "coefficient": -0.0422175569224338,
+            "pauli": "XXYY"
+          },
+          {
+            "coefficient": 0.0422175569224338,
+            "pauli": "XYYX"
+          },
+          {
+            "coefficient": 0.0422175569224338,
+            "pauli": "YXXY"
+          },
+          {
+            "coefficient": -0.0422175569224338,
+            "pauli": "YYXX"
+          },
+          {
+            "coefficient": 0.21393531024521276,
+            "pauli": "ZIII"
+          },
+          {
+            "coefficient": 0.17680996038612223,
+            "pauli": "ZIIZ"
+          },
+          {
+            "coefficient": 0.13459240346368842,
+            "pauli": "ZIZI"
+          },
+          {
+            "coefficient": 0.17992650976405958,
+            "pauli": "ZZII"
+          }
+        ]
+      },
+      {
+        "bond_angstrom": 0.735,
+        "hartree_fock": -1.116998996754004,
+        "pyscf_fci": -1.1373060357534004,
+        "nexqus_exact": -1.1373060357534,
+        "nexqus_vqe": -1.1373060357517515,
+        "absolute_error_hartree": 1.6489032361732825e-12,
+        "nuclear_repulsion": 0.7199689944489797,
+        "parameters": {
+          "theta": -0.22353498840107683
+        },
+        "terms": [
+          {
+            "coefficient": -0.09057898608834797,
+            "pauli": "IIII"
+          },
+          {
+            "coefficient": -0.22575349222402394,
+            "pauli": "IIIZ"
+          },
+          {
+            "coefficient": -0.22575349222402394,
+            "pauli": "IIZI"
+          },
+          {
+            "coefficient": 0.17464343068300442,
+            "pauli": "IIZZ"
+          },
+          {
+            "coefficient": 0.1721839326191555,
+            "pauli": "IZII"
+          },
+          {
+            "coefficient": 0.1209126326177663,
+            "pauli": "IZIZ"
+          },
+          {
+            "coefficient": 0.16614543256382414,
+            "pauli": "IZZI"
+          },
+          {
+            "coefficient": -0.04523279994605785,
+            "pauli": "XXYY"
+          },
+          {
+            "coefficient": 0.04523279994605785,
+            "pauli": "XYYX"
+          },
+          {
+            "coefficient": 0.04523279994605785,
+            "pauli": "YXXY"
+          },
+          {
+            "coefficient": -0.04523279994605785,
+            "pauli": "YYXX"
+          },
+          {
+            "coefficient": 0.1721839326191555,
+            "pauli": "ZIII"
+          },
+          {
+            "coefficient": 0.16614543256382414,
+            "pauli": "ZIIZ"
+          },
+          {
+            "coefficient": 0.1209126326177663,
+            "pauli": "ZIZI"
+          },
+          {
+            "coefficient": 0.16892753870087907,
+            "pauli": "ZZII"
+          }
+        ]
+      },
+      {
+        "bond_angstrom": 1,
+        "hartree_fock": -1.0661086493179366,
+        "pyscf_fci": -1.1011503302326187,
+        "nexqus_exact": -1.1011503302326184,
+        "nexqus_vqe": -1.1011503302325212,
+        "absolute_error_hartree": 9.747758156208874e-14,
+        "nuclear_repulsion": 0.52917721092,
+        "parameters": {
+          "theta": -0.3524382857711323
+        },
+        "terms": [
+          {
+            "coefficient": -0.3276081896748093,
+            "pauli": "IIII"
+          },
+          {
+            "coefficient": -0.13036292057109075,
+            "pauli": "IIIZ"
+          },
+          {
+            "coefficient": -0.13036292057109075,
+            "pauli": "IIZI"
+          },
+          {
+            "coefficient": 0.16326768673564332,
+            "pauli": "IIZZ"
+          },
+          {
+            "coefficient": 0.1371657293709952,
+            "pauli": "IZII"
+          },
+          {
+            "coefficient": 0.1062290449085607,
+            "pauli": "IZIZ"
+          },
+          {
+            "coefficient": 0.1554266907799282,
+            "pauli": "IZZI"
+          },
+          {
+            "coefficient": -0.04919764587136753,
+            "pauli": "XXYY"
+          },
+          {
+            "coefficient": 0.04919764587136753,
+            "pauli": "XYYX"
+          },
+          {
+            "coefficient": 0.04919764587136753,
+            "pauli": "YXXY"
+          },
+          {
+            "coefficient": -0.04919764587136753,
+            "pauli": "YYXX"
+          },
+          {
+            "coefficient": 0.1371657293709952,
+            "pauli": "ZIII"
+          },
+          {
+            "coefficient": 0.1554266907799282,
+            "pauli": "ZIIZ"
+          },
+          {
+            "coefficient": 0.1062290449085607,
+            "pauli": "ZIZI"
+          },
+          {
+            "coefficient": 0.15660062488237936,
+            "pauli": "ZZII"
+          }
+        ]
+      },
+      {
+        "bond_angstrom": 1.5,
+        "hartree_fock": -0.9108735545943865,
+        "pyscf_fci": -0.9981493534714101,
+        "nexqus_exact": -0.9981493534714103,
+        "nexqus_vqe": -0.9981493534616475,
+        "absolute_error_hartree": 9.762635144738852e-12,
+        "nuclear_repulsion": 0.35278480728,
+        "parameters": {
+          "theta": -0.7266834798325691
+        },
+        "terms": [
+          {
+            "coefficient": -0.49178577730353773,
+            "pauli": "IIII"
+          },
+          {
+            "coefficient": -0.03564481621009495,
+            "pauli": "IIIZ"
+          },
+          {
+            "coefficient": -0.03564481621009495,
+            "pauli": "IIZI"
+          },
+          {
+            "coefficient": 0.14585519030093097,
+            "pauli": "IIZZ"
+          },
+          {
+            "coefficient": 0.09345649667701601,
+            "pauli": "IZII"
+          },
+          {
+            "coefficient": 0.08253705488832755,
+            "pauli": "IZIZ"
+          },
+          {
+            "coefficient": 0.139921038903253,
+            "pauli": "IZZI"
+          },
+          {
+            "coefficient": -0.05738398401492545,
+            "pauli": "XXYY"
+          },
+          {
+            "coefficient": 0.05738398401492545,
+            "pauli": "XYYX"
+          },
+          {
+            "coefficient": 0.05738398401492545,
+            "pauli": "YXXY"
+          },
+          {
+            "coefficient": -0.05738398401492545,
+            "pauli": "YYXX"
+          },
+          {
+            "coefficient": 0.09345649667701601,
+            "pauli": "ZIII"
+          },
+          {
+            "coefficient": 0.139921038903253,
+            "pauli": "ZIIZ"
+          },
+          {
+            "coefficient": 0.08253705488832755,
+            "pauli": "ZIZI"
+          },
+          {
+            "coefficient": 0.13817584576560327,
+            "pauli": "ZZII"
+          }
+        ]
+      },
+      {
+        "bond_angstrom": 2,
+        "hartree_fock": -0.783792654277353,
+        "pyscf_fci": -0.9486411121761853,
+        "nexqus_exact": -0.9486411121761859,
+        "nexqus_vqe": -0.9486411121487526,
+        "absolute_error_hartree": 2.7432722760067918e-11,
+        "nuclear_repulsion": 0.26458860546,
+        "parameters": {
+          "theta": -1.1331544940627922
+        },
+        "terms": [
+          {
+            "coefficient": -0.53393634877274,
+            "pauli": "IIII"
+          },
+          {
+            "coefficient": 0.006651295687574443,
+            "pauli": "IIIZ"
+          },
+          {
+            "coefficient": 0.006651295687574443,
+            "pauli": "IIZI"
+          },
+          {
+            "coefficient": 0.1336660298823399,
+            "pauli": "IIZZ"
+          },
+          {
+            "coefficient": 0.06727930458983426,
+            "pauli": "IZII"
+          },
+          {
+            "coefficient": 0.06501569581211993,
+            "pauli": "IZIZ"
+          },
+          {
+            "coefficient": 0.1298003145323841,
+            "pauli": "IZZI"
+          },
+          {
+            "coefficient": -0.06478461872026418,
+            "pauli": "XXYY"
+          },
+          {
+            "coefficient": 0.06478461872026418,
+            "pauli": "XYYX"
+          },
+          {
+            "coefficient": 0.06478461872026418,
+            "pauli": "YXXY"
+          },
+          {
+            "coefficient": -0.06478461872026418,
+            "pauli": "YYXX"
+          },
+          {
+            "coefficient": 0.06727930458983426,
+            "pauli": "ZIII"
+          },
+          {
+            "coefficient": 0.1298003145323841,
+            "pauli": "ZIIZ"
+          },
+          {
+            "coefficient": 0.06501569581211993,
+            "pauli": "ZIZI"
+          },
+          {
+            "coefficient": 0.12736570310657458,
+            "pauli": "ZZII"
+          }
+        ]
+      }
+    ],
+    "contributions": [
+      {
+        "pauli": "IIII",
+        "coefficient": -0.09057898608834797,
+        "expectation": 1,
+        "contribution": -0.09057898608834797
+      },
+      {
+        "pauli": "IIIZ",
+        "coefficient": -0.22575349222402394,
+        "expectation": 0.9751199142802229,
+        "contribution": -0.2201367259859512
+      },
+      {
+        "pauli": "IIZI",
+        "coefficient": -0.22575349222402394,
+        "expectation": 0.9751199142802229,
+        "contribution": -0.2201367259859512
+      },
+      {
+        "pauli": "IIZZ",
+        "coefficient": 0.17464343068300442,
+        "expectation": 1,
+        "contribution": 0.17464343068300442
+      },
+      {
+        "pauli": "IZII",
+        "coefficient": 0.1721839326191555,
+        "expectation": -0.9751199142802229,
+        "contribution": -0.16789998161602257
+      },
+      {
+        "pauli": "IZIZ",
+        "coefficient": 0.1209126326177663,
+        "expectation": -1,
+        "contribution": -0.1209126326177663
+      },
+      {
+        "pauli": "IZZI",
+        "coefficient": 0.16614543256382414,
+        "expectation": -1,
+        "contribution": -0.16614543256382414
+      },
+      {
+        "pauli": "XXYY",
+        "coefficient": -0.04523279994605785,
+        "expectation": 0.221678038547193,
+        "contribution": -0.010027118370039681
+      },
+      {
+        "pauli": "XYYX",
+        "coefficient": 0.04523279994605785,
+        "expectation": -0.221678038547193,
+        "contribution": -0.010027118370039681
+      },
+      {
+        "pauli": "YXXY",
+        "coefficient": 0.04523279994605785,
+        "expectation": -0.221678038547193,
+        "contribution": -0.010027118370039681
+      },
+      {
+        "pauli": "YYXX",
+        "coefficient": -0.04523279994605785,
+        "expectation": 0.221678038547193,
+        "contribution": -0.010027118370039681
+      },
+      {
+        "pauli": "ZIII",
+        "coefficient": 0.1721839326191555,
+        "expectation": -0.9751199142802229,
+        "contribution": -0.16789998161602257
+      },
+      {
+        "pauli": "ZIIZ",
+        "coefficient": 0.16614543256382414,
+        "expectation": -1,
+        "contribution": -0.16614543256382414
+      },
+      {
+        "pauli": "ZIZI",
+        "coefficient": 0.1209126326177663,
+        "expectation": -1,
+        "contribution": -0.1209126326177663
+      },
+      {
+        "pauli": "ZZII",
+        "coefficient": 0.16892753870087907,
+        "expectation": 1,
+        "contribution": 0.16892753870087907
+      }
+    ],
+    "gate_prefix_trace": [
+      {
+        "step": 0,
+        "energy_hartree": 0.7199689944489795,
+        "two_electron_probability": 0
+      },
+      {
+        "step": 1,
+        "energy_hartree": 0.7043400825342665,
+        "two_electron_probability": 0
+      },
+      {
+        "step": 2,
+        "energy_hartree": 0.6971170339061711,
+        "two_electron_probability": 0.012440042859888562
+      },
+      {
+        "step": 3,
+        "energy_hartree": 0.7055306858867261,
+        "two_electron_probability": 0
+      },
+      {
+        "step": 4,
+        "energy_hartree": 0.7226346249188592,
+        "two_electron_probability": 0
+      },
+      {
+        "step": 5,
+        "energy_hartree": -0.5251365460781249,
+        "two_electron_probability": 0
+      },
+      {
+        "step": 6,
+        "energy_hartree": -1.1373060357517515,
+        "two_electron_probability": 1
+      }
+    ],
+    "prefix_warning": "Only final ansatz states conserve two electrons; prefix energies are not a physical reaction path or optimization trajectory.",
+    "scope": "Closed-shell H2 minimal-basis demonstration, not drug discovery or a quantum speedup benchmark."
+  },
+  "local_environment_note": "PySCF process-memory lookup used resource.getrusage peak RSS because /proc/<pid>/statm is unavailable in this runner. Energy algorithms and independent FCI unchanged."
+}
