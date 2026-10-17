@@ -11,6 +11,11 @@ QML helpers require no additional runtime dependencies.
 
 ## Circuit construction
 
+For unreleased `QuantumDistribution`, `QGAN`, `distribution_metrics`,
+`PauliHamiltonian`, `HamiltonianFunction` and the optional `nexqus.chemistry`
+interfaces, see [QGAN_CHEMISTRY.md](QGAN_CHEMISTRY.md). These are source-checkout
+additions, not part of the published 1.2.0 wheel.
+
 For the unreleased local circuit explorer, see [EXPLAINABILITY.md](EXPLAINABILITY.md).
 `Circuit.explain(...)` returns an `Explanation` with `to_dict()` and
 `to_html(filename=None)`. The generated HTML works offline; this addition is

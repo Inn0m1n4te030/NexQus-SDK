@@ -14,6 +14,8 @@ Burmese summaries/comments; figures use English labels for broad font support.
 | [05 — Dynamic protocols](05_measurement_reset_teleportation.ipynb) | Collapse, reset, feed-forward, teleportation and correlations | 20 min |
 | [06 — Your first experiment](06_your_first_experiment.ipynb) | Compare methods with controlled variables and an experiment report | 15 min |
 | [07 — Inspection and QML templates](07_inspection_and_qml_templates.ipynb) | Angles, depth/counts, optional PNG/PDF, encoding, layers and reuploading | 20 min |
+| [08 — QGAN distribution](08_qgan_distribution.ipynb) | Adversarial learning, classical reference and local probability sensitivity (source checkout) | 20 min |
+| [09 — H₂ energy explained](09_h2_energy_explained.ipynb) | VQE, classical HF/FCI references and energy contributions (source checkout) | 25 min |
 
 ## Run with Jupyter
 
@@ -26,7 +28,9 @@ python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)
 jupyter lab notebooks
 ```
 
-All eight lessons target SDK 1.2.0. For editable development, install
+The original eight lessons target SDK 1.2.0. Lessons 08/09 require the unreleased
+source checkout; the published 1.2.0 wheel does not include their new APIs.
+For editable development, install
 `python -m pip install -e '.[tutorial,visualization]'` instead. Each setup cell
 checks the imported version, and lesson 07 also checks its required API.
 Restart the kernel after an upgrade. Select **Python (NexQus)**.
@@ -77,7 +81,7 @@ IPC instead of TCP; neither transport is available in every restricted container
 
 ## Checked behavior
 
-CI executes all eight notebooks through real Jupyter kernels. Their assertions
+CI executes all ten notebooks through real Jupyter kernels. Their assertions
 cover state normalization, bit order, gates, entanglement, noise conventions,
 gradients, learning, reset, teleportation, native circuit drawing, quantum-path
 factoring, QML templates, inspection and agreement between simulation methods.
