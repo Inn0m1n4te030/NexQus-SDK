@@ -11,6 +11,12 @@ QML helpers require no additional runtime dependencies.
 
 ## Circuit construction
 
+For the unreleased optional Amazon Braket bridge, see [BRAKET.md](BRAKET.md).
+Import its public interfaces from `nexqus.braket`: `prepare_braket`,
+`BraketProgram`, `BraketBackend`, `BraketJob` and `BraketResult`. The published
+1.2.0 wheel does not include these additions. Core simulation APIs below are
+unchanged. Preparation is offline; paid submission requires explicit opt-in.
+
 `Circuit(n_qubits)` requires a positive integer. Wire 0 is the leftmost/MSB bit;
 wire lists must be nonempty, distinct, in range, and are interpreted in the order
 supplied. Angles and bindings are finite real scalars in radians. Construction

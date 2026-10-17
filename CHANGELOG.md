@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Add an optional Amazon Braket bridge: offline gate translation/capability and
+  cost checks, local simulation, explicit paid QPU submission, job lifecycle and
+  sparse q0-first measurement results. Cloud execution is mocked, not hardware-validated.
+- Keep Braket optional (Python 3.11+), block cloud requests in integration tests
+  and provide a local-only example. No cloud task was submitted during validation.
+
 ## 1.2.0 — 2026-10-17
 
 - Add visual quantum-versus-classical sine regression with prediction/loss/error

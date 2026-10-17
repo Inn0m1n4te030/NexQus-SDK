@@ -26,6 +26,12 @@ Examples and notebooks are available in the source repository and source archive
 
 ## Your first circuit
 
+The development checkout also includes an optional [Amazon Braket bridge](docs/BRAKET.md)
+for offline preparation, local simulation and explicit hardware job submission.
+It is not in the existing PyPI 1.2.0 wheel. Its example and CI never submit cloud
+jobs; actual QPU execution has not been tested. Install from source with
+`python -m pip install -e '.[braket]'` on Python 3.11+ to try the local adapter.
+
 ```python
 from nexqus import Circuit, Simulator
 
