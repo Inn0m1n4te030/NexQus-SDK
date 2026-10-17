@@ -139,11 +139,30 @@ a fresh history. Passing an existing optimizer keeps its current moment state;
 omit it or reset it if a fresh optimization run is intended. Training samples
 and gradients are evaluated sequentially, not as a differentiable batch.
 
-`train_sine.py --output-dir results` saves training JSON and prediction CSV.
-Its default one-qubit circuit represents cos(weight*x+bias), so sine can be
-learned by approaching weight=1 and bias=-pi/2. This is an educational circuit
-learning demonstration, not evidence of quantum advantage or a general-purpose
-regression architecture.
+`train_sine.py --output-dir results` saves quantum-only training JSON and prediction
+CSV. For the visual classical/quantum comparison, use lesson 04 or:
+
+```bash
+python -m pip install 'nexqus-sdk[tutorial]==1.1.0'
+python examples/compare_sine.py --output-dir results/sine
+```
+
+The comparison plots the target, quantum circuit, classical 1-8-1 tanh MLP and
+matched classical sinusoid; training loss; held-out MSE across three seeds; and
+prediction errors. It exports PNG/SVG figures, metrics JSON and prediction CSV.
+All models use the same 20 training samples, 201 disjoint interpolation inputs,
+80 Adam updates and learning rate .05. The MLP has 25 parameters; each sinusoidal
+model has two. This is one stated MLP configuration, not exhaustive tuning.
+
+The one-qubit circuit represents cos(weight*x+bias), so sine can be learned by
+approaching weight=1 and bias=-pi/2. The classical sinusoid uses the same function
+family and initialization; its matching predictions are checked numerically.
+Read the actual errors and training times separately when comparing models.
+
+![Quantum and classical sine predictions](images/sine_comparison.svg)
+
+The saved example figure comes from the published 1.1.0 NumPy CPU implementation.
+Run the notebook or script to reproduce it; training timings depend on the machine.
 
 ## Binary classification
 
