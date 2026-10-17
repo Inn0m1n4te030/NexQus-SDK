@@ -25,7 +25,7 @@ test_mse=float(np.mean((predicted-np.sin(test_x))**2))
 report=dict(initial_train_mse=initial_mse,final_train_mse=float(np.mean((model.predict(X)-y)**2)),
             test_mse=test_mse,parameters=model.parameters,epochs=args.epochs,
             backend=args.backend,device=args.device,
-            note='Synthetic learning demonstration; no quantum advantage claim')
+            note='Synthetic learning demonstration')
 print(json.dumps(report,indent=2))
 if args.output_dir:
     args.output_dir.mkdir(parents=True,exist_ok=True)
