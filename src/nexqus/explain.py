@@ -126,8 +126,8 @@ class Explanation:
 
 def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_roles=None,
             initial_state=None, title='Inside the circuit', max_qubits=10, max_steps=256,
-            max_report_mb=32):
-    """Trace every operation using local NumPy double-precision pure states.
+            max_report_mb=32,backend=None,device=None):
+    """Trace operations on CPU/CUDA; export snapshot diagnostics to host JSON.
 
     No cloud access, sampling, external JS or language model. Rejects noise and
     dynamic circuits. Blocks are caller annotations using half-open op ranges;
@@ -165,18 +165,19 @@ def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_r
         block=next((i for i,b in enumerate(annotations) if b['start']<=index<b['stop']),None)
         operations.append(dict(label=_label(op,6),wires=list(op.wires),kind=op.kind,
                                action=_action(op),parameters=parameters,block=block))
-    psi=Simulator(max_memory_mb=max(1,limit)).run(Circuit(n),shots=0,initial_state=initial_state).statevector
-    backend=Backend()
+    sim=Simulator.for_device(device,backend=backend,max_memory_mb=max(1,limit))
+    backend=sim.backend
+    psi=sim.run(Circuit(n),shots=0,initial_state=initial_state,native_result=True).statevector
     indices=np.arange(2**n)
     signs=np.array([1-2*((indices>>(n-1-q))&1) for q in range(n)])
-    frames=[_snapshot(psi,n,signs,observable,None)]
+    frames=[_snapshot(backend.numpy(psi),n,signs,observable,None)]
     frames[0]['explanation']='Initial supplied pure state.' if initial_state is not None else 'Every qubit starts in zero.'
     for op,info in zip(bound.operations,operations):
         previous=psi
-        data=np.argsort(op.data) if op.kind=='permutation' else op.data
+        data=backend.index_array(np.argsort(op.data)) if op.kind=='permutation' else backend.array(op.data)
         psi=backend.apply(psi.reshape((2,)*n),data,op.wires,
                           diagonal=op.kind=='diagonal',permutation=op.kind=='permutation').reshape(-1)
-        frame=_snapshot(psi,n,signs,observable,previous)
+        frame=_snapshot(backend.numpy(psi),n,signs,observable,backend.numpy(previous))
         tv=frame['probability_change']
         evidence=f' Basis-probability total variation changed by {tv:.6g}.'
         if tv<1e-12 and frame['phase_change'] is not None and frame['phase_change']>1e-10:
@@ -189,6 +190,8 @@ def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_r
     from . import __version__
     data=dict(schema_version=1,sdk_version=__version__,title=title,n_qubits=n,
         mode='exact local pure-state simulation',observable=observable,
+        execution=dict(backend=backend.name,device=backend.device,precision='double',
+                       snapshot_diagnostics='CPU NumPy; explicit per-frame HTML/JSON export'),
         depth=bound.depth(),gate_counts=bound.count_ops(gates_only=True),
         operations=operations,blocks=annotations,frames=frames,
         parameters=[dict(name=k,value=values[k],role=roles.get(k,'parameter')) for k in sorted(values)],

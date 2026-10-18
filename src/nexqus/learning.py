@@ -42,7 +42,26 @@ class QuantumRegressor:
         return dict(self.parameters,**{name:float(v) for name,v in zip(self.input_names,row)})
 
     def predict(self,X):
-        return np.array([self.function(self._bindings(row)) for row in self._inputs(X)])
+        X=self._inputs(X)
+        if self._tensor_enabled():
+            circuit,inputs=self._tensor_inputs(X)
+            import torch
+            with torch.no_grad():
+                return circuit.expectation(dict(inputs,**self.parameters),self.function.observable).cpu().numpy()
+        return np.array([self.function(self._bindings(row)) for row in X])
+
+    def _tensor_enabled(self):
+        return bool(self.function.simulator.backend.torch and self.function.noise is None
+                    and not any(op.kind=='noise' for op in self.function.template.operations))
+
+    def _tensor_inputs(self,X):
+        from .torch_circuit import TorchCircuit
+        sim=self.function.simulator
+        circuit=TorchCircuit(self.function.template,device=sim.backend.device,precision=sim.precision,
+                             max_memory_mb=sim.max_memory_mb,max_qubits=self.function.template.n_qubits)
+        t=sim.backend.torch
+        inputs=t.tensor(X,device=sim.backend.device,dtype=circuit._anchor.dtype)
+        return circuit,{name:inputs[:,i] for i,name in enumerate(self.input_names)}
 
     def fit(self,X,y,epochs=60,optimizer=None,callback=None):
         X=self._inputs(X); y=_real_array(y,'y')
@@ -52,14 +71,28 @@ class QuantumRegressor:
         opt=optimizer if optimizer is not None else Adam()
         if not callable(getattr(opt,'step',None)): raise TypeError('Optimizer must provide step()')
         self.history=[]
+        tensor_circuit,inputs=self._tensor_inputs(X) if self._tensor_enabled() else (None,None)
+        tensor_target=None
+        if tensor_circuit is not None:
+            tensor_target=self.function.simulator.backend.torch.as_tensor(y,device=tensor_circuit._anchor.device,dtype=tensor_circuit._anchor.dtype)
         for epoch in range(epochs):
             gradients={name:0.0 for name in self.parameters}
             loss=0.0
-            for row,target in zip(X,y):
-                value,derivatives=self.function.value_and_grad(self._bindings(row),wrt=list(self.parameters))
-                error=value-target
-                loss+=error*error/len(X)
-                for name in gradients: gradients[name]+=2*error*derivatives[name]/len(X)
+            if tensor_circuit is not None:
+                t=self.function.simulator.backend.torch
+                params={k:t.tensor(v,device=tensor_circuit._anchor.device,dtype=tensor_circuit._anchor.dtype,requires_grad=True)
+                        for k,v in self.parameters.items()}
+                predicted=tensor_circuit.expectation(dict(inputs,**params),self.function.observable)
+                tensor_loss=((predicted-tensor_target)**2).mean()
+                derivatives=t.autograd.grad(tensor_loss,tuple(params.values()))
+                gradients={k:float(v) for k,v in zip(params,derivatives)}
+                loss=float(tensor_loss.detach())
+            else:
+                for row,target in zip(X,y):
+                    value,derivatives=self.function.value_and_grad(self._bindings(row),wrt=list(self.parameters))
+                    error=value-target
+                    loss+=error*error/len(X)
+                    for name in gradients: gradients[name]+=2*error*derivatives[name]/len(X)
             # history records the loss before this step, at the listed parameters.
             record=dict(epoch=epoch,loss=real_scalar(loss),parameters=dict(self.parameters))
             self.history.append(record)

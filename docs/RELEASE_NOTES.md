@@ -2,6 +2,12 @@
 
 ## Unreleased source-checkout addition
 
+The [GPU workflow guide](GPU.md) covers shared device selection, native result
+tensors, batched differentiable Torch circuits, image GANs, QGAN/learning and
+Hamiltonian/VQE/exact references. Optional GPU4PySCF dispatch accelerates RHF;
+integral generation/mapping remain CPU. CPU parity tests do not establish CUDA
+execution: the new strict hardware validator requires a real GPU and zero skips.
+
 Two [conditional image QGANs](IMAGE_GANS.md) add quantum pixel patches and
 quantum features with a classical decoder, a matched-update classical GAN,
 folder/optional CIFAR-10 loading, minibatch training, exact checkpoint

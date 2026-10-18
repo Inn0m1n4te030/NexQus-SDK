@@ -11,6 +11,15 @@ QML helpers require no additional runtime dependencies.
 
 ## Circuit construction
 
+For unreleased cross-workflow device selection, native result tensors and
+`nexqus.torch_circuit.TorchCircuit`, see [GPU.md](GPU.md).
+`Simulator.for_device('cuda:0')` selects Torch; `NEXQUS_DEVICE` sets an opt-in
+default for constructors without explicit choices. `QuantumFunction`,
+`QuantumDistribution`, `HamiltonianFunction` and `PauliHamiltonian.function`
+accept a simulator or backend/device/precision keywords. Dense/exact molecular
+references accept the same selection. `molecular_hamiltonian(...,
+scf_device='cuda:0')` separately dispatches RHF to optional GPU4PySCF.
+
 For unreleased optional image-generation APIs, see [IMAGE_GANS.md](IMAGE_GANS.md).
 Import `QuantumProbabilityLayer`, `QuantumPatchGenerator`, `HybridImageGenerator`,
 `ClassicalImageGenerator`, `ImageDiscriminator`, `ImageGAN`, `ImageDataset`,
@@ -99,11 +108,12 @@ Simulator(backend='numpy', device='cpu', method='auto', precision='double',
 
 sim.run(circuit, shots=1024, seed=None, noise=None, trajectories=256,
         initial_state=None, retain_state=True, readout_error=0.0, batch_size=1,
-        random_engine='portable', noise_fastpath=True, max_branches=1024)
+        random_engine='portable', noise_fastpath=True, max_branches=1024,native_result=False)
 ```
 
 - backend: numpy or optional torch. Devices: cpu, cuda or cuda:N with Torch.
-  NumPy accepts only cpu. A missing device/backend raises instead of falling back.
+  NumPy accepts only cpu. Unavailable explicit CUDA raises; device='auto' may
+  select CPU. Omitted selections use NEXQUS_DEVICE or CPU.
 - precision: double (complex128) or single (complex64).
 - method: auto, statevector, density_matrix or trajectory. See README for storage
   scaling. Dynamic auto/density runs report method=branch_density in metadata.
@@ -173,6 +183,9 @@ classical_keys, classical_probabilities, classical_counts and joint_counts.
 
 - probabilities is a host NumPy vector in computational-basis order, including
   terminal readout error. Counts sum to shots when shots>0.
+  With `native_result=True`, Torch probabilities/retained states stay on device.
+  `to_numpy()` explicitly exports a new host result; `expectation_native(pauli)`
+  returns a device scalar and `expectation` returns a Python float after reduction.
 - most_likely returns the highest-probability bitstring; ties use the lowest index.
 - marginal(wires) returns observed marginal probabilities in requested wire order;
   a scalar wire is accepted. reduced_density(wires) needs a retained quantum state

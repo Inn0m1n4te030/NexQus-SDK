@@ -7,11 +7,13 @@ No PySCF, RDKit, cloud, QPU, account or web viewer dependency is required.
 import argparse
 import json
 from pathlib import Path
-from nexqus import molecular_gallery, molecule, Parameter, Adam
+from nexqus import molecular_gallery, molecule, Parameter, Adam,Simulator
 from nexqus.chemistry import h2_reference_problem, h2_pair_ansatz
 
 
-def generate(output):
+def generate(output,device=None):
+    simulator=Simulator.for_device(device)
+    print('Quantum execution:',simulator.backend.name,simulator.backend.device)
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
     gallery = molecular_gallery()
     gallery.to_html(output/'gallery.html')
@@ -20,12 +22,12 @@ def generate(output):
         structure.draw(output/(name+'.svg'))
         structure.to_xyz(output/(name+'.xyz'))
     problem = h2_reference_problem()
-    energy = problem.hamiltonian.function(h2_pair_ansatz(Parameter('theta')))
+    energy = problem.hamiltonian.function(h2_pair_ansatz(Parameter('theta')),simulator=simulator)
     parameters = {'theta': 0.}; optimizer = Adam(.04)
     for _ in range(180):
         _, gradient = energy.value_and_grad(parameters)
         parameters = optimizer.step(parameters, gradient)
-    final = energy(parameters); reference = problem.exact_energy()
+    final = energy(parameters); reference = problem.exact_energy(simulator=simulator)
     if abs(final-reference) > 2e-7: raise RuntimeError('H2 VQE failed its reference check')
     report = problem.molecule().view(energies_hartree={
         'Classical Hartree–Fock': problem.hartree_fock_energy,
@@ -43,4 +45,5 @@ def generate(output):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=Path('.release-artifacts/molecules'))
-    generate(parser.parse_args().output)
+    parser.add_argument('--device',help='cpu, cuda, cuda:N or auto; defaults to NEXQUS_DEVICE/cpu')
+    args=parser.parse_args(); generate(args.output,args.device)

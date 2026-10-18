@@ -2,24 +2,26 @@
 import argparse
 from pathlib import Path
 import numpy as np
-from nexqus import Circuit, Parameter, QuantumFunction, Adam
+from nexqus import Circuit, Parameter, QuantumFunction, Adam,Simulator
 
 
-def generate(output):
+def generate(output,device=None):
+    simulator=Simulator.for_device(device)
+    execution=dict(backend=simulator.backend.name,device=simulator.backend.device)
     output=Path(output); output.mkdir(parents=True,exist_ok=True)
     bell=Circuit(2).h(0).cx(0,1)
-    bell.explain(title='Bell state · where entanglement appears',observable='ZZ',
+    bell.explain(**execution,title='Bell state · where entanglement appears',observable='ZZ',
         blocks=[dict(name='Create superposition',start=0,stop=1,role='encoding'),
                 dict(name='Entangle',start=1,stop=2,role='entangling')]
     ).to_html(filename=output/'bell.html')
     interference=Circuit(1).h(0).z(0).h(0)
-    interference.explain(title='Interference · a phase change becomes a probability change'
+    interference.explain(**execution,title='Interference · a phase change becomes a probability change'
     ).to_html(filename=output/'interference.html')
 
     x=Parameter('x'); weights=[Parameter(f'w{i}') for i in range(4)]
     q=Circuit(2).ry(x,0).ry(.5*x,1)
     q.ry(weights[0],0).ry(weights[1],1).cx(0,1).ry(weights[2],0).ry(weights[3],1)
-    model=QuantumFunction(q,'ZZ'); params=dict(w0=.3,w1=-.2,w2=.15,w3=.4)
+    model=QuantumFunction(q,'ZZ',simulator); params=dict(w0=.3,w1=-.2,w2=.15,w3=.4)
     optimizer=Adam(lr=.05); train_x=np.linspace(-2,2,12)
     def loss(values):
         return float(np.mean([(model(dict(values,x=float(v)))-np.cos(v))**2 for v in train_x]))
@@ -33,7 +35,7 @@ def generate(output):
         params=optimizer.step(params,gradient)
     after=loss(params)
     if not after<before: raise RuntimeError('Example QNN training failed to reduce its loss')
-    q.explain(title='Trained QNN · trace one input through encoding and learned layers',
+    q.explain(**execution,title='Trained QNN · trace one input through encoding and learned layers',
         bindings=dict(params,x=.7),observable='ZZ',
         parameter_roles=dict(x='feature',**{k:'weight' for k in params}),
         blocks=[dict(name='Angle encoding',start=0,stop=2,role='encoding'),
@@ -49,4 +51,5 @@ def generate(output):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,default=Path('.release-artifacts/explanations'))
-    generate(parser.parse_args().output)
+    parser.add_argument('--device',help='cpu, cuda, cuda:N or auto')
+    args=parser.parse_args(); generate(args.output,args.device)

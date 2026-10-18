@@ -103,7 +103,11 @@ and creates fresh default optimizers unless the caller supplies optimizer object
 `QuantumDistribution(template, max_qubits=12)` snapshots a static pure-state
 circuit. Its Jacobian shifts individual supported parameterized gates and sums
 their arithmetic chain rules, including repeated/shared parameters. It is an
-exact local NumPy calculation, not sampled/hardware training or Torch autograd.
+exact local NumPy or Torch CPU/CUDA calculation, not sampled/hardware training.
+Pass `device='cuda:0'` or a selected simulator; `native=True` returns probability
+and Jacobian tensors on that device. Discrete QGAN retains scalar dictionary
+optimizers on the host while probability/loss vectors run on Torch. See
+[GPU.md](GPU.md) for VQE, exact references and separate GPU4PySCF RHF selection.
 All 2^n outcome probabilities are stored. `sample(bindings, shots=1000, seed=None)`
 returns integer basis indices; use n-bit formatting for q0-first labels.
 

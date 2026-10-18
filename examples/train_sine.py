@@ -7,14 +7,15 @@ import numpy as np
 from nexqus import Circuit, Parameter, Simulator, QuantumFunction, QuantumRegressor, Adam
 
 p=argparse.ArgumentParser()
-p.add_argument('--backend',choices=['numpy','torch'],default='numpy')
-p.add_argument('--device',default='cpu')
+p.add_argument('--backend',choices=['numpy','torch'])
+p.add_argument('--device',default=None)
 p.add_argument('--epochs',type=int,default=80)
 p.add_argument('--output-dir',type=Path)
 args=p.parse_args()
 x,w,b=Parameter('x'),Parameter('weight'),Parameter('bias')
 template=Circuit(1).ry(w*x+b,0)
-function=QuantumFunction(template,'Z',Simulator(backend=args.backend,device=args.device))
+simulator=Simulator.for_device(args.device,backend=args.backend)
+function=QuantumFunction(template,'Z',simulator)
 model=QuantumRegressor(function,['x'],{'weight':.7,'bias':-.8})
 X=np.linspace(-np.pi,np.pi,20); y=np.sin(X)
 initial_mse=float(np.mean((model.predict(X)-y)**2))
@@ -24,7 +25,7 @@ test_x=np.linspace(-np.pi,np.pi,101); predicted=model.predict(test_x)
 test_mse=float(np.mean((predicted-np.sin(test_x))**2))
 report=dict(initial_train_mse=initial_mse,final_train_mse=float(np.mean((model.predict(X)-y)**2)),
             test_mse=test_mse,parameters=model.parameters,epochs=args.epochs,
-            backend=args.backend,device=args.device,
+            backend=simulator.backend.name,device=simulator.backend.device,
             note='Synthetic learning demonstration')
 print(json.dumps(report,indent=2))
 if args.output_dir:

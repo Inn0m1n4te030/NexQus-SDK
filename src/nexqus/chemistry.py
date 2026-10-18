@@ -94,6 +94,7 @@ class MolecularProblem:
     symbols: tuple
     coordinates_angstrom: tuple
     basis: str
+    scf_device: str = 'cpu'
 
     def __post_init__(self):
         if not isinstance(self.hamiltonian, PauliHamiltonian):
@@ -117,18 +118,23 @@ class MolecularProblem:
         return Molecule(self.symbols, self.coordinates_angstrom, charge=charge,
                         name='Molecular problem', geometry_note='Fixed input geometry; '+self.basis+' basis')
 
-    def exact_energy(self, max_qubits=10):
+    def exact_energy(self, max_qubits=10, *, simulator=None,backend=None,device=None,precision=None):
         """Dense reference restricted to the correct alpha/beta electron sector."""
-        h = self.hamiltonian.dense(max_qubits=max_qubits)
+        from .simulator import resolve_simulator
+        sim=resolve_simulator(simulator,backend=backend,device=device,precision=precision)
+        h = self.hamiltonian.dense(max_qubits=max_qubits,simulator=sim)
         n = self.hamiltonian.n_qubits; occupied = self.n_electrons//2
         indices = [i for i in range(2**n)
                    if sum((i >> (n-1-q)) & 1 for q in range(0, n, 2)) == occupied
                    and sum((i >> (n-1-q)) & 1 for q in range(1, n, 2)) == occupied]
+        if sim.backend.torch:
+            t=sim.backend.torch; index=t.tensor(indices,device=h.device)
+            return float(t.linalg.eigvalsh(h.index_select(0,index).index_select(1,index))[0])
         return float(np.linalg.eigvalsh(h[np.ix_(indices, indices)])[0])
 
 
 def molecular_hamiltonian(symbols, coordinates_angstrom, basis='sto-3g', charge=0, spin=0,
-                          max_qubits=12):
+                          max_qubits=12, *, scf_device='cpu'):
     """Run local RHF and map all orbitals. Requires pip install .[chemistry].
 
     spin = N_alpha-N_beta must be zero in this first closed-shell driver.
@@ -147,6 +153,8 @@ def molecular_hamiltonian(symbols, coordinates_angstrom, basis='sto-3g', charge=
             or isinstance(spin, bool) or not isinstance(spin, numbers.Integral) or spin != 0):
         raise ValueError('Provide integer charge and spin=0 (closed-shell only)')
     if not isinstance(basis, str) or not basis: raise ValueError('Provide a basis name')
+    if not isinstance(scf_device,str) or (scf_device!='cpu' and scf_device!='cuda' and not scf_device.startswith('cuda:')):
+        raise ValueError('scf_device must be cpu, cuda or cuda:N')
     try:
         from pyscf import gto, scf, ao2mo
     except ImportError as exc:
@@ -158,8 +166,23 @@ def molecular_hamiltonian(symbols, coordinates_angstrom, basis='sto-3g', charge=
     if mol.nelectron < 2 or mol.nelectron > 2*mol.nao_nr():
         raise ValueError('Unsupported electron count')
     mean_field = scf.RHF(mol)
+    if scf_device!='cpu':
+        try:
+            import cupy
+            import gpu4pyscf  # registers PySCF to_gpu implementations
+        except ImportError as exc:
+            raise ImportError('CUDA SCF requires compatible GPU4PySCF/CuPy on Linux or WSL; VQE CUDA does not require it') from exc
+        index=0 if scf_device=='cuda' else int(scf_device.split(':')[1])
+        if not 0<=index<cupy.cuda.runtime.getDeviceCount(): raise RuntimeError('Requested SCF CUDA device is unavailable')
+        # GPU4PySCF handles SCF. AO/MO integrals and Jordan-Wigner mapping below
+        # are explicitly host stages; do not label the entire driver GPU-native.
+        with cupy.cuda.Device(index):
+            mean_field=mean_field.to_gpu()
+            mean_field.conv_tol=1e-11
+            energy=mean_field.kernel()
+            mean_field=mean_field.to_cpu()
     mean_field.conv_tol = 1e-11
-    energy = mean_field.kernel()
+    if scf_device=='cpu': energy = mean_field.kernel()
     if not mean_field.converged: raise RuntimeError('PySCF RHF did not converge')
     c = mean_field.mo_coeff
     h = c.T@mean_field.get_hcore()@c
@@ -167,7 +190,7 @@ def molecular_hamiltonian(symbols, coordinates_angstrom, basis='sto-3g', charge=
     nuclear = float(mol.energy_nuc())
     return MolecularProblem(jordan_wigner(h, eri, nuclear, max_qubits=max_qubits),
         int(mol.nelectron), float(energy), nuclear, symbols,
-        tuple(tuple(float(v) for v in row) for row in xyz), basis)
+        tuple(tuple(float(v) for v in row) for row in xyz), basis,scf_device)
 
 
 def h2_pair_ansatz(theta):

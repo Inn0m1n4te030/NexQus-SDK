@@ -3,7 +3,9 @@
 These **unreleased source-checkout APIs** add both image-generation approaches,
 conditional class labels, a classical GAN comparison and pixel explanations.
 They are not in the published PyPI 1.2.0 wheel. Import from `nexqus.image_gan`;
-core `import nexqus` still requires only NumPy. All execution is local CPU.
+core `import nexqus` still requires only NumPy. Training supports local CPU/CUDA.
+See [GPU.md](GPU.md) before installing Torch if you want an NVIDIA GPU: the CPU
+index command below deliberately installs CPU-only Torch.
 
 ## Install on Windows, Linux or macOS
 
@@ -38,8 +40,8 @@ python -m pip install torch torchvision --index-url https://download.pytorch.org
 | `HybridImageGenerator` | A trainable circuit returns Z expectation features | Angle encoder, label embedding and an MLP decoder | Decoder maps quantum features to sigmoid pixels |
 | `ClassicalImageGenerator` | None | Conditional MLP | Noise and one-hot labels map to sigmoid pixels |
 
-All accept `(noise, labels)` with CPU float tensors shaped `(batch, latent_dim)`
-and CPU int64 labels shaped `(batch,)`. Output shape is `(batch, channels, size,
+All accept `(noise, labels)` with float tensors shaped `(batch, latent_dim)`
+and int64 labels shaped `(batch,)`, matching model device/dtype. Output shape is `(batch, channels, size,
 size)`, with pixels in [0,1]. The label input permits requesting either class;
 training and evaluation determine how well the generated images follow it.
 The hybrid decoder receives noise/class information **through the circuit's
@@ -67,6 +69,9 @@ The default is a short training demonstration, not a pretrained animal model.
 An actual 200-update bars comparison is bundled in
 [`examples/image_previews/report.html`](../examples/image_previews/report.html)
 with its two circuit reports. Download the folder and open the HTML locally.
+That saved preview predates batched Torch execution; its embedded timing and
+precision settings describe the earlier implementation, not the new CUDA path.
+Regenerate the report to measure your installed version and actual device.
 
 ## Train cats and dogs
 
@@ -145,6 +150,10 @@ and reconstructs supported model types from a primitive config; no custom
 model object is pickled. The save replaces its destination atomically.
 Exact continuation is tested in the same software environment; cross-version
 bitwise reproducibility is not promised.
+CUDA training uses a CUDA noise generator. `ImageGAN.load(..., device='cuda:0')`
+restores that device's training state. Moving CPU↔CUDA requires `reset_rng=True`
+(`--reset-rng` in the CLI) because those noise streams differ. Old schema-1 CPU
+weights load, but numerical trajectories can change with the new Torch algorithm.
 
 For CLI resume use one mode, the same data/split/model/training flags, and
 `--resume results/pets/hybrid/checkpoint.pt`. For example append it to the
@@ -181,7 +190,7 @@ optimized in the quantum models.
 
 `metrics.json` includes model/trainer configs, versions, platform, threads,
 data hashes, losses, parameter counts, and measured training-loop seconds.
-Those seconds include parameter shifts and optimizers; they exclude setup,
+Those seconds include batched circuit autograd and optimizers; they exclude setup,
 sampling and export. This is a workload measurement, not an isolated simulator
 benchmark. Pre-training preview calls warm each generator before training.
 Per-class held-out mean-pixel MAE and generated per-pixel standard deviation are
@@ -190,16 +199,18 @@ There is no FID, pretrained classifier accuracy or claim of quantum advantage.
 
 ## Supported limits and validation
 
-- CPU float32 training; `QuantumProbabilityLayer` also supports float64 for
-  first-derivative checks. Every quantum forward uses the native exact NumPy
-  simulator (complex128); backward contracts native probability Jacobians with
-  upstream gradients. Noise-angle gradients reach the classical encoder.
-- First derivatives only; no noisy, finite-shot, dynamic-circuit, CUDA or QPU
-  training in this bridge. Other NexQus simulation paths retain their own support.
+- CPU/CUDA float32 training; `QuantumProbabilityLayer` also supports float64.
+  Batched native Torch circuits evolve complex64/complex128 states and use
+  Torch autograd, including gradients into the classical angle encoder. NumPy
+  and parameter shifts remain independent numerical oracles in tests.
+- This differentiable image path supports exact static pure states, not noisy,
+  finite-shot, dynamic-circuit or QPU training. Other simulator paths support
+  CPU/CUDA noise and dynamic circuits as documented in [GPU.md](GPU.md).
 - Images 4..64 square, 1 or 3 channels, batch 1..128, latent dimension ≤64,
   ≤32 labels. Patch size 2/4/8, at most 64 circuits/image; quantum layers ≤8
-  qubits and depth ≤6. Small dimensions do not imply fast training: a gradient
-  uses two shifted executions per relevant gate per sample per circuit.
+  qubits and depth ≤6. Batched autograd replaces per-sample parameter shifts
+  in image training. State and gradient graph storage still grow with qubits,
+  batch size, gate count and number of patch circuits.
 - Optional tests independently check finite differences against Torch
   `gradcheck`, probability values, patch placement, encoder/circuit/decoder
   gradients, training updates, exact mid-epoch reload, labels, data split and

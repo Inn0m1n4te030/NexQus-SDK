@@ -18,6 +18,7 @@ Burmese summaries/comments; figures use English labels for broad font support.
 | [09 — H₂ energy explained](09_h2_energy_explained.ipynb) | VQE, classical HF/FCI references and energy contributions (source checkout) | 25 min |
 | [10 — Molecular visualization](10_molecular_visualization.ipynb) | Rotate H₂/CH₄/organic structures, measure distances/angles and export custom geometry | 20 min |
 | [11 — Image QGANs](11_image_gans.ipynb) | Quantum patches, quantum features/classical decoder, classical GAN, pixel interventions and checkpoints | 25 min |
+| [12 — CPU/CUDA workflows](12_cpu_cuda_workflows.ipynb) | Device selection, native results, batched autograd, noise/dynamics and GPU VQE | 20 min |
 
 ## Run with Jupyter
 
@@ -92,7 +93,7 @@ IPC instead of TCP; neither transport is available in every restricted container
 
 ## Checked behavior
 
-CI executes all twelve notebooks through real Jupyter kernels on Linux and Windows.
+CI executes all thirteen notebooks through real Jupyter kernels on Linux and Windows.
 Dedicated image-GAN jobs install Torch and require the lesson 11 training path;
 tutorial-only jobs explicitly skip its optional cells. Their assertions
 cover state normalization, bit order, gates, entanglement, noise conventions,
@@ -103,6 +104,9 @@ GPU execution is optional for learners; maintainers can require it with the
 command above. Reports remain separate from the public teaching material.
 Use `--require-image-gan` to require lesson 11 rather than accept its optional
 skip. The execution report counts image-GAN and CUDA skips separately.
+Lesson 12 uses CUDA when available, otherwise tests Torch CPU and records a CUDA
+skip. Its passing CPU result is not GPU evidence. See [the GPU guide](../docs/GPU.md)
+for Windows installation, explicit selection and the strict hardware validator.
 
 Each lesson includes a **Try it** exercise. Exercises are prompts for changing
 the tested examples; they do not contain intentionally broken code cells.

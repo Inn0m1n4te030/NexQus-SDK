@@ -1,7 +1,6 @@
-"""Optional CPU PyTorch image generators backed by NexQus circuits.
+"""Optional CPU/CUDA PyTorch image generators backed by NexQus circuits.
 
-Quantum forward execution and first derivatives use the native NumPy simulator
-and gate-local parameter shifts. Classical networks use PyTorch autograd.
+Quantum states, batched angles and gradients remain native Torch tensors.
 """
 import math
 import numbers
@@ -9,12 +8,12 @@ import numpy as np
 try:
     import torch
     from torch import nn
-    from torch.autograd.function import once_differentiable
 except ImportError as exc:
     raise ImportError('Install the source checkout with .[image-gan] to use image generators') from exc
 from .circuit import Circuit, positive_integer
 from .parameters import Parameter, real_scalar
 from .generative import QuantumDistribution
+from .torch_circuit import TorchCircuit,tensor_device
 
 
 def _bounded_int(value, name, maximum):
@@ -37,36 +36,16 @@ def _image_shape(image_size, channels):
     return int(image_size), int(channels)
 
 
-class _Probabilities(torch.autograd.Function):
+class _Probabilities:
     @staticmethod
-    def forward(ctx, weights, angles, layer):
-        ctx.layer = layer
-        ctx.save_for_backward(weights, angles)
-        w = weights.detach().numpy(); z = angles.detach().numpy()
-        output = [layer.function(layer.bindings(w, row)) for row in z]
-        return weights.new_tensor(np.stack(output))
-
-    @staticmethod
-    @once_differentiable
-    def backward(ctx, upstream):
-        weights, angles = ctx.saved_tensors; layer = ctx.layer
-        w = weights.detach().numpy(); z = angles.detach().numpy(); v = upstream.detach().numpy()
-        need_w, need_z = ctx.needs_input_grad[:2]
-        names = (layer.weight_names if need_w else [])+(layer.input_names if need_z else [])
-        dw = np.zeros(w.shape); dz = np.zeros(z.shape)
-        if names:
-            for sample, row in enumerate(z):
-                jacobian = layer.function.gradient(layer.bindings(w, row), wrt=names)
-                if need_w:
-                    for i, name in enumerate(layer.weight_names): dw[i] += v[sample]@jacobian[name]
-                if need_z:
-                    for i, name in enumerate(layer.input_names): dz[sample, i] = v[sample]@jacobian[name]
-        return (weights.new_tensor(dw) if need_w else None,
-                angles.new_tensor(dz) if need_z else None, None)
+    def apply(weights,angles,layer):
+        bindings={name:weights[i] for i,name in enumerate(layer.weight_names)}
+        bindings.update({name:angles[:,i] for i,name in enumerate(layer.input_names)})
+        return layer.tensor_circuit(bindings)
 
 
 class QuantumProbabilityLayer(nn.Module):
-    """A bounded CPU-only Torch bridge; no hardware/noisy or second derivatives.
+    """Bounded batched Torch CPU/CUDA evolution with native autograd.
 
     Input shape (batch, n_qubits), output (batch, 2**n_qubits). Every input
     angle and circuit weight has analytic first derivatives. Batch cap: 128.
@@ -88,6 +67,7 @@ class QuantumProbabilityLayer(nn.Module):
             for q in range(self.n_qubits-1): circuit.cx(q, q+1)
             if self.n_qubits > 2: circuit.cx(self.n_qubits-1, 0)
         self.function = QuantumDistribution(circuit, max_qubits=8)
+        self.tensor_circuit=TorchCircuit(circuit,max_qubits=8,precision='single')
         rng = torch.Generator().manual_seed(seed)
         self.weights = nn.Parameter(.4*torch.randn(len(self.weight_names), generator=rng))
 
@@ -96,10 +76,10 @@ class QuantumProbabilityLayer(nn.Module):
                         [float(v) for v in weights]+[float(v) for v in angles]))
 
     def forward(self, angles):
-        if (not isinstance(angles, torch.Tensor) or angles.device.type != 'cpu'
-                or self.weights.device.type != 'cpu' or angles.dtype != self.weights.dtype
+        if (not isinstance(angles, torch.Tensor) or angles.device!=self.weights.device
+                or self.weights.device.type not in ('cpu','cuda') or angles.dtype != self.weights.dtype
                 or angles.dtype not in (torch.float32, torch.float64)):
-            raise ValueError('Quantum image layers require CPU float32/float64 tensors matching their weights')
+            raise ValueError('Quantum image layers require CPU/CUDA float32/float64 tensors matching their weights')
         if angles.ndim != 2 or angles.shape[1] != self.n_qubits or not 1 <= len(angles) <= 128:
             raise ValueError('Angles must have shape (batch=1..128, n_qubits)')
         if not torch.isfinite(angles).all() or not torch.isfinite(self.weights).all():
@@ -108,8 +88,10 @@ class QuantumProbabilityLayer(nn.Module):
 
     def explain(self, angles):
         """Circuit-state explanation at fixed input angles and learned weights."""
-        bindings = self.bindings(self.weights.detach().numpy(), np.asarray(angles))
+        bindings = self.bindings(self.weights.detach().cpu().numpy(),
+                                 angles.detach().cpu().numpy() if torch.is_tensor(angles) else np.asarray(angles))
         return self.function.template.explain(bindings=bindings,
+            backend='torch',device=str(self.weights.device),
             parameter_roles={**{n: 'feature' for n in self.input_names},
                              **{n: 'weight' for n in self.weight_names}},
             title='Image generator · latent angles through the quantum circuit')
@@ -123,15 +105,15 @@ class _Generator(nn.Module):
 
     def _inputs(self, noise, labels):
         reference = next(self.parameters())
-        if (not isinstance(noise, torch.Tensor) or noise.device.type != 'cpu'
-                or noise.dtype != reference.dtype or reference.device.type != 'cpu'
+        if (not isinstance(noise, torch.Tensor) or noise.device!=reference.device
+                or noise.dtype != reference.dtype or reference.device.type not in ('cpu','cuda')
                 or noise.ndim != 2 or noise.shape[1] != self.latent_dim
                 or not 1 <= len(noise) <= 128 or not torch.isfinite(noise).all()):
-            raise ValueError('Provide finite CPU noise with shape (batch=1..128, latent_dim) and matching dtype')
-        if (not isinstance(labels, torch.Tensor) or labels.device.type != 'cpu'
+            raise ValueError('Provide finite CPU/CUDA noise with shape (batch=1..128, latent_dim) matching model device/dtype')
+        if (not isinstance(labels, torch.Tensor) or labels.device!=reference.device
                 or labels.dtype != torch.long or labels.shape != (len(noise),)
                 or torch.any(labels < 0) or torch.any(labels >= self.num_classes)):
-            raise ValueError('Provide CPU int64 class labels with one valid label per noise vector')
+            raise ValueError('Provide int64 class labels matching model device, one valid label per noise vector')
 
     def quantum_layers(self):
         return [m for m in self.modules() if isinstance(m, QuantumProbabilityLayer)]
@@ -191,7 +173,7 @@ class QuantumPatchGenerator(_Generator):
         self.config = dict(kind='patch', image_size=image_size, channels=channels, latent_dim=latent_dim,
                            num_classes=num_classes, patch_size=patch_size, depth=depth, seed=seed)
         with torch.random.fork_rng(devices=[]):
-            torch.manual_seed(seed)
+            torch.random.default_generator.manual_seed(seed)
             self.encoder = nn.Linear(latent_dim, self.n_qubits)
             self.condition = nn.Embedding(num_classes, self.n_qubits)
         self.circuits = nn.ModuleList([QuantumProbabilityLayer(self.n_qubits, depth, seed+i) for i in range(count)])
@@ -213,7 +195,7 @@ class QuantumPatchGenerator(_Generator):
 
     def circuit_report(self, noise, labels):
         self._inputs(noise, labels)
-        return self.circuits[0].explain(self.encoded_angles(noise[:1], labels[:1]).detach().numpy()[0])
+        return self.circuits[0].explain(self.encoded_angles(noise[:1], labels[:1])[0])
 
 
 class HybridImageGenerator(_Generator):
@@ -229,7 +211,7 @@ class HybridImageGenerator(_Generator):
         self.config = dict(kind='hybrid', image_size=image_size, channels=channels, latent_dim=latent_dim,
                            num_classes=num_classes, n_qubits=n_qubits, depth=depth, hidden=hidden, seed=seed)
         with torch.random.fork_rng(devices=[]):
-            torch.manual_seed(seed)
+            torch.random.default_generator.manual_seed(seed)
             self.encoder = nn.Linear(latent_dim, n_qubits); self.condition = nn.Embedding(num_classes, n_qubits)
             self.decoder = nn.Sequential(nn.Linear(n_qubits, hidden), nn.LeakyReLU(.2),
                 nn.Linear(hidden, channels*image_size**2), nn.Sigmoid())
@@ -246,7 +228,7 @@ class HybridImageGenerator(_Generator):
 
     def circuit_report(self, noise, labels):
         self._inputs(noise, labels)
-        return self.quantum.explain(self.encoded_angles(noise[:1], labels[:1]).detach().numpy()[0])
+        return self.quantum.explain(self.encoded_angles(noise[:1], labels[:1])[0])
 
 
 class ClassicalImageGenerator(_Generator):
@@ -259,7 +241,7 @@ class ClassicalImageGenerator(_Generator):
         self.config = dict(kind='classical', image_size=image_size, channels=channels, latent_dim=latent_dim,
                            num_classes=num_classes, hidden=hidden, seed=seed)
         with torch.random.fork_rng(devices=[]):
-            torch.manual_seed(seed)
+            torch.random.default_generator.manual_seed(seed)
             self.network = nn.Sequential(nn.Linear(latent_dim+num_classes, hidden), nn.LeakyReLU(.2),
                 nn.Linear(hidden, hidden), nn.LeakyReLU(.2), nn.Linear(hidden, channels*image_size**2), nn.Sigmoid())
 
