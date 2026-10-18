@@ -128,3 +128,10 @@ run နိုင်ပါသည်။ Jupyter တွင် **Python (NexQus)** k
 Code ပြောင်းပြီး စမ်းသပ်ရာတွင် kernel ကို restart လုပ်ကာ cell အားလုံးကို
 အစမှ ပြန် run ပါ။ Assertion မအောင်မြင်လျှင် expected result နှင့် မိမိပြောင်းလဲထားသော
 circuit/noise setting ကို နှိုင်းယှဉ်ပါ။ GPU မရှိလည်း CPU lesson များကို ပြီးမြောက်နိုင်ပါသည်။
+
+
+Lesson 11 now demonstrates convolutional classical/hybrid image decoders and a
+conditional convolutional discriminator. The terminal guide includes epoch
+budgets, periodic previews, seeded data selection and augmentation. Its short
+notebook run checks execution; pet-image quality requires a separate dataset
+experiment. MLP Python API defaults and old checkpoints remain supported.

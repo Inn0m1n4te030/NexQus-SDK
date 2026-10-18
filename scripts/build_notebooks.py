@@ -1058,7 +1058,8 @@ through quantum features. Both have trainable classical angle encoders.
 
 Circuit states, batched angles and derivatives use native Torch autograd on
 CPU/CUDA. Set NEXQUS_DEVICE or pass device='cuda:0' to ImageGAN. The classical
-GAN has its own MLP generator. Parameter
+GAN and hybrid decoder use spatial convolutions in this lesson. The API keeps
+MLP defaults for old code; specify architecture='conv'. Parameter
 budgets differ; they are printed rather than implied to be matched.
 '''),
 code('''
@@ -1068,8 +1069,10 @@ if image_gan_available:
     classes = (QuantumPatchGenerator, HybridImageGenerator, ClassicalImageGenerator)
     trainers = {}
     for constructor in classes:
-        generator = constructor(image_size=4, latent_dim=2, seed=7)
-        trainer = ImageGAN(generator, seed=7, device=image_device)
+        options = {} if constructor == QuantumPatchGenerator else {'architecture': 'conv', 'hidden': 32}
+        generator = constructor(image_size=4, latent_dim=2, seed=7, **options)
+        trainer = ImageGAN(generator, seed=7, device=image_device,
+                           discriminator_architecture='conv', discriminator_hidden=32)
         before = trainer.sample(8, seed=19)
         trainer.fit(training, epochs=1, batch_size=2, max_steps=2)
         after = trainer.sample(8, seed=19)
@@ -1140,7 +1143,7 @@ Put photos under `data/pets/cats/` and `data/pets/dogs/`. The loader center-crop
 resizes and scales RGB pixels to [0,1]. Use the terminal example for longer runs:
 
 ```bash
-python examples/image_gan.py --data data/pets --mode all --size 16 --channels 3 --samples 256 --steps 100 --batch-size 4
+python examples/image_gan.py --data data/pets --mode classical --architecture conv --size 64 --channels 3 --samples 10000 --epochs 100 --batch-size 64 --hidden 256 --latent-dim 64 --learning-rate 0.0002 --data-seed 7 --horizontal-flip --output-dir results/pets-conv-classical
 ```
 
 Or optionally install compatible torchvision from the same CPU index and use
@@ -1149,8 +1152,12 @@ The example saves real/before/after images, losses, checkpoints, held-out pixel
 diagnostics, parameter sensitivity plots and gate-by-gate circuit reports.
 `report.html` ties the images and settings together. See `docs/IMAGE_GANS.md`.
 
-Two updates verify the training path; recognizable animal images require much
-more training, appropriate models and visual evaluation. GAN losses and mean
+The CLI now defaults to a convolutional decoder and discriminator. Replace
+--mode classical with --mode hybrid --qubits 6 --depth 2 for the quantum-feature
+comparison, using a separate output directory. These are starting experiments;
+recognizable pet generation has not been validated. Periodic fixed-noise
+previews and checkpoints help inspect training before it completes.
+Two updates verify the training path only. GAN losses and mean
 pixel errors alone do not measure semantic image quality.
 
 **Try it:** increase the update count, inspect both class labels at fixed noise,

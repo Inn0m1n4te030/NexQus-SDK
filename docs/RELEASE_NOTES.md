@@ -2,6 +2,13 @@
 
 ## Unreleased source-checkout addition
 
+The image example now defaults to convolutional classical/hybrid decoders and
+an image/label-conditioned convolutional discriminator. Epoch budgets,
+training-only horizontal flips, seeded file selection and periodic fixed-noise
+previews/checkpoints support longer experiments. Old MLP checkpoints remain
+loadable. The recorded procedural-bars experiment shows some conditional
+structure with limited diversity; recognizable pet generation remains unvalidated.
+
 The [GPU workflow guide](GPU.md) covers shared device selection, native result
 tensors, batched differentiable Torch circuits, image GANs, QGAN/learning and
 Hamiltonian/VQE/exact references. Optional GPU4PySCF dispatch accelerates RHF;

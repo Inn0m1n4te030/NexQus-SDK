@@ -36,6 +36,29 @@ def _image_shape(image_size, channels):
     return int(image_size), int(channels)
 
 
+def _architecture(value, image_size):
+    if value not in ('mlp', 'conv'): raise ValueError('architecture must be mlp or conv')
+    if value == 'conv' and image_size & (image_size-1):
+        raise ValueError('Convolutional image sizes must be powers of two (4..64)')
+    return value
+
+
+def _conv_decoder(features, image_size, channels, hidden):
+    """Project to a spatial grid, then learn local features at each resolution."""
+    width = max(16, hidden)
+    layers = [nn.Linear(features, width*4*4), nn.Unflatten(1, (width, 4, 4)),
+              nn.BatchNorm2d(width), nn.ReLU()]
+    resolution = 4
+    while resolution < image_size:
+        output = max(16, width//2)
+        layers += [nn.Upsample(scale_factor=2, mode='nearest'),
+                   nn.Conv2d(width, output, 3, padding=1, bias=False),
+                   nn.BatchNorm2d(output), nn.ReLU()]
+        width = output; resolution *= 2
+    layers += [nn.Conv2d(width, channels, 3, padding=1), nn.Sigmoid()]
+    return nn.Sequential(*layers)
+
+
 class _Probabilities:
     @staticmethod
     def apply(weights,angles,layer):
@@ -199,22 +222,25 @@ class QuantumPatchGenerator(_Generator):
 
 
 class HybridImageGenerator(_Generator):
-    """Conditional quantum Z features -> classical MLP image decoder."""
+    """Conditional quantum Z features -> MLP or convolutional image decoder."""
     def __init__(self, image_size=8, channels=1, latent_dim=4, num_classes=2,
-                 n_qubits=4, depth=1, hidden=64, seed=7):
+                 n_qubits=4, depth=1, hidden=64, seed=7, architecture='mlp'):
         super().__init__(); self._setup(image_size, channels, latent_dim, num_classes)
         seed = _seed(seed)
         image_size, channels, latent_dim, num_classes = self.image_size, self.channels, self.latent_dim, self.num_classes
         hidden = _bounded_int(hidden, 'hidden', 512)
+        architecture = _architecture(architecture, image_size)
         self.quantum = QuantumProbabilityLayer(n_qubits, depth, seed)
         n_qubits, depth = self.quantum.n_qubits, self.quantum.depth
         self.config = dict(kind='hybrid', image_size=image_size, channels=channels, latent_dim=latent_dim,
-                           num_classes=num_classes, n_qubits=n_qubits, depth=depth, hidden=hidden, seed=seed)
+                           num_classes=num_classes, n_qubits=n_qubits, depth=depth, hidden=hidden, seed=seed,
+                           architecture=architecture)
         with torch.random.fork_rng(devices=[]):
             torch.random.default_generator.manual_seed(seed)
             self.encoder = nn.Linear(latent_dim, n_qubits); self.condition = nn.Embedding(num_classes, n_qubits)
-            self.decoder = nn.Sequential(nn.Linear(n_qubits, hidden), nn.LeakyReLU(.2),
-                nn.Linear(hidden, channels*image_size**2), nn.Sigmoid())
+            self.decoder = (_conv_decoder(n_qubits, image_size, channels, hidden) if architecture == 'conv'
+                else nn.Sequential(nn.Linear(n_qubits, hidden), nn.LeakyReLU(.2),
+                    nn.Linear(hidden, channels*image_size**2), nn.Sigmoid()))
         signs = [[1-2*((basis >> (n_qubits-1-wire)) & 1) for wire in range(n_qubits)] for basis in range(2**n_qubits)]
         self.register_buffer('z_signs', torch.tensor(signs, dtype=torch.float32))
 
@@ -232,18 +258,21 @@ class HybridImageGenerator(_Generator):
 
 
 class ClassicalImageGenerator(_Generator):
-    """Conditional classical MLP baseline; same output shape and latent prior."""
-    def __init__(self, image_size=8, channels=1, latent_dim=4, num_classes=2, hidden=64, seed=7):
+    """Conditional MLP or convolutional baseline, with the same latent prior."""
+    def __init__(self, image_size=8, channels=1, latent_dim=4, num_classes=2, hidden=64, seed=7,
+                 architecture='mlp'):
         super().__init__(); self._setup(image_size, channels, latent_dim, num_classes)
         seed = _seed(seed)
         image_size, channels, latent_dim, num_classes = self.image_size, self.channels, self.latent_dim, self.num_classes
         hidden = _bounded_int(hidden, 'hidden', 512)
+        architecture = _architecture(architecture, image_size)
         self.config = dict(kind='classical', image_size=image_size, channels=channels, latent_dim=latent_dim,
-                           num_classes=num_classes, hidden=hidden, seed=seed)
+                           num_classes=num_classes, hidden=hidden, seed=seed, architecture=architecture)
         with torch.random.fork_rng(devices=[]):
             torch.random.default_generator.manual_seed(seed)
-            self.network = nn.Sequential(nn.Linear(latent_dim+num_classes, hidden), nn.LeakyReLU(.2),
-                nn.Linear(hidden, hidden), nn.LeakyReLU(.2), nn.Linear(hidden, channels*image_size**2), nn.Sigmoid())
+            self.network = (_conv_decoder(latent_dim+num_classes, image_size, channels, hidden)
+                if architecture == 'conv' else nn.Sequential(nn.Linear(latent_dim+num_classes, hidden), nn.LeakyReLU(.2),
+                    nn.Linear(hidden, hidden), nn.LeakyReLU(.2), nn.Linear(hidden, channels*image_size**2), nn.Sigmoid()))
 
     def forward(self, noise, labels):
         self._inputs(noise, labels)

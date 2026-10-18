@@ -390,3 +390,14 @@ check is not an independent verification of physical correctness.
 conservative Hoeffding/union-bound max-probability threshold. It assumes
 independent trajectories and is a statistical sanity bound, not device parity or
 RNG certification. More stringent physical tests may need additional samples.
+
+
+### Convolutional image generation (source checkout)
+
+`HybridImageGenerator(..., architecture='conv')` and
+`ClassicalImageGenerator(..., architecture='conv')` use spatial convolutional
+decoders; the API defaults to the compatible `mlp` architecture.
+`ImageGAN(..., discriminator_architecture=None, horizontal_flip=False)` infers
+the discriminator from the generator and can save training-only augmentation
+RNG state. See [IMAGE_GANS.md](IMAGE_GANS.md) for epoch budgets, progress
+previews, checkpoint compatibility and the unverified status of pet-image quality.

@@ -116,6 +116,12 @@ class ImageGANTests(unittest.TestCase):
                     Image.fromarray(pixels).save(root/label/f'{index}.png')
             data = ImageDataset.from_folder(root, image_size=4, max_images=8)
             self.assertEqual(data.images.shape, (8, 3, 4, 4)); self.assertEqual(data.class_names, ('cats', 'dogs'))
+            selected = ImageDataset.from_folder(root, image_size=4, max_images=4, selection_seed=19)
+            self.assertEqual(selected.fingerprint,
+                ImageDataset.from_folder(root, image_size=4, max_images=4, selection_seed=19).fingerprint)
+            self.assertNotEqual(selected.fingerprint,
+                ImageDataset.from_folder(root, image_size=4, max_images=4).fingerprint)
+            self.assertEqual(selected.labels.tolist(), [0, 0, 1, 1])
             train, validation = data.split(seed=2)
             self.assertEqual(len(train)+len(validation), 8)
             self.assertFalse(set(train.images[:, 0, 0, 0].tolist()) & set(validation.images[:, 0, 0, 0].tolist()))
