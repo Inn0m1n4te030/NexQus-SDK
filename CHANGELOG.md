@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add optional convolutional classical/quantum-feature image generators and a
+  conditional convolutional discriminator; retain MLP checkpoint compatibility.
+- Default the image CLI to convolutional models; add epoch budgets, seeded file
+  selection, resumable training-only flips, periodic samples/checkpoints and
+  explicit separation of software checks from animal-image quality evaluation.
+
 - Extend device selection across probability generators, QGAN, learning,
   Hamiltonian/VQE, bounded exact references and explanations; retain optional
   native result tensors and Pauli reductions on CPU/CUDA.

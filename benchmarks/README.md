@@ -112,3 +112,13 @@ with the same Python environment, host, circuits, precision, threads, warmups
 and repetitions. The reports record the imported runtime path and source hash.
 The summary includes all workloads, including regressions or cases still slower
 than another simulator. Earlier report versions remain in Git history.
+
+
+## Convolutional image learning experiment
+
+`python benchmarks/image_learning.py` reproduces the single-seed, CPU procedural
+bars experiment in [these recorded results](results/conv_bars_20261018.json).
+[Before/after images](../examples/convolutional_previews/report.html) show
+conditional orientation learning and limited position diversity after 1,000
+updates. This is a learning diagnostic, not a simulator performance comparison
+or validation of pet-image quality or quantum advantage.

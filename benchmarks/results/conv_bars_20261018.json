@@ -1,0 +1,126 @@
+{
+  "scope": "Single-seed procedural bars; not pet-image validation or a quantum-advantage benchmark",
+  "torch_version": "2.14.1+cpu",
+  "device": "cpu",
+  "threads": 1,
+  "steps": 1000,
+  "batch_size": 16,
+  "samples": 128,
+  "image_size": 16,
+  "channels": 1,
+  "latent_dim": 8,
+  "hidden": 32,
+  "learning_rate": 0.0002,
+  "seed": 7,
+  "data_seed": 29,
+  "evaluation_seed": 101,
+  "evaluation_samples": 64,
+  "orientation_definition": "Vertical if variance of column means exceeds variance of row means, otherwise horizontal; ties count incorrect",
+  "limitation": "Orientation alone does not establish realistic bars, location diversity, generalization or animal semantics; previews show limited location diversity",
+  "models": [
+    {
+      "kind": "classical",
+      "before": {
+        "orientation_accuracy": 0.46875,
+        "mean": 0.5038063526153564,
+        "pixel_std": 0.005083031952381134,
+        "orientation_contrast": 2.695317334655556e-06
+      },
+      "snapshots": [
+        {
+          "step": 200,
+          "orientation_accuracy": 0.5,
+          "mean": 0.13609468936920166,
+          "pixel_std": 0.2498246729373932,
+          "orientation_contrast": 0.0221474040299654
+        },
+        {
+          "step": 400,
+          "orientation_accuracy": 0.546875,
+          "mean": 0.11157720535993576,
+          "pixel_std": 0.2751159369945526,
+          "orientation_contrast": 0.014023473486304283
+        },
+        {
+          "step": 600,
+          "orientation_accuracy": 0.609375,
+          "mean": 0.12446727603673935,
+          "pixel_std": 0.3008456528186798,
+          "orientation_contrast": 0.015934886410832405
+        },
+        {
+          "step": 800,
+          "orientation_accuracy": 0.96875,
+          "mean": 0.11770956963300705,
+          "pixel_std": 0.29196691513061523,
+          "orientation_contrast": 0.02967148832976818
+        },
+        {
+          "step": 1000,
+          "orientation_accuracy": 1.0,
+          "mean": 0.13062536716461182,
+          "pixel_std": 0.32457178831100464,
+          "orientation_contrast": 0.051596660166978836
+        }
+      ],
+      "after": {
+        "orientation_accuracy": 1.0,
+        "mean": 0.13062536716461182,
+        "pixel_std": 0.32457178831100464,
+        "orientation_contrast": 0.051596660166978836
+      }
+    },
+    {
+      "kind": "hybrid",
+      "before": {
+        "orientation_accuracy": 0.1875,
+        "mean": 0.514197587966919,
+        "pixel_std": 0.003048446262255311,
+        "orientation_contrast": 5.581701998380595e-07
+      },
+      "snapshots": [
+        {
+          "step": 200,
+          "orientation_accuracy": 0.5,
+          "mean": 0.11994701623916626,
+          "pixel_std": 0.1818249672651291,
+          "orientation_contrast": 0.014576568268239498
+        },
+        {
+          "step": 400,
+          "orientation_accuracy": 0.640625,
+          "mean": 0.11676280945539474,
+          "pixel_std": 0.2691108286380768,
+          "orientation_contrast": 0.0292088333517313
+        },
+        {
+          "step": 600,
+          "orientation_accuracy": 0.609375,
+          "mean": 0.08491843193769455,
+          "pixel_std": 0.25586211681365967,
+          "orientation_contrast": 0.03203911334276199
+        },
+        {
+          "step": 800,
+          "orientation_accuracy": 0.828125,
+          "mean": 0.1821681261062622,
+          "pixel_std": 0.3639906346797943,
+          "orientation_contrast": 0.0364963635802269
+        },
+        {
+          "step": 1000,
+          "orientation_accuracy": 0.953125,
+          "mean": 0.10341374576091766,
+          "pixel_std": 0.2859596908092499,
+          "orientation_contrast": 0.01759444922208786
+        }
+      ],
+      "after": {
+        "orientation_accuracy": 0.953125,
+        "mean": 0.10341374576091766,
+        "pixel_std": 0.2859596908092499,
+        "orientation_contrast": 0.01759444922208786
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-# Image QGANs: patches and quantum features
+# Image GANs: convolutional models and quantum features
 
 These **unreleased source-checkout APIs** add both image-generation approaches,
 conditional class labels, a classical GAN comparison and pixel explanations.
@@ -37,8 +37,8 @@ python -m pip install torch torchvision --index-url https://download.pytorch.org
 | Generator | Quantum component | Classical component | Image formation |
 |---|---|---|---|
 | `QuantumPatchGenerator` | One circuit per channel/patch; trainable RY/RZ/RX layers and CNOT entanglers | Latent-noise encoder and label embedding | Ancilla=0 probabilities become pixels; patches tile into an image |
-| `HybridImageGenerator` | A trainable circuit returns Z expectation features | Angle encoder, label embedding and an MLP decoder | Decoder maps quantum features to sigmoid pixels |
-| `ClassicalImageGenerator` | None | Conditional MLP | Noise and one-hot labels map to sigmoid pixels |
+| `HybridImageGenerator` | A trainable circuit returns Z expectation features | Angle encoder, label embedding and an MLP or convolutional decoder | Decoder maps quantum features to sigmoid pixels |
+| `ClassicalImageGenerator` | None | Conditional MLP or convolutional generator | Noise and one-hot labels map to sigmoid pixels |
 
 All accept `(noise, labels)` with float tensors shaped `(batch, latent_dim)`
 and int64 labels shaped `(batch,)`, matching model device/dtype. Output shape is `(batch, channels, size,
@@ -75,33 +75,69 @@ Regenerate the report to measure your installed version and actual device.
 
 ## Train cats and dogs
 
-Create `data/pets/cats/` and `data/pets/dogs/` and add your image files, then run:
+The earlier small MLP example produced coloured textures on a user's 10,000-image
+pet dataset after 5,000 updates. It did not validate recognizable cat/dog
+synthesis. More steps alone are not an established fix. The CLI now defaults
+to `--architecture conv`: a learned 4×4 feature grid followed by nearest-neighbor
+upsampling, 3×3 convolutions, BatchNorm and ReLU. The discriminator learns
+strided convolutional features conditioned on spatial label planes and a class-projection score. The hybrid
+uses the same decoder design but receives Z features through its quantum
+circuit, with no direct latent bypass. These are new, untrained architectures;
+real-pet generation quality still needs a full dataset experiment.
 
-```bash
-python examples/image_gan.py --data data/pets --mode all --size 16 --channels 3 --samples 256 --steps 100 --batch-size 4 --output-dir results/pets
+Create `data/pets/cats/` and `data/pets/dogs/`. Start with the classical baseline:
+
+```powershell
+python examples/image_gan.py --mode classical --architecture conv --data data/pets --size 64 --channels 3 --samples 10000 --epochs 100 --batch-size 64 --hidden 256 --latent-dim 64 --learning-rate 0.0002 --data-seed 7 --horizontal-flip --preview-every 500 --checkpoint-every 1000 --output-dir results/pets-conv-classical
 ```
 
-The folder loader sorts classes/files, takes at most `samples // class_count`
-per class, corrects EXIF orientation, center-crops and resizes with bilinear
-interpolation, and scales pixels to [0,1]. There is no augmentation. A seeded
-stratified 80/20 split keeps training and validation sample indices disjoint.
-Remove duplicates in your source images to avoid content leakage across splits.
-Every class needs at least two images. Labels follow sorted folder names.
+This is a starting experiment, not a validated recipe for recognizable pets.
+With 8,000 training images and batch size 64 there are 125 updates per epoch,
+so 100 epochs means 12,500 updates. `--steps 5000` means 5,000 updates, not
+5,000 epochs. CPU can run this command; use `--size 32 --hidden 128` for a
+smaller CPU experiment. A 16×16 thumbnail discards much of the face detail.
+Face-centred source crops reduce background variation; the loader does not
+detect or align animal faces for you.
 
-Alternatively, explicitly download the public CIFAR-10 dataset (~170 MB):
+For an NVIDIA GPU with CUDA-enabled Torch append `--device cuda:0`; see
+[GPU.md](GPU.md). The GPU change does not by itself improve image quality.
+10,000 RGB images at 64×64 occupy about 469 MiB as float32; preprocessing and
+split copies need additional host memory. Data loading remains in memory.
+
+For the hybrid comparison use the **same command**, replacing `--mode classical`
+with `--mode hybrid --qubits 6 --depth 2` and changing the output directory.
+This preserves the data, augmentation, discriminator and update budget.
+Generator parameter counts differ and are printed. It does not establish a
+quantum advantage. The quantum patch model remains a separate bounded pixel
+experiment; `--mode all` at 64×64 RGB exceeds its 64-circuit limit. Use separate
+classical/hybrid runs for this resolution.
+
+During training, inspect `classical/progress/step_XXXXXXXX.png` (or `hybrid/`).
+They use fixed noise and requested labels, so changes are comparable over time.
+`checkpoint.pt` is refreshed at the requested interval; the final `report.html`
+embeds real training/validation images, progress samples, final samples and
+loss curves. No semantic quality score or automatic success verdict is inferred
+from loss/pixel statistics. A larger model may still fail to learn useful images.
+
+`--data-seed 7` randomly selects the capped file subset reproducibly within
+each class; omit it for the older sorted-file selection. Files have EXIF
+orientation corrected, are center-cropped and resized bilinearly, and scaled
+to [0,1]. `--horizontal-flip` adds seeded training-only random flips; it does
+not alter validation images or sampling. A seeded stratified 80/20 split
+keeps sample indices disjoint. Remove duplicate source files before splitting
+to avoid content leakage. Every class needs at least two images; labels follow
+sorted folder names. Keep data selection flags unchanged when resuming.
+
+Alternatively, explicitly download CIFAR-10 (~170 MB):
 
 ```bash
-python examples/image_gan.py --cifar10 data/cifar10 --download --mode all --size 16 --channels 3 --samples 256 --steps 100 --batch-size 4 --output-dir results/cifar-pets
+python examples/image_gan.py --cifar10 data/cifar10 --download --mode classical --architecture conv --size 32 --channels 3 --samples 10000 --epochs 100 --batch-size 64 --hidden 128 --latent-dim 64 --learning-rate 0.0002 --output-dir results/cifar-pets
 ```
 
-This selects genuine CIFAR-10 cat/dog images (original class IDs 3/5 → labels
-0/1), then makes the same local train/validation split from the official training
-set. `load_cifar10_cats_dogs(..., train=False)` selects the official test set
-for separate later evaluation. Downloads never happen without `download=True`
-or `--download`. No trained weights are bundled. Low-resolution recognizable
-cats/dogs require substantial training and model selection; a few updates verify
-the pipeline. Full-resolution photorealistic pet generation is beyond this
-small CPU implementation.
+CIFAR-10 cat/dog IDs 3/5 become labels 0/1, using a local train/validation
+split of the official training set. `load_cifar10_cats_dogs(..., train=False)`
+selects the official test set for a separate evaluation. Downloads require
+explicit permission through `--download`; no trained weights are bundled.
 
 ## Python API
 
@@ -115,9 +151,10 @@ from nexqus.image_gan import (
 data = ImageDataset.from_folder('data/pets', image_size=16, channels=3, max_images=256)
 train, validation = data.split(seed=7)
 generator = HybridImageGenerator(image_size=16, channels=3, latent_dim=4,
-                                 num_classes=len(data.class_names), n_qubits=4)
+                                 num_classes=len(data.class_names), n_qubits=4,
+                                 architecture='conv', hidden=128)
 # Or QuantumPatchGenerator(..., patch_size=4), with no n_qubits argument.
-trainer = ImageGAN(generator, learning_rate=.002, seed=7)
+trainer = ImageGAN(generator, learning_rate=.0002, seed=7, horizontal_flip=True)
 trainer.fit(train, epochs=20, batch_size=4, max_steps=100)
 cats = trainer.sample(16, labels=torch.zeros(16, dtype=torch.long), seed=42)
 save_image_grid(cats, 'cats.png')
@@ -126,7 +163,11 @@ trainer.save('hybrid.pt')
 
 `fit` performs alternating discriminator and generator updates. Losses use
 balanced binary cross entropy for D and a non-saturating objective for G.
-The two networks use Torch Adam with betas (.5,.999). `history` records losses
+The two networks use Torch Adam with betas (.5,.999). The API defaults to the
+legacy MLP for compatibility; pass `architecture='conv'` explicitly. The CLI
+defaults to convolutional models. A trainer infers its discriminator architecture
+from the generator unless `discriminator_architecture=` is supplied (use this
+explicitly for a convolutional discriminator with the patch generator). `history` records losses
 at their respective updates; G's recorded generated mean precedes its update.
 Losses need not decrease monotonically and do not measure semantic image quality.
 
@@ -142,22 +183,29 @@ continued.fit(train, epochs=1, batch_size=4, max_steps=10)
 ```
 
 Checkpoints include both models, both optimizer states, local noise/shuffle
-RNGs, epoch, history, current permutation and cursor. A SHA256 fingerprint of
+RNGs (including training augmentation), epoch, history, current permutation and cursor. A SHA256 fingerprint of
 preprocessed images/labels/class names rejects silent continuation on changed
 data. Keep batch size fixed within a partial epoch. Fixed-seed `sample` calls
 do not alter the training RNG. Loading uses `torch.load(weights_only=True)`
 and reconstructs supported model types from a primitive config; no custom
 model object is pickled. The save replaces its destination atomically.
-Exact continuation is tested in the same software environment; cross-version
-bitwise reproducibility is not promised.
+Exact continuation is verified on CPU in the same software environment;
+cross-version bitwise reproducibility is not promised. Convolutional CUDA
+reproducibility also depends on deterministic cuDNN/kernel settings; the CUDA
+tests request deterministic cuDNN. Live CUDA remains unverified here.
 CUDA training uses a CUDA noise generator. `ImageGAN.load(..., device='cuda:0')`
 restores that device's training state. Moving CPU↔CUDA requires `reset_rng=True`
 (`--reset-rng` in the CLI) because those noise streams differ. Old schema-1 CPU
 weights load, but numerical trajectories can change with the new Torch algorithm.
+Schema-1/2 MLP checkpoints reconstruct their MLP generator/discriminator; new
+checkpoints use schema 3. A convolutional run starts from fresh weights; an old
+MLP checkpoint cannot be converted into a trained convolutional model.
 
 For CLI resume use one mode, the same data/split/model/training flags, and
-`--resume results/pets/hybrid/checkpoint.pt`. For example append it to the
-cat/dog command above and change `--mode all` to `--mode hybrid`.
+`--resume results/pets-conv-classical/classical/checkpoint.pt`. `--epochs`
+finishes a partial saved epoch as its first epoch; `--steps` always adds the
+requested number of updates. Old MLP runs require `--architecture mlp`, no
+augmentation, and the original sorted file selection (omit `--data-seed`).
 
 ## Explain what the circuit changes
 
@@ -191,7 +239,9 @@ optimized in the quantum models.
 `metrics.json` includes model/trainer configs, versions, platform, threads,
 data hashes, losses, parameter counts, and measured training-loop seconds.
 Those seconds include batched circuit autograd and optimizers; they exclude setup,
-sampling and export. This is a workload measurement, not an isolated simulator
+sampling and export, including periodic previews/checkpoints. Console logging
+remains inside the measured interval. Periodic export time is reported separately.
+This is a workload measurement, not an isolated simulator
 benchmark. Pre-training preview calls warm each generator before training.
 Per-class held-out mean-pixel MAE and generated per-pixel standard deviation are
 simple diagnostics: a blurry mean image can score well while looking poor.
@@ -206,7 +256,8 @@ There is no FID, pretrained classifier accuracy or claim of quantum advantage.
 - This differentiable image path supports exact static pure states, not noisy,
   finite-shot, dynamic-circuit or QPU training. Other simulator paths support
   CPU/CUDA noise and dynamic circuits as documented in [GPU.md](GPU.md).
-- Images 4..64 square, 1 or 3 channels, batch 1..128, latent dimension ≤64,
+- Convolutional images require power-of-two sizes 4/8/16/32/64. MLP images
+  support any integer size 4..64. Images have 1 or 3 channels, batch 1..128, latent dimension ≤64,
   ≤32 labels. Patch size 2/4/8, at most 64 circuits/image; quantum layers ≤8
   qubits and depth ≤6. Batched autograd replaces per-sample parameter shifts
   in image training. State and gradient graph storage still grow with qubits,
@@ -223,6 +274,19 @@ python scripts/run_notebooks.py --engine jupyter --kernel nexqus --require-image
 ```
 
 Method references: [PennyLane's quantum patch GAN tutorial](https://pennylane.ai/demos/tutorial_quantum_gans),
+[PyTorch DCGAN tutorial](https://docs.pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html),
 [PyTorch custom autograd](https://docs.pytorch.org/docs/stable/notes/extending.html),
 and [torchvision CIFAR-10](https://docs.pytorch.org/vision/stable/generated/torchvision.datasets.CIFAR10.html).
 NexQus builds and executes its own circuits; PennyLane/Qiskit are not dependencies.
+
+## Recorded learning experiment
+
+[Actual before/after previews](../examples/convolutional_previews/report.html)
+and [recorded settings/results](../benchmarks/results/conv_bars_20261018.json)
+show a 1,000-update CPU experiment on 128 procedural 16×16 bars. The simple
+requested-orientation heuristic scored 64/64 classical and 61/64 hybrid outputs
+on 64 fixed noise vectors after training. Previews still show limited location
+diversity and imperfect shapes. This checks some learned conditional structure;
+it does not establish full distribution learning, pet-image quality or quantum
+advantage. It is one seed and one small configuration, not a quality benchmark.
+Reproduce it with `python benchmarks/image_learning.py`. No download is needed.

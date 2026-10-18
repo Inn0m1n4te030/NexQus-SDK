@@ -313,3 +313,10 @@ Published JSON/CSV/Markdown reports include accuracy, raw timings, RSS memory,
 hardware, versions and settings, including workloads where NexQus is slower.
 
 ![Native NexQus teleportation diagram](docs/images/teleportation.svg)
+
+
+The source image-GAN example now defaults to convolutional classical/hybrid
+decoders and a conditional convolutional discriminator. Use epoch budgets and
+periodic fixed-noise previews to inspect training; completing updates does not
+validate recognizable cat/dog synthesis. See [the image guide](docs/IMAGE_GANS.md)
+for 64×64 experiments and compatible MLP checkpoint continuation.

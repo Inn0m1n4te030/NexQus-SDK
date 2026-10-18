@@ -102,10 +102,12 @@ be slower on GPU due to launch overhead; memory still grows exponentially.
 Append `--device cuda:0` to your existing command:
 
 ```powershell
-python examples/image_gan.py --mode hybrid --device cuda:0 --data data/pets --size 16 --channels 3 --samples 10000 --steps 5000 --batch-size 16 --hidden 256 --latent-dim 16 --qubits 6 --depth 2 --learning-rate 0.0002 --output-dir results/pets-hybrid-cuda
+python examples/image_gan.py --mode hybrid --architecture conv --device cuda:0 --data data/pets --size 64 --channels 3 --samples 10000 --epochs 100 --batch-size 64 --hidden 256 --latent-dim 64 --qubits 6 --depth 2 --learning-rate 0.0002 --data-seed 7 --horizontal-flip --output-dir results/pets-hybrid-cuda
 ```
 
-`--mode all`, `patch` and `classical` also use the selected device. This adds
+`classical` and bounded `patch` runs also use the selected device. At 64×64
+RGB the patch model exceeds its circuit-count limit; compare classical/hybrid
+in separate runs. This adds
 acceleration, not a validated improvement in animal-image quality. The existing
 small image architectures still need data/training/model-quality evaluation.
 

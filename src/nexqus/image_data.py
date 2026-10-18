@@ -59,10 +59,10 @@ class ImageDataset:
                 ImageDataset(self.images[validation], self.labels[validation], self.class_names, source=self.source+' / validation'))
 
     @classmethod
-    def from_folder(cls, root, image_size=16, channels=3, max_images=256):
+    def from_folder(cls, root, image_size=16, channels=3, max_images=256, selection_seed=None):
         """Read root/class_name/*.(jpg,png,...) without network access.
 
-        Files are sorted and capped equally per class, then center-cropped,
+        Files are capped equally per class (sorted, or shuffled with selection_seed), then center-cropped,
         resized and mapped to [0,1]. No augmentation or held-out leakage.
         """
         image_size, channels = _image_shape(image_size, channels)
@@ -74,6 +74,11 @@ class ImageDataset:
                   for p in sorted(root.iterdir()) if p.is_dir()]
         groups = [(name, files) for name, files in groups if files]
         if not 1 <= len(groups) <= 32 or max_images < len(groups): raise ValueError('No usable classes or insufficient image limit')
+        if selection_seed is not None:
+            from .image_models import _seed
+            rng = torch.Generator().manual_seed(_seed(selection_seed))
+            groups = [(name, [files[i] for i in torch.randperm(len(files), generator=rng).tolist()])
+                      for name, files in groups]
         quota = max_images//len(groups); images = []; labels = []
         for label, (_, files) in enumerate(groups):
             for file in files[:quota]:
