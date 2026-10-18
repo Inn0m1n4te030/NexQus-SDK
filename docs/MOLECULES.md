@@ -1,5 +1,11 @@
 # Molecular structures and energy results
 
+The fixed-H2 example supports `python examples/molecular_viewer.py --device cuda:0`
+on native Windows with CUDA-enabled Torch. It accelerates VQE and the bounded
+exact energy reference; geometry rendering remains host/browser work. Optional
+new-molecule RHF can use GPU4PySCF on Linux/WSL, with integrals and mapping
+explicitly retained on CPU. See [GPU.md](GPU.md).
+
 This source-checkout addition supplies a native, offline molecular viewer.
 It works on Windows without PySCF, RDKit, a web service or a QPU.
 

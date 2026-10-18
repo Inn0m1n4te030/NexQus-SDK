@@ -1,7 +1,7 @@
 # Trainable quantum circuits
 
-The unreleased optional [image-GAN module](IMAGE_GANS.md) adds a bounded CPU
-Torch `nn.Module` bridge for probability vectors and first derivatives, plus
+The unreleased optional [image-GAN module](IMAGE_GANS.md) adds a bounded CPU/CUDA
+Torch `nn.Module` path for batched probability vectors and autograd, plus
 patch/hybrid/classical image generators. Import it from `nexqus.image_gan`.
 The core `QuantumFunction` and learning APIs below keep their existing explicit
 gradient interfaces; this does not add general Torch autograd to every circuit.
@@ -95,9 +95,10 @@ gradients, stochastic gradient estimators, noise-parameter derivatives, and
 derivatives through measurements/feed-forward are not implemented.
 
 Every evaluation uses shots=0 and retains the state for Pauli expectations.
-On CUDA, state evolution runs on GPU and retained states move to CPU for the
-existing expectation implementation. This is correct but can be costly for
-large circuits. A tiny one-qubit learning example will often be faster on CPU.
+On CUDA, state evolution and expectation reductions stay on GPU; only scalar
+function/gradient results cross into dictionary optimizers. Noiseless Torch
+regressors/classifiers batch samples through `TorchCircuit` autograd. Small
+circuits can still be faster on CPU. See [GPU.md](GPU.md).
 
 For G relevant parameterized gate occurrences, a value-and-gradient call uses
 1 + 2G simulator executions. Shared-parameter contributions are accumulated;
@@ -193,7 +194,7 @@ loss rather than relying only on the built-in MSE models.
 ## Scope
 
 The published NexQus 1.2.0 APIs provide explicit analytic gradients. General
-PyTorch autograd integration, trajectory gradients, dynamic-circuit gradients
+noisy PyTorch autograd integration, trajectory gradients, dynamic-circuit gradients
 and hardware training remain outside those APIs; the source image module has
 the narrower Torch bridge described above. The small learning examples demonstrate circuit
 optimization; they do not establish an advantage over classical learning.

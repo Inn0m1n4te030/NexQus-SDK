@@ -11,6 +11,7 @@ from nexqus import QuantumFunction, QuantumRegressor, Adam
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output-dir', type=Path)
+parser.add_argument('--device', help='Quantum device: cpu, cuda, cuda:N or auto')
 args = parser.parse_args()
 
 import numpy as np
@@ -23,7 +24,7 @@ print('NexQus SDK:', nexqus.__version__)
 from time import perf_counter
 x, weight, bias = Parameter('x'), Parameter('weight'), Parameter('bias')
 template = Circuit(1).ry(weight*x + bias, 0)
-function = QuantumFunction(template, 'Z')
+function = QuantumFunction(template, 'Z', device=args.device)
 train_x = np.linspace(-np.pi, np.pi, 20); train_y = np.sin(train_x)
 # Midpoints give 201 evaluation inputs distinct from the training inputs.
 test_x = np.linspace(-np.pi, np.pi, 201, endpoint=False) + np.pi/201
@@ -156,7 +157,8 @@ if args.output_dir is not None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.output_dir/'comparison.png', dpi=160, bbox_inches='tight')
     fig.savefig(args.output_dir/'comparison.svg', bbox_inches='tight')
-    payload = dict(sdk_version=nexqus.__version__, backend='numpy', device='cpu',
+    payload = dict(sdk_version=nexqus.__version__, backend=function.simulator.backend.name, device=function.simulator.backend.device,
+                   classical_comparison_device='numpy cpu',
                    epochs=epochs, learning_rate=learning_rate, seeds=[7, 21, 42],
                    training_samples=len(train_x), held_out_samples=len(test_x),
                    evaluation='disjoint in-domain interpolation', records=records)

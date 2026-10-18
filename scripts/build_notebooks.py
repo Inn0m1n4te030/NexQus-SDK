@@ -1041,6 +1041,9 @@ if image_gan_available:
     except ImportError as error:
         raise ImportError('Install the current source checkout with .[tutorial,image-gan] in this kernel and restart it') from error
     torch.set_num_threads(1)
+    from nexqus.torch_circuit import tensor_device
+    image_device = tensor_device(None)  # set NEXQUS_DEVICE before starting the kernel for CUDA
+    print('Image execution device:', image_device)
 else:
     print('SKIPPED optional image GAN: install .[image-gan] to run this lesson')
 '''),
@@ -1053,9 +1056,9 @@ one. The hybrid generator reads Z expectations from its circuit and sends them
 through a trainable classical decoder. Noise/class inputs reach that decoder
 through quantum features. Both have trainable classical angle encoders.
 
-Circuit derivatives use NexQus's native parameter shifts; classical layers use
-PyTorch autograd. This first bridge supports local CPU, exact pure states and
-first derivatives. The classical GAN has its own MLP generator. Parameter
+Circuit states, batched angles and derivatives use native Torch autograd on
+CPU/CUDA. Set NEXQUS_DEVICE or pass device='cuda:0' to ImageGAN. The classical
+GAN has its own MLP generator. Parameter
 budgets differ; they are printed rather than implied to be matched.
 '''),
 code('''
@@ -1066,7 +1069,7 @@ if image_gan_available:
     trainers = {}
     for constructor in classes:
         generator = constructor(image_size=4, latent_dim=2, seed=7)
-        trainer = ImageGAN(generator, seed=7)
+        trainer = ImageGAN(generator, seed=7, device=image_device)
         before = trainer.sample(8, seed=19)
         trainer.fit(training, epochs=1, batch_size=2, max_steps=2)
         after = trainer.sample(8, seed=19)
@@ -1079,7 +1082,7 @@ if image_gan_available:
         fig, axes = plt.subplots(2, 8, figsize=(10, 3))
         for row, images in enumerate((before, after)):
             for i, image in enumerate(images):
-                axes[row, i].imshow(image[0], cmap='gray', vmin=0, vmax=1)
+                axes[row, i].imshow(image[0].cpu(), cmap='gray', vmin=0, vmax=1)
                 axes[row, i].axis('off')
         fig.suptitle(name+' · before / after two updates · labels alternate vertical/horizontal')
         plt.tight_layout(); plt.show()
@@ -1096,13 +1099,13 @@ code('''
 if image_gan_available:
     for name in ('patch', 'hybrid'):
         generator = trainers[name].generator
-        noise = torch.tensor([[.2, -.4]])
-        label = torch.tensor([0])
+        noise = torch.tensor([[.2, -.4]], device=image_device)
+        label = torch.tensor([0], device=image_device)
         effect = generator.parameter_effect(noise, label, delta=.25)
         fig, axes = plt.subplots(1, 4, figsize=(10, 3))
         for ax, key in zip(axes[:3], ('minus', 'center', 'plus')):
-            ax.imshow(effect[key][0, 0], cmap='gray', vmin=0, vmax=1); ax.set_title(key); ax.axis('off')
-        sensitivity = effect['sensitivity'][0, 0].numpy()
+            ax.imshow(effect[key][0, 0].cpu(), cmap='gray', vmin=0, vmax=1); ax.set_title(key); ax.axis('off')
+        sensitivity = effect['sensitivity'][0, 0].cpu().numpy()
         bound = max(float(np.max(np.abs(sensitivity))), 1e-9)
         artist = axes[3].imshow(sensitivity, cmap='RdBu_r', vmin=-bound, vmax=bound)
         axes[3].set_title('Pixel change / radian'); axes[3].axis('off')
@@ -1156,6 +1159,119 @@ quantum parameter affects one patch or the entire decoded image.
 ''')]))
 
 
+BOOKS.append(('12_cpu_cuda_workflows', [
+md('''
+# 12 · Select a device across simulation, learning and chemistry
+
+These APIs require the current source checkout. Core CPU work needs NumPy;
+Torch CPU/CUDA is optional. Install a compatible CUDA-enabled Torch build using
+the official PyTorch selector, then install this checkout with `.[gpu,tutorial]`.
+`python -m nexqus.devices` reports the actual hardware/build. The earlier image
+lesson's CPU-index install cannot execute CUDA. See `docs/GPU.md`.
+
+This lesson uses CUDA when available and explicitly records a CUDA skip otherwise.
+Torch CPU comparisons still run without a GPU. A CPU pass is not CUDA evidence.
+No cloud resource or QPU is used.
+'''),SETUP,
+code('''
+import importlib.util
+torch_available = importlib.util.find_spec('torch') is not None
+if torch_available:
+    import torch
+    torch.set_num_threads(1)
+    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+    if device == 'cpu': print('SKIPPED optional CUDA: no CUDA device; testing Torch CPU')
+    sim = Simulator.for_device(device, backend='torch')
+    print('Actual execution:', sim.backend.name, sim.backend.device)
+else:
+    print('SKIPPED optional CUDA: install a compatible Torch build to run this lesson')
+'''),
+md('''
+## Native results, noise and dynamic circuits
+
+`native_result=True` keeps retained states and result tensors on the simulation
+device. Pauli expectation reduction runs there too; the returned Python float
+is a scalar export. `to_numpy()` explicitly exports a host result for plotting.
+Noise and dynamic circuits keep quantum evolution on the selected device,
+while classical records/branch bookkeeping remain Python host work.
+'''),
+code('''
+if torch_available:
+    q = Circuit(2).h(0).cx(0, 1)
+    result = sim.run(q, shots=0, native_result=True)
+    assert result.probabilities.device.type == torch.device(device).type
+    assert abs(result.expectation('ZZ')-1) < 1e-12
+    np.testing.assert_allclose(result.to_numpy().probabilities, [.5,0,0,.5], atol=1e-12)
+    noisy = sim.run(q, shots=0, noise=NoiseModel(Noise.amplitude_damping(.1)), native_result=True)
+    assert abs(float(noisy.probabilities.sum())-1) < 1e-12
+    dynamic = sim.run(Circuit(2).h(0).measure(0,'m').x(1).c_if('m',1), shots=0, native_result=True)
+    np.testing.assert_allclose(dynamic.to_numpy().probabilities, [.5,0,0,.5], atol=1e-12)
+    print('Native results, noise and feed-forward passed')
+'''),
+md('''
+## Batched circuit autograd
+
+The optional `TorchCircuit` module accepts shared scalar weights and per-sample
+angle vectors. Its state and derivatives stay on the module's device. Static
+RX/RY/RZ/P/CP expressions, constant unitaries, diagonals and permutations are
+supported. Noise/dynamic execution uses Simulator instead.
+'''),
+code('''
+if torch_available:
+    from nexqus.torch_circuit import TorchCircuit
+    x = Parameter('x')
+    layer = TorchCircuit(Circuit(2).ry(x,0).cx(0,1), device=device)
+    angles = torch.tensor([.2,.5,.8], dtype=torch.float64, device=device, requires_grad=True)
+    probabilities = layer({'x': angles})
+    probabilities[:,0].sum().backward()
+    torch.testing.assert_close(angles.grad, -.5*torch.sin(angles))
+    print('Gradient device:', angles.grad.device)
+    plt.plot(angles.detach().cpu(), probabilities[:,0].detach().cpu(), marker='o')
+    plt.xlabel('Angle'); plt.ylabel('P(00)'); plt.show()
+'''),
+md('''
+## H2 VQE and exact references
+
+The fixed four-qubit Hamiltonian needs no PySCF, including on native Windows.
+Both VQE evolution/Pauli reduction and the bounded exact reference can use CUDA.
+The small parameter-dictionary optimizer is host control. New molecular RHF
+can separately use GPU4PySCF on Linux/WSL; AO/MO integrals and Jordan-Wigner
+mapping remain CPU. A `device` option for VQE does not relabel those CPU stages.
+'''),
+code('''
+if torch_available:
+    from nexqus import Adam
+    from nexqus.chemistry import h2_reference_problem, h2_pair_ansatz
+    problem = h2_reference_problem()
+    energy = problem.hamiltonian.function(h2_pair_ansatz(Parameter('theta')), simulator=sim)
+    parameters = {'theta': 0.}; optimizer = Adam(.04)
+    for _ in range(180):
+        parameters = optimizer.step(parameters, energy.gradient(parameters))
+    reference = problem.exact_energy(simulator=sim)
+    assert abs(energy(parameters)-reference) < 2e-7
+    print('VQE:', energy(parameters), 'Exact reference:', reference, 'Device:', sim.backend.device)
+'''),
+md('''
+## Use the same selection elsewhere
+
+`QuantumFunction(..., device='cuda:0')`, `QuantumDistribution(...,
+device='cuda:0')`, `hamiltonian.function(..., device='cuda:0')` and
+`ImageGAN(generator, device='cuda:0')` select CUDA explicitly. Shor accepts
+`simulator=sim`; templates/QFT/Grover build ordinary circuits run by that simulator.
+The main examples accept `--device cuda:0`. For default simulator calls set
+`NEXQUS_DEVICE` in your terminal before starting Python/Jupyter. Explicit CPU
+choices override it. Only `device='auto'` permits selecting CPU when CUDA is absent.
+
+For real hardware validation run `python scripts/check_gpu_workflows.py` on
+your GPU machine. It fails if CUDA is absent or tests skip/fail, and records
+the actual GPU and test evidence. Add `--include-scf` to require live GPU4PySCF
+RHF parity. GPU acceleration does not establish improved image-generation quality.
+
+**Try it:** compare CPU/CUDA energies and gradients with the same precision,
+then inspect exported device metadata rather than inferring execution from time.
+''')]))
+
+
 def main():
     directory=ROOT/'notebooks'; directory.mkdir(exist_ok=True)
     for name,cells in BOOKS:
@@ -1181,7 +1297,8 @@ if args.output_dir is not None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     fig.savefig(args.output_dir/'comparison.png', dpi=160, bbox_inches='tight')
     fig.savefig(args.output_dir/'comparison.svg', bbox_inches='tight')
-    payload = dict(sdk_version=nexqus.__version__, backend='numpy', device='cpu',
+    payload = dict(sdk_version=nexqus.__version__, backend=function.simulator.backend.name, device=function.simulator.backend.device,
+                   classical_comparison_device='numpy cpu',
                    epochs=epochs, learning_rate=learning_rate, seeds=[7, 21, 42],
                    training_samples=len(train_x), held_out_samples=len(test_x),
                    evaluation='disjoint in-domain interpolation', records=records)
@@ -1208,10 +1325,11 @@ if args.output_dir is not None:
 
         parser = argparse.ArgumentParser(description=__doc__)
         parser.add_argument('--output-dir', type=Path)
+        parser.add_argument('--device', help='Quantum device: cpu, cuda, cuda:N or auto')
         args = parser.parse_args()
     ''').strip()
     (ROOT/'examples'/'compare_sine.py').write_text(
-        '\n\n'.join([header, SETUP[1], training, plotting])+'\n', encoding='utf-8')
+        '\n\n'.join([header, SETUP[1], training.replace("QuantumFunction(template, 'Z')", "QuantumFunction(template, 'Z', device=args.device)"), plotting])+'\n', encoding='utf-8')
     print(f'Generated {len(BOOKS)} notebooks in {directory}')
 
 

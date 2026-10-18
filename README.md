@@ -32,7 +32,7 @@ classical GAN comparison, training checkpoints and parameter-to-pixel views.
 Install `.[tutorial,image-gan]` from source, then run
 `python examples/image_gan.py --mode all --steps 20`. Use `--data data/pets
 --size 16 --channels 3` for your own cat/dog folders. Lesson 11 shows both models.
-All training runs locally on CPU; these APIs are not in the PyPI 1.2.0 wheel.
+Training runs locally on CPU/CUDA; these APIs are not in the PyPI 1.2.0 wheel.
 
 The development checkout also has a [molecular structure viewer](docs/MOLECULES.md).
 Rotate H₂, methane (CH₄), water, ethene and benzene, measure bond lengths/angles
@@ -154,7 +154,7 @@ Exact branching is limited by `max_branches` and estimated memory.
 ```python
 from nexqus import Simulator
 
-cpu = Simulator()
+cpu = Simulator(device='cpu')
 torch_cpu = Simulator(backend='torch')
 gpu = Simulator(backend='torch', device='cuda:0', precision='single')
 ```
@@ -163,8 +163,17 @@ Install a compatible PyTorch build using the official
 [PyTorch installation guide](https://pytorch.org/get-started/locally/).
 The `gpu` extra declares optional PyTorch; it cannot guarantee a CUDA-enabled
 build for your machine. Unsupported CUDA execution raises an error.
-There is no silent CPU fallback. Results use NumPy arrays on the host.
+Explicit CUDA never silently falls back. Results use NumPy arrays by default;
+`native_result=True` keeps result tensors and expectation reductions on device.
 Only CPU and NVIDIA CUDA are supported; CPU can be faster for small circuits.
+The source checkout adds [device support across workflows](docs/GPU.md): image
+GANs, batched circuit autograd, QGANs, regression, Hamiltonian/VQE and bounded
+exact chemistry references. Use `--device cuda:0` in the main examples or set
+`$env:NEXQUS_DEVICE = "cuda:0"` in PowerShell for default simulator calls.
+Check installation with `python -m nexqus.devices`. Frozen-H2 VQE works on
+native Windows; optional GPU Hartree–Fock uses GPU4PySCF on Linux/WSL, with
+integrals/mapping retained on CPU. Actual CUDA validation requires
+`python scripts/check_gpu_workflows.py`; CPU CI is not GPU validation.
 
 ## Qubit and memory limits
 

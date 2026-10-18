@@ -1,0 +1,30 @@
+name: CUDA hardware validation
+on:
+  workflow_dispatch:
+    inputs:
+      device:
+        description: CUDA device on an existing self-hosted GPU runner
+        default: cuda:0
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  cuda:
+    runs-on: [self-hosted, gpu]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - run: python -c "import torch; assert torch.cuda.is_available(), 'Install CUDA-enabled PyTorch on this GPU runner first'"
+      - run: python -m pip install -e ".[tutorial,image-gan,release]"
+      - run: python scripts/check_gpu_workflows.py
+        env:
+          # Fixed script command; user input is never interpolated into shell.
+          NEXQUS_TEST_CUDA_DEVICE: ${{ inputs.device }}
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          include-hidden-files: true
+          name: cuda-hardware-validation
+          path: .release-artifacts/cuda_workflows.json

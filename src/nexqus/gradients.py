@@ -3,7 +3,7 @@ import numpy as np
 from dataclasses import replace
 from .circuit import Circuit
 from .parameters import Parameter, bindings_dict
-from .simulator import Simulator
+from .simulator import Simulator, resolve_simulator
 
 
 def _names(wrt,all_names):
@@ -24,14 +24,14 @@ class QuantumFunction:
     Uses deterministic statevector or exact density evolution, shots=0.
     No PyTorch autograd integration or sampled trajectory gradients are implied.
     """
-    def __init__(self,template,observable,simulator=None,noise=None):
+    def __init__(self,template,observable,simulator=None,noise=None,*,backend=None,device=None,precision=None):
         if not isinstance(template,Circuit): raise TypeError('Expected a Circuit template')
         if template.dynamic: raise ValueError('Dynamic circuits are not supported by QuantumFunction gradients')
         if not isinstance(observable,str) or len(observable)!=template.n_qubits or set(observable)-set('IXYZ'):
             raise ValueError('Observable must be a Pauli string in q0-first order')
         self.template=template
         self.observable=observable
-        self.simulator=simulator if simulator is not None else Simulator()
+        self.simulator=resolve_simulator(simulator,backend=backend,device=device,precision=precision)
         if not isinstance(self.simulator,Simulator): raise TypeError('Expected Simulator')
         if self.simulator.method=='trajectory':
             raise ValueError('Analytic gradients require statevector, density_matrix, or auto; not trajectories')
@@ -45,7 +45,7 @@ class QuantumFunction:
             raise ValueError('Dynamic circuits are not supported by QuantumFunction gradients')
         if self.simulator.method=='trajectory':
             raise ValueError('Analytic gradients do not support trajectories')
-        return self.simulator.run(circuit,noise=self.noise,shots=0,retain_state=True).expectation(self.observable)
+        return self.simulator.run(circuit,noise=self.noise,shots=0,retain_state=True,native_result=True).expectation(self.observable)
 
     def gradient(self,bindings,wrt=None):
         return self._compute(bindings,wrt,include_value=False)[1]

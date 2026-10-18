@@ -12,7 +12,7 @@ import platform
 import numpy as np
 import matplotlib.pyplot as plt
 import nexqus
-from nexqus import Circuit, Parameter, QuantumDistribution, QGAN, Adam, distribution_metrics
+from nexqus import Circuit, Parameter, QuantumDistribution, QGAN, Adam, distribution_metrics,Simulator
 from nexqus.circuit import positive_integer
 
 
@@ -42,7 +42,9 @@ def classical_gan(target, initial, epochs):
     return final, history
 
 
-def generate(output, epochs=300, seeds=(7, 21, 42)):
+def generate(output, epochs=300, seeds=(7, 21, 42),*,device=None):
+    simulator=Simulator.for_device(device)
+    print('Quantum execution:',simulator.backend.name,simulator.backend.device)
     epochs = positive_integer(epochs, 'epochs')
     seeds = tuple(seeds)
     if not seeds: raise ValueError('Provide at least one seed')
@@ -52,7 +54,7 @@ def generate(output, epochs=300, seeds=(7, 21, 42)):
     for layer in range(3):
         for wire in range(3): circuit.ry(Parameter(f'w{layer}_{wire}'), wire)
         circuit.cx(0, 1).cx(1, 2)
-    generator = QuantumDistribution(circuit)
+    generator = QuantumDistribution(circuit,simulator=simulator)
     records = []; examples = None
     for seed in seeds:
         rng = np.random.default_rng(seed)
@@ -92,9 +94,11 @@ def generate(output, epochs=300, seeds=(7, 21, 42)):
     fig.colorbar(im, ax=axes[2], label='∂ probability / ∂ angle')
     fig.savefig(output/'comparison.png', dpi=160); fig.savefig(output/'comparison.svg'); plt.close(fig)
     circuit.explain(bindings=model.parameters, title='QGAN generator · learned probability distribution',
+        backend=simulator.backend.name,device=simulator.backend.device,
         parameter_roles={name: 'weight' for name in model.parameters}).to_html(filename=output/'generator.html')
     payload = dict(sdk_version=nexqus.__version__, numpy=np.__version__, python=platform.python_version(),
-        platform=platform.platform(), execution='local NumPy CPU double precision, exact probabilities',
+        platform=platform.platform(),execution=dict(backend=simulator.backend.name,device=simulator.backend.device,
+            scalar_optimizers='cpu',classical_comparison='numpy cpu',precision=simulator.precision),
         source_sha256={p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                        for p in sorted(Path(nexqus.__file__).parent.glob('*.py'))},
         example_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -118,4 +122,5 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=Path('.release-artifacts/qgan'))
     parser.add_argument('--epochs', type=int, default=300)
-    args = parser.parse_args(); generate(args.output, args.epochs)
+    parser.add_argument('--device',help='cpu, cuda, cuda:N or auto')
+    args = parser.parse_args(); generate(args.output, args.epochs,device=args.device)

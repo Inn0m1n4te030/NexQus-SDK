@@ -1,9 +1,13 @@
 """Toy binary classification: negative versus positive scalar inputs."""
 import numpy as np
+import argparse
 from nexqus import Circuit, Parameter, QuantumFunction, QuantumBinaryClassifier, Adam
 
 x,w,b=Parameter('x'),Parameter('weight'),Parameter('bias')
-function=QuantumFunction(Circuit(1).ry(w*x+b,0),'Z')
+parser=argparse.ArgumentParser(description=__doc__); parser.add_argument('--device')
+args=parser.parse_args()
+function=QuantumFunction(Circuit(1).ry(w*x+b,0),'Z',device=args.device)
+print('Execution:',function.simulator.backend.name,function.simulator.backend.device)
 model=QuantumBinaryClassifier(function,['x'],{'weight':.7,'bias':-1.0})
 X=np.r_[np.linspace(-1.4,-.15,10),np.linspace(.15,1.4,10)]
 y=(X>0).astype(int)

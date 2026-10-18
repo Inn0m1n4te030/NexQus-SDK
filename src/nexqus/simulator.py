@@ -5,6 +5,7 @@ from math import sqrt
 import copy
 import hashlib
 import time
+import os
 import numpy as np
 from .backend import Backend
 from .circuit import Circuit, positive_integer, I, X, Y, Z
@@ -59,18 +60,31 @@ class Result:
     classical_probabilities: dict = field(default_factory=dict)
     classical_counts: dict = field(default_factory=dict)
     joint_counts: dict = field(default_factory=dict)
+    _backend: object = field(default=None,repr=False,compare=False)
+
+    def to_numpy(self):
+        """Explicit host export of a native result; does not mutate this result."""
+        from dataclasses import replace
+        b=self._backend
+        if b is None: return replace(self)
+        return replace(self,probabilities=b.numpy(self.probabilities).copy(),
+            statevector=None if self.statevector is None else b.numpy(self.statevector).copy(),
+            density_matrix=None if self.density_matrix is None else b.numpy(self.density_matrix).copy(),
+            metadata={**self.metadata,'native_result':False},_backend=None)
 
     def reduced_density(self,wires):
         """Reduced quantum state, in the supplied wire order; requires retained state."""
         n=self.metadata['n_qubits']; wires=Circuit(n)._wires(wires)
         rest=tuple(q for q in range(n) if q not in wires)
         d=2**len(wires); t=2**len(rest)
+        b=self._backend or Backend()
         if self.statevector is not None:
-            matrix=self.statevector.reshape((2,)*n).transpose(wires+rest).reshape(d,t)
+            matrix=b.permute(self.statevector.reshape((2,)*n),wires+rest).reshape(d,t)
             return matrix@matrix.conj().T
         if self.density_matrix is not None:
             axes=wires+rest+tuple(q+n for q in wires+rest)
-            tensor=self.density_matrix.reshape((2,)*(2*n)).transpose(axes).reshape(d,t,d,t)
+            tensor=b.permute(self.density_matrix.reshape((2,)*(2*n)),axes).reshape(d,t,d,t)
+            if b.torch: return tensor.diagonal(dim1=1,dim2=3).sum(-1)
             return np.trace(tensor,axis1=1,axis2=3)
         raise ValueError('Reduced density requires a retained statevector or density matrix')
 
@@ -82,9 +96,13 @@ class Result:
         n = self.metadata["n_qubits"]
         wires = Circuit(n)._wires(wires)
         axes = wires + tuple(q for q in range(n) if q not in wires)
-        return self.probabilities.reshape((2,)*n).transpose(axes).reshape(2**len(wires), -1).sum(axis=1)
+        b=self._backend or Backend()
+        return b.permute(self.probabilities.reshape((2,)*n),axes).reshape(2**len(wires), -1).sum(axis=1)
 
     def expectation(self, pauli):
+        return float(self.expectation_native(pauli))
+
+    def expectation_native(self, pauli):
         """Pauli string in q0..qn order, e.g. 'ZI' or 'XX'.
 
         Requires retain_state=True. Trajectory runs do not retain a mixed state.
@@ -94,13 +112,16 @@ class Result:
             raise ValueError("Provide one I/X/Y/Z character per qubit")
         if self.statevector is None and self.density_matrix is None:
             raise ValueError("Expectation requires a retained statevector or density matrix")
-        backend = Backend()
+        backend = self._backend or Backend()
         matrices = {"I": I, "X": X, "Y": Y, "Z": Z}
         density = self.density_matrix is not None
         original = self.density_matrix if density else self.statevector
         work = original.reshape((2,)*(2*n if density else n))
         for q, p in enumerate(pauli):
-            if p != "I": work = backend.apply(work, matrices[p], (q,))
+            if p != "I": work = backend.apply(work, backend.array(matrices[p]), (q,))
+        if backend.torch:
+            if density: return work.reshape(2**n,2**n).diagonal().sum().real
+            return backend.torch.vdot(original,work.reshape(-1)).real
         if density: return float(np.trace(work.reshape(2**n, 2**n)).real)
         return float(np.vdot(original, work.reshape(-1)).real)
 
@@ -112,8 +133,15 @@ class Simulator:
     method='trajectory': finite-sample noisy ensemble, configurable batch size.
     max_memory_mb limits estimated core working storage, not process RAM.
     """
-    def __init__(self, backend="numpy", device="cpu", method="auto", precision="double",
+    def __init__(self, backend=None, device=None, method="auto", precision="double",
                  max_memory_mb=1024, gate_cache_mb=64, local_gates=True):
+        device=device if device is not None else (os.environ.get('NEXQUS_DEVICE','cpu') if backend is None else 'cpu')
+        if device=='auto':
+            try:
+                import torch
+                device='cuda:0' if torch.cuda.is_available() else 'cpu'
+            except ImportError: device='cpu'
+        backend=backend or ('numpy' if device=='cpu' else 'torch')
         if method not in ("auto", "statevector", "density_matrix", "trajectory"):
             raise ValueError("Unknown simulation method")
         if not np.isfinite(max_memory_mb) or max_memory_mb <= 0:
@@ -128,6 +156,18 @@ class Simulator:
         self._gate_cache=OrderedDict()
         self._cache_bytes=0
         self._cache_hits=self._cache_misses=0
+
+    @classmethod
+    def for_device(cls, device=None, *, backend=None, **options):
+        """Select NumPy CPU or Torch CPU/CUDA. Only 'auto' permits CPU selection."""
+        if device=='auto':
+            try:
+                import torch
+                device='cuda:0' if torch.cuda.is_available() else 'cpu'
+            except ImportError: device='cpu'
+        if device is not None and not isinstance(device,str): raise ValueError('device must be cpu, cuda, cuda:N or auto')
+        if device is None: return cls(backend=backend,**options)
+        return cls(backend=backend or ('numpy' if device=='cpu' else 'torch'),device=device,**options)
 
     def _prepare_array(self, data, permutation=False):
         contiguous=np.ascontiguousarray(data)
@@ -212,7 +252,8 @@ class Simulator:
 
     def run(self, circuit, shots=1024, seed=None, noise=None, trajectories=256,
             initial_state=None, retain_state=True, readout_error=0.0, batch_size=1,
-            random_engine='portable', noise_fastpath=True, max_branches=1024):
+            random_engine='portable', noise_fastpath=True, max_branches=1024, native_result=False):
+        if not isinstance(native_result,bool): raise ValueError('native_result must be boolean')
         prepared=isinstance(circuit,CompiledCircuit)
         prepared_arrays={}
         prepared_channels={}
@@ -234,7 +275,7 @@ class Simulator:
                                retain_state=retain_state,readout_error=readout_error,
                                batch_size=batch_size,random_engine=random_engine,
                                max_branches=max_branches,prepared_arrays=prepared_arrays,
-                               compiled=prepared,compile_seconds=compile_seconds)
+                               compiled=prepared,compile_seconds=compile_seconds,native_result=native_result)
         if isinstance(shots, bool) or not isinstance(shots, (int, np.integer)) or shots < 0:
             raise ValueError("shots must be a nonnegative integer")
         if noise is not None and not isinstance(noise, NoiseModel):
@@ -408,29 +449,34 @@ class Simulator:
                 count=min(effective_batch,trajectories-offset)
                 state=evolve_batch(count).reshape(count,size)
                 device_probs+=(state.conj()*state).real.sum(axis=0)
-            probs=b.numpy(device_probs)/trajectories
+            probs=device_probs/trajectories if native_result else b.numpy(device_probs)/trajectories
         elif method == "density_matrix":
             state = evolve(True).reshape(size, size)
             diag = state.diagonal()
-            probs = b.numpy(diag.real).copy()
-            if retain_state: saved_rho = b.numpy(state)
+            probs = diag.real.clone() if native_result and b.torch else b.numpy(diag.real).copy()
+            if retain_state: saved_rho = state if native_result else b.numpy(state)
         else:
             state = evolve(False).reshape(size)
-            probs = b.numpy((state.conj()*state).real).copy()
-            if retain_state: saved_psi = b.numpy(state)
+            population=(state.conj()*state).real
+            probs = population if native_result else b.numpy(population).copy()
+            if retain_state: saved_psi = state if native_result else b.numpy(state)
         b.sync()
         elapsed = time.perf_counter() - started
         cpu_seconds = time.process_time() - cpu_started
-        if not np.isfinite(probs).all() or np.min(probs) < -1e-5 or abs(probs.sum()-1) > 1e-3:
+        finite=b.torch.isfinite(probs).all() if native_result and b.torch else np.isfinite(probs).all()
+        if not finite or probs.min() < -1e-5 or abs(probs.sum()-1) > 1e-3:
             raise RuntimeError("Probability normalization failed")
-        probs = np.maximum(np.asarray(probs,dtype=float), 0); probs /= probs.sum()
+        probs = probs.clamp_min(0) if native_result and b.torch else np.maximum(np.asarray(probs,dtype=float),0)
+        probs = probs/probs.sum()
         # Readout errors affect observed probabilities/counts, never the quantum state.
         if readout_error:
             p = probs.reshape((2,)*n)
-            for q in range(n): p = (1-readout_error)*p + readout_error*np.flip(p, axis=q)
+            for q in range(n):
+                flipped=p.flip((q,)) if native_result and b.torch else np.flip(p,axis=q)
+                p=(1-readout_error)*p+readout_error*flipped
             probs = p.reshape(-1)
         counts = dict(sorted(Counter(format(int(i), f"0{n}b")
-                         for i in rng.choice(size, size=shots, p=probs)).items())) if shots else {}
+                         for i in rng.choice(size, size=shots, p=b.numpy(probs) if native_result else probs)).items())) if shots else {}
         metadata = dict(n_qubits=n, method=method, backend=b.name, device=b.device,
                         precision=self.precision, seed=seed, shots=int(shots),
                         trajectories=trajectories if method == "trajectory" else None,
@@ -442,7 +488,16 @@ class Simulator:
                         random_engine=random_engine,noise_fastpath=bool(noise_fastpath),
                         local_gates=b.local_gates,
                         trajectory_sampling_device=b.device if method=='trajectory' else None,
-                        probability_kind="trajectory_estimate" if method=="trajectory" else "exact")
+                        probability_kind="trajectory_estimate" if method=="trajectory" else "exact",native_result=native_result)
         if b.torch and b.device.startswith("cuda"):
             metadata["cuda_allocated_bytes_at_end"] = b.torch.cuda.memory_allocated(b.device)
-        return Result(probs, counts, metadata, saved_psi, saved_rho)
+        return Result(probs, counts, metadata, saved_psi, saved_rho,_backend=b if native_result else None)
+
+
+def resolve_simulator(simulator=None, *, backend=None, device=None, precision=None):
+    if simulator is not None:
+        if not isinstance(simulator,Simulator): raise TypeError('Expected Simulator')
+        if any(v is not None for v in (backend,device,precision)):
+            raise ValueError('Supply a simulator or backend/device/precision options, not both')
+        return simulator
+    return Simulator.for_device(device,backend=backend,precision=precision or 'double')

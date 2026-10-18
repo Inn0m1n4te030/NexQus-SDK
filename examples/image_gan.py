@@ -22,10 +22,12 @@ import nexqus
 from nexqus.image_gan import (QuantumPatchGenerator, HybridImageGenerator,
     ClassicalImageGenerator, ImageGAN, ImageDataset, synthetic_bars,
     load_cifar10_cats_dogs, save_image_grid)
+from nexqus.torch_circuit import tensor_device
 
 
 def image_diagnostics(generated, labels, reference):
     """Descriptive pixel statistics, never a semantic/fidelity score."""
+    generated=generated.detach().cpu(); labels=labels.cpu()
     result = {}
     for label, name in enumerate(reference.class_names):
         fake = generated[labels == label].flatten(1)
@@ -36,15 +38,16 @@ def image_diagnostics(generated, labels, reference):
 
 
 def make_effect_plot(model, folder, seed):
-    noise = torch.randn(1, model.latent_dim, generator=torch.Generator().manual_seed(seed))
-    labels = torch.zeros(1, dtype=torch.long)
+    device=next(model.parameters()).device
+    noise = torch.randn(1, model.latent_dim, generator=torch.Generator(device=device).manual_seed(seed),device=device)
+    labels = torch.zeros(1, dtype=torch.long,device=device)
     effect = model.parameter_effect(noise, labels, delta=.25)
     figure, axes = plt.subplots(1, 4, figsize=(11, 3))
     for axis, key, title in zip(axes[:3], ('minus', 'center', 'plus'), ('w − 0.25', 'w', 'w + 0.25')):
-        pixels = effect[key][0].numpy().transpose(1, 2, 0)
+        pixels = effect[key][0].cpu().numpy().transpose(1, 2, 0)
         axis.imshow(pixels[:, :, 0] if model.channels == 1 else pixels, cmap='gray', vmin=0, vmax=1,
                     interpolation='nearest'); axis.set_title(title); axis.axis('off')
-    sensitivity = effect['sensitivity'][0].mean(0).numpy()
+    sensitivity = effect['sensitivity'][0].mean(0).cpu().numpy()
     limit = max(float(np.max(np.abs(sensitivity))), 1e-9)
     artist = axes[3].imshow(sensitivity, cmap='RdBu_r', vmin=-limit, vmax=limit, interpolation='nearest')
     axes[3].set_title('Pixel change / radian\n(mean over channels)'); axes[3].axis('off')
@@ -95,8 +98,12 @@ def main(argv=None):
     parser.add_argument('--batch-size', type=int, default=4); parser.add_argument('--learning-rate', type=float, default=.002)
     parser.add_argument('--seed', type=int, default=7); parser.add_argument('--threads', type=int, default=1)
     parser.add_argument('--resume', type=Path, help='Resume one mode with identical data/split/batch size')
+    parser.add_argument('--device',default=None,help='cpu, cuda, cuda:N or auto; otherwise NEXQUS_DEVICE or cpu')
+    parser.add_argument('--reset-rng',action='store_true',help='Allow cross CPU/CUDA checkpoint continuation with a new noise stream')
     parser.add_argument('--output-dir', type=Path, default=Path('.release-artifacts/image-gans'))
     args = parser.parse_args(argv)
+    device=tensor_device(args.device)
+    print('Execution device:',device,torch.cuda.get_device_name(device) if device.type=='cuda' else '',flush=True)
     if args.download and args.cifar10 is None: parser.error('--download requires --cifar10')
     if args.steps < 1 or args.threads < 1: parser.error('--steps and --threads must be positive')
     if args.resume and args.mode == 'all': parser.error('--resume requires one specific --mode')
@@ -120,7 +127,9 @@ def main(argv=None):
     if len(labels) > 128: parser.error('The comparison preview supports at most 16 classes')
     modes = ['patch', 'hybrid', 'classical'] if args.mode == 'all' else [args.mode]
     payload = dict(sdk_version=nexqus.__version__, torch_version=str(torch.__version__), numpy_version=np.__version__,
-        platform=platform.platform(), device='cpu', precision='float32 Torch / complex128 native quantum simulation',
+        platform=platform.platform(), device=str(device),requested_device=args.device,
+        gpu_name=torch.cuda.get_device_name(device) if device.type=='cuda' else None,
+        precision='float32 Torch / batched complex64 Torch circuit autograd',
         threads=torch.get_num_threads(), source=data.source, classes=list(data.class_names),
         shape=list(data.images.shape[1:]), training_samples=len(training), validation_samples=len(validation),
         training_fingerprint=training.fingerprint, validation_fingerprint=validation.fingerprint,
@@ -133,7 +142,7 @@ def main(argv=None):
         common = dict(image_size=args.size, channels=args.channels, latent_dim=args.latent_dim,
                       num_classes=len(data.class_names), seed=args.seed)
         if args.resume:
-            trainer = ImageGAN.load(args.resume)
+            trainer = ImageGAN.load(args.resume,device=device,reset_rng=args.reset_rng)
             if trainer.generator.config['kind'] != mode: parser.error('Checkpoint kind differs from --mode')
             if trainer.config['seed'] != args.seed: parser.error('Keep --seed identical to checkpoint for a matched continuation')
             g = trainer.generator
@@ -146,16 +155,18 @@ def main(argv=None):
                 g = QuantumPatchGenerator(**common, depth=args.depth, patch_size=args.patch_size or (8 if args.size >= 32 else 4))
             elif mode == 'hybrid': g = HybridImageGenerator(**common, n_qubits=args.qubits, depth=args.depth, hidden=args.hidden)
             else: g = ClassicalImageGenerator(**common, hidden=args.hidden)
-            trainer = ImageGAN(g, learning_rate=args.learning_rate, discriminator_hidden=args.hidden, seed=args.seed)
+            trainer = ImageGAN(g, learning_rate=args.learning_rate, discriminator_hidden=args.hidden, seed=args.seed,device=device)
         before = trainer.sample(len(labels), labels=labels, seed=1000+args.seed)
         save_image_grid(before, output/'before.png', columns=8)
         start_steps = trainer.steps
         def progress(record):
             if record['step'] == start_steps+1 or (record['step']-start_steps) % 10 == 0:
                 print(f"{mode}: step {record['step']}  D={record['discriminator_loss']:.4f} G={record['generator_loss']:.4f}", flush=True)
+        if device.type=='cuda': torch.cuda.synchronize(device)
         started = perf_counter()
         trainer.fit(training, epochs=math.ceil(args.steps/max(1, math.ceil(len(training)/args.batch_size)))+1,
                     batch_size=args.batch_size, max_steps=args.steps, callback=progress)
+        if device.type=='cuda': torch.cuda.synchronize(device)
         elapsed = perf_counter()-started
         after = trainer.sample(len(labels), labels=labels, seed=1000+args.seed)
         save_image_grid(after, output/'after.png', columns=8); trainer.save(output/'checkpoint.pt')
@@ -169,7 +180,7 @@ def main(argv=None):
             generator_parameters=sum(p.numel() for p in g.parameters()),
             quantum_parameters=sum(q.weights.numel() for q in g.quantum_layers()),
             discriminator_parameters=sum(p.numel() for p in trainer.discriminator.parameters()),
-            session_training_seconds=elapsed, timing_scope='Full CPU training loop including parameter shifts and optimizers; no setup/export',
+            session_training_seconds=elapsed, timing_scope='Full training loop including batched circuit autograd and optimizers; CUDA synchronized; no setup/export',
             before=image_diagnostics(before, labels, validation), after=image_diagnostics(after, labels, validation),
             final_losses=trainer.history[-1])
         if mode != 'classical': record['parameter_effect'] = make_effect_plot(g, output, args.seed)

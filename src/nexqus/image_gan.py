@@ -1,7 +1,7 @@
 """Conditional image GAN training, deterministic continuation and safe loading.
 
 Optional import: from nexqus.image_gan import ... . Core nexqus does not import
-PyTorch, Pillow or this module. Quantum circuit execution is local CPU only.
+PyTorch, Pillow or this module. Quantum/classical execution supports CPU/CUDA.
 """
 import os
 from pathlib import Path
@@ -16,6 +16,7 @@ from .parameters import real_scalar
 from .image_models import (QuantumProbabilityLayer, QuantumPatchGenerator,
     HybridImageGenerator, ClassicalImageGenerator, build_generator, _bounded_int, _seed)
 from .image_data import ImageDataset, synthetic_bars, load_cifar10_cats_dogs, save_image_grid
+from .torch_circuit import tensor_device
 
 
 class ImageDiscriminator(nn.Module):
@@ -23,7 +24,7 @@ class ImageDiscriminator(nn.Module):
         super().__init__(); hidden = _bounded_int(hidden, 'hidden', 512)
         self.num_classes = num_classes
         with torch.random.fork_rng(devices=[]):
-            torch.manual_seed(seed)
+            torch.random.default_generator.manual_seed(seed)
             self.network = nn.Sequential(nn.Linear(channels*image_size**2+num_classes, hidden),
                 nn.LeakyReLU(.2), nn.Linear(hidden, hidden), nn.LeakyReLU(.2), nn.Linear(hidden, 1))
 
@@ -35,25 +36,27 @@ class ImageDiscriminator(nn.Module):
 class ImageGAN:
     """Alternating balanced BCE discriminator / non-saturating generator loss.
 
-    All computation is CPU float32. Training uses local random generators;
+    Model computation is float32 on CPU/CUDA. Training uses local random generators;
     sampling does not change the training RNG. fit can stop/resume mid-epoch
     with the same dataset fingerprint and batch size.
     """
-    def __init__(self, generator, *, learning_rate=.002, discriminator_hidden=64, seed=7):
+    def __init__(self, generator, *, learning_rate=.002, discriminator_hidden=64, seed=7,device=None):
         seed = _seed(seed); discriminator_hidden = _bounded_int(discriminator_hidden, 'discriminator_hidden', 512)
         if not isinstance(generator, (QuantumPatchGenerator, HybridImageGenerator, ClassicalImageGenerator)):
             raise TypeError('Expected a supported image generator')
-        if any(p.device.type != 'cpu' or p.dtype != torch.float32 for p in generator.parameters()):
-            raise ValueError('ImageGAN training requires CPU float32 model parameters')
+        self.device=tensor_device(device if device is not None else os.environ.get('NEXQUS_DEVICE',str(next(generator.parameters()).device)))
+        generator=generator.to(self.device)
+        if any(p.dtype != torch.float32 for p in generator.parameters()):
+            raise ValueError('ImageGAN training requires float32 model parameters')
         learning_rate = real_scalar(learning_rate)
         if learning_rate <= 0: raise ValueError('learning_rate must be positive')
         self.generator = generator
         self.discriminator = ImageDiscriminator(generator.image_size, generator.channels,
-            generator.num_classes, discriminator_hidden, seed)
+            generator.num_classes, discriminator_hidden, seed).to(self.device)
         self.generator_optimizer = torch.optim.Adam(generator.parameters(), lr=learning_rate, betas=(.5,.999))
         self.discriminator_optimizer = torch.optim.Adam(self.discriminator.parameters(), lr=learning_rate, betas=(.5,.999))
-        self.config = dict(learning_rate=learning_rate, discriminator_hidden=discriminator_hidden, seed=seed)
-        self.noise_rng = torch.Generator().manual_seed(seed+101)
+        self.config = dict(learning_rate=learning_rate, discriminator_hidden=discriminator_hidden, seed=seed,device=str(self.device))
+        self.noise_rng = torch.Generator(device=self.device).manual_seed(seed+101)
         self.order_rng = torch.Generator().manual_seed(seed+202)
         self.epoch = 0; self.steps = 0; self.history = []
         self._order = None; self._cursor = 0; self._batch_size = None; self._fingerprint = None
@@ -61,7 +64,7 @@ class ImageGAN:
     def _step(self, real, labels):
         g, d = self.generator, self.discriminator
         g.train(); d.train()
-        noise = torch.randn(len(real), g.latent_dim, generator=self.noise_rng)
+        noise = torch.randn(len(real), g.latent_dim, generator=self.noise_rng,device=self.device)
         with torch.no_grad(): fake = g(noise, labels)
         self.discriminator_optimizer.zero_grad(set_to_none=True)
         real_logits, fake_logits = d(real, labels), d(fake, labels)
@@ -74,7 +77,7 @@ class ImageGAN:
         self.generator_optimizer.zero_grad(set_to_none=True)
         for p in d.parameters(): p.requires_grad_(False)
         try:
-            noise = torch.randn(len(real), g.latent_dim, generator=self.noise_rng)
+            noise = torch.randn(len(real), g.latent_dim, generator=self.noise_rng,device=self.device)
             fake = g(noise, labels)
             loss_g = torch.nn.functional.softplus(-d(fake, labels)).mean()
             if not torch.isfinite(loss_g): raise FloatingPointError('Generator loss is not finite')
@@ -92,6 +95,8 @@ class ImageGAN:
         epochs = positive_integer(epochs, 'epochs'); batch_size = _bounded_int(batch_size, 'batch_size', 128)
         if max_steps is not None: max_steps = positive_integer(max_steps, 'max_steps')
         g = self.generator
+        if any(p.device!=self.device for model in (g,self.discriminator) for p in model.parameters()):
+            raise ValueError('Do not move models after constructing the trainer; reload on the desired device')
         if dataset.images.shape[1:] != (g.channels, g.image_size, g.image_size) or len(dataset.class_names) != g.num_classes:
             raise ValueError('Dataset shape/classes do not match the generator')
         fingerprint = dataset.fingerprint
@@ -107,7 +112,7 @@ class ImageGAN:
         while self.epoch < target_epoch:
             if self._order is None: self._order = torch.randperm(len(dataset), generator=self.order_rng); self._cursor = 0
             indices = self._order[self._cursor:self._cursor+batch_size]
-            record = self._step(dataset.images[indices], dataset.labels[indices])
+            record = self._step(dataset.images[indices].to(self.device), dataset.labels[indices].to(self.device))
             record.update(step=self.steps+1, epoch=self.epoch)
             self.steps += 1; self._cursor += len(indices); self.history.append(record)
             if self._cursor == len(dataset): self.epoch += 1; self._order = None; self._cursor = 0
@@ -117,9 +122,10 @@ class ImageGAN:
 
     def sample(self, count=16, *, labels=None, seed=0):
         count = _bounded_int(count, 'count', 128)
-        if labels is None: labels = torch.arange(count, dtype=torch.long) % self.generator.num_classes
+        if labels is None: labels = torch.arange(count, dtype=torch.long,device=self.device) % self.generator.num_classes
         if not isinstance(labels, torch.Tensor) or labels.shape != (count,): raise ValueError('Supply one label per image')
-        noise = torch.randn(count, self.generator.latent_dim, generator=torch.Generator().manual_seed(seed))
+        labels=labels.to(self.device)
+        noise = torch.randn(count, self.generator.latent_dim, generator=torch.Generator(device=self.device).manual_seed(seed),device=self.device)
         previous = self.generator.training; self.generator.eval()
         try:
             with torch.no_grad(): return self.generator(noise, labels).clone()
@@ -128,7 +134,7 @@ class ImageGAN:
     def save(self, filename):
         """Atomic tensor/primitives checkpoint; includes optimizers and RNG/data order."""
         filename = Path(filename); filename.parent.mkdir(parents=True, exist_ok=True)
-        state = dict(schema_version=1, generator_config=self.generator.config, trainer_config=self.config,
+        state = dict(schema_version=2, generator_config=self.generator.config, trainer_config=self.config,
             generator_state=self.generator.state_dict(), discriminator_state=self.discriminator.state_dict(),
             generator_optimizer=self.generator_optimizer.state_dict(), discriminator_optimizer=self.discriminator_optimizer.state_dict(),
             noise_rng=self.noise_rng.get_state(), order_rng=self.order_rng.get_state(),
@@ -142,15 +148,22 @@ class ImageGAN:
             if temporary.exists(): temporary.unlink()
 
     @classmethod
-    def load(cls, filename):
+    def load(cls, filename, *, device=None,reset_rng=False):
         """Load only tensor/primitives data; no custom model pickle objects."""
         state = torch.load(filename, map_location='cpu', weights_only=True)
-        if not isinstance(state, dict) or state.get('schema_version') != 1: raise ValueError('Unsupported checkpoint')
-        trainer = cls(build_generator(state['generator_config']), **state['trainer_config'])
-        trainer.generator.load_state_dict(state['generator_state']); trainer.discriminator.load_state_dict(state['discriminator_state'])
+        if not isinstance(state, dict) or state.get('schema_version') not in (1,2): raise ValueError('Unsupported checkpoint')
+        config=dict(state['trainer_config']); saved_device=config.pop('device','cpu')
+        target=tensor_device(device if device is not None else saved_device)
+        if target.type!=torch.device(saved_device).type and not reset_rng:
+            raise ValueError('CPU/CUDA RNG streams differ; pass reset_rng=True for cross-device continuation')
+        trainer = cls(build_generator(state['generator_config']),device=target,**config)
+        missing,unexpected=trainer.generator.load_state_dict(state['generator_state'],strict=False)
+        if unexpected or any('tensor_circuit.' not in n for n in missing): raise ValueError('Invalid checkpoint model state')
+        trainer.discriminator.load_state_dict(state['discriminator_state'])
         trainer.generator_optimizer.load_state_dict(state['generator_optimizer'])
         trainer.discriminator_optimizer.load_state_dict(state['discriminator_optimizer'])
-        trainer.noise_rng.set_state(state['noise_rng']); trainer.order_rng.set_state(state['order_rng'])
+        if not reset_rng: trainer.noise_rng.set_state(state['noise_rng'])
+        trainer.order_rng.set_state(state['order_rng'])
         trainer.epoch = int(state['epoch']); trainer.steps = int(state['steps']); trainer.history = state['history']
         trainer._order = state['order']; trainer._cursor = int(state['cursor'])
         trainer._batch_size = state['batch_size']; trainer._fingerprint = state['fingerprint']

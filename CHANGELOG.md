@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Extend device selection across probability generators, QGAN, learning,
+  Hamiltonian/VQE, bounded exact references and explanations; retain optional
+  native result tensors and Pauli reductions on CPU/CUDA.
+- Replace image GAN's per-sample NumPy bridge with batched Torch circuit
+  autograd, CUDA model/optimizer execution and device-aware checkpoint reload.
+- Add optional explicit GPU4PySCF RHF dispatch, labelled CPU integral/mapping
+  stages, device diagnostics and strict real-CUDA validation tooling.
+
 - Add conditional quantum patch and quantum-feature/classical-decoder image
   generators, a Torch/native-parameter-shift bridge, classical GAN baseline,
   image loaders, minibatch training, resumable checkpoints and pixel effects.

@@ -14,7 +14,7 @@ from .random import DeviceRandom
 
 def run_dynamic(sim,circuit,*,shots,seed,noise,trajectories,initial_state,retain_state,
                 readout_error,batch_size,random_engine,max_branches,prepared_arrays,
-                compiled,compile_seconds):
+                compiled,compile_seconds,native_result=False):
     from .simulator import Result, _initial_vector
     if isinstance(shots,bool) or not isinstance(shots,(int,np.integer)) or shots<0:
         raise ValueError('shots must be a nonnegative integer')
@@ -133,7 +133,7 @@ def run_dynamic(sim,circuit,*,shots,seed,noise,trajectories,initial_state,retain
         joint=np.maximum(joint,0); joint/=joint.sum()
         probabilities=joint.sum(axis=0)
         if keys: classical_probabilities={format(code,f'0{len(keys)}b'):float(joint[i].sum()) for i,code in enumerate(codes)}
-        if retain_state: retained=b.numpy(total)
+        if retain_state: retained=total if native_result else b.numpy(total)
         b.sync(); elapsed=time.perf_counter()-started; cpu_seconds=time.process_time()-cpu_started
         if shots:
             chosen=rng.choice(joint.size,size=shots,p=joint.reshape(-1))
@@ -200,6 +200,10 @@ def run_dynamic(sim,circuit,*,shots,seed,noise,trajectories,initial_state,retain
                   probability_kind='exact' if method=='branch_density' else 'trajectory_estimate',
                   dynamic_noise_kernel='generic_kraus',trajectory_sampling_device=b.device if method=='trajectory' else None)
     if b.torch and b.device.startswith('cuda'): metadata['cuda_allocated_bytes_at_end']=b.torch.cuda.memory_allocated(b.device)
+    metadata['native_result']=native_result
+    if native_result and b.torch:
+        probabilities=b.torch.as_tensor(probabilities,device=b.device)
     return Result(probabilities,dict(sorted(quantum_counts.items())),metadata,
                   density_matrix=retained,classical_keys=keys,classical_probabilities=classical_probabilities,
-                  classical_counts=dict(sorted(classical_counts.items())),joint_counts=dict(sorted(joint_counts.items())))
+                  classical_counts=dict(sorted(classical_counts.items())),joint_counts=dict(sorted(joint_counts.items())),
+                  _backend=b if native_result else None)

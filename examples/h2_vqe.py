@@ -18,22 +18,25 @@ from nexqus import Parameter, Adam, Simulator
 from nexqus.chemistry import molecular_hamiltonian, h2_pair_ansatz
 
 
-def generate(output, distances=(.5, .735, 1., 1.5, 2.)):
+def generate(output, distances=(.5, .735, 1., 1.5, 2.),*,device=None,scf_device='cpu'):
+    simulator=Simulator.for_device(device)
+    print('VQE:',simulator.backend.name,simulator.backend.device,'SCF:',scf_device,
+          'integrals/Jordan-Wigner/PySCF FCI: CPU')
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
     rows = []; detail = None
     for distance in distances:
         xyz = [[0, 0, 0], [0, 0, float(distance)]]
-        problem = molecular_hamiltonian(['H', 'H'], xyz)
+        problem = molecular_hamiltonian(['H', 'H'], xyz,scf_device=scf_device)
         mol = gto.M(atom=list(zip(['H', 'H'], xyz)), basis='sto-3g', unit='Angstrom', verbose=0)
         rhf = scf.RHF(mol).run(conv_tol=1e-11)
         reference = float(fci.FCI(rhf).kernel()[0])
-        circuit = h2_pair_ansatz(Parameter('theta')); function = problem.hamiltonian.function(circuit)
+        circuit = h2_pair_ansatz(Parameter('theta')); function = problem.hamiltonian.function(circuit,simulator=simulator)
         parameters = {'theta': 0.}; optimizer = Adam(.04); history = []
         for epoch in range(220):
             value, gradient = function.value_and_grad(parameters)
             history.append(dict(epoch=epoch, energy=value, theta=parameters['theta']))
             parameters = optimizer.step(parameters, gradient)
-        energy = function(parameters); exact = problem.exact_energy()
+        energy = function(parameters); exact = problem.exact_energy(simulator=simulator)
         if abs(exact-reference) > 1e-8 or abs(energy-reference) > 1e-6:
             raise RuntimeError('H2 validation against PySCF FCI failed')
         rows.append(dict(bond_angstrom=float(distance), hartree_fock=problem.hartree_fock_energy,
@@ -45,10 +48,10 @@ def generate(output, distances=(.5, .735, 1., 1.5, 2.)):
               f'FCI={reference:.9f}, VQE={energy:.9f}, error={abs(energy-reference):.2g} Ha')
         if detail is None or abs(distance-.735) < 1e-10: detail = (problem, circuit, parameters, rows[-1])
     problem, circuit, parameters, row = detail
-    result = Simulator().run(circuit.bind(parameters), shots=0, retain_state=True)
+    result = simulator.run(circuit.bind(parameters), shots=0, retain_state=True,native_result=True)
     contributions = [dict(pauli=p, coefficient=c, expectation=result.expectation(p),
                           contribution=c*result.expectation(p)) for c, p in problem.hamiltonian.terms]
-    explanation = circuit.explain(bindings=parameters, observable='ZZII',
+    explanation = circuit.explain(bindings=parameters, observable='ZZII',device=simulator.backend.device,backend=simulator.backend.name,
         parameter_roles={'theta': 'weight'}, title='H₂ · mixing occupied and excited determinants')
     explanation.to_html(filename=output/'circuit.html')
     problem.molecule().view(energies_hartree={'Classical Hartree–Fock': row['hartree_fock'],
@@ -61,7 +64,7 @@ def generate(output, distances=(.5, .735, 1., 1.5, 2.)):
     for step, frame in enumerate(explanation.to_dict()['frames']):
         amplitudes = np.array(frame['amplitudes']); psi = amplitudes[:, 0]+1j*amplitudes[:, 1]
         p = abs(psi)**2
-        trace.append(dict(step=step, energy_hartree=float(np.vdot(psi, problem.hamiltonian.dense()@psi).real),
+        trace.append(dict(step=step, energy_hartree=float(np.vdot(psi, problem.hamiltonian.dense(device='cpu')@psi).real),
             two_electron_probability=float(sum(p[i] for i in range(16) if bin(i).count('1') == 2))))
     fig, axes = plt.subplots(1, 3, figsize=(15, 4), layout='constrained')
     x = [r['bond_angstrom'] for r in rows]
@@ -76,7 +79,8 @@ def generate(output, distances=(.5, .735, 1., 1.5, 2.)):
     axes[2].set(title='How measured terms build the energy', xlabel='coefficient × expectation / Hartree')
     fig.savefig(output/'comparison.png', dpi=160); fig.savefig(output/'comparison.svg'); plt.close(fig)
     payload = dict(sdk_version=nexqus.__version__, numpy=np.__version__, pyscf=pyscf.__version__,
-        platform=platform.platform(), execution='local NumPy CPU double precision, exact expectations',
+        platform=platform.platform(), execution=dict(vqe_backend=simulator.backend.name,vqe_device=simulator.backend.device,
+            scf_device=scf_device,integrals='cpu',jordan_wigner='cpu',pyscf_fci='cpu',precision=simulator.precision),
         source_sha256={p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                        for p in sorted(Path(nexqus.__file__).parent.glob('*.py'))},
         example_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -93,4 +97,6 @@ def generate(output, distances=(.5, .735, 1., 1.5, 2.)):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=Path('.release-artifacts/h2'))
-    generate(parser.parse_args().output)
+    parser.add_argument('--device',help='VQE device: cpu, cuda, cuda:N or auto')
+    parser.add_argument('--scf-device',default='cpu',help='cpu or cuda:N; CUDA SCF separately requires GPU4PySCF')
+    args=parser.parse_args(); generate(args.output,device=args.device,scf_device=args.scf_device)

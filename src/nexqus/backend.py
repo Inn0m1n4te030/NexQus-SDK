@@ -19,6 +19,8 @@ class Backend:
                 raise ValueError("NumPy runs on CPU. For CUDA use backend='torch'.")
             self.dtype = np.complex64 if precision == "single" else np.complex128
         else:
+            if not isinstance(device,str) or (device!='cpu' and device!='cuda' and not device.startswith('cuda:')):
+                raise ValueError('Supported devices: cpu, cuda, cuda:N')
             try:
                 import torch
             except ImportError as exc:
@@ -34,6 +36,8 @@ class Backend:
 
     def array(self, x):
         if self.torch:
+            if self.torch.is_tensor(x):
+                return x.to(device=self.device,dtype=self.dtype).clone()
             host_dtype=np.complex64 if self.itemsize==8 else np.complex128
             host=np.array(x,dtype=host_dtype,copy=True)
             return self.torch.from_numpy(host).to(device=self.device,dtype=self.dtype)
