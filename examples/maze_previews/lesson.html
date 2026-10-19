@@ -47,7 +47,7 @@ details{margin-top:15px}summary{cursor:pointer;font-weight:650}.circuit-wrap{ove
 <div class="row spread"><strong class="small">Signed real amplitudes</strong><span class="small muted" id="amplitude-scale"></span></div>
 <svg class="plot" id="amplitudes" viewBox="0 0 700 175" role="img" aria-label="Positive and negative real amplitudes"></svg>
 <div class="legend"><span><i class="dot" style="background:#087a57"></i>Valid plan</span><span><i class="dot" style="background:#2859d6"></i>Other / positive amplitude</span><span><i class="dot" style="background:#bb2860"></i>Negative amplitude</span></div>
-<p class="small muted">These circuits use real-valued gates. Negative amplitude means a relative phase of π; probability is amplitude squared.</p><div id="measurement" role="status" aria-live="polite">Measure to sample a plan from the displayed stage. A sample can fail.</div>
+<p class="small muted">These circuits use real-valued gates. Negative amplitude means a relative phase of π; probability is amplitude squared. Each shot prepares the displayed stage again. The plots show its pre-measurement state, not a collapsed state.</p><div id="measurement" role="status" aria-live="polite">Measure to sample a plan from the displayed stage. A sample can fail.</div>
 <div id="route-list"><table><thead><tr><th>Plan</th><th>Oracle says</th><th>Moves</th><th>Probability</th></tr></thead><tbody id="route-body"></tbody></table></div>
 </div>
 <div class="card"><h2>3. Count the work honestly</h2><table><tbody id="work"></tbody></table>

@@ -33,6 +33,8 @@ macOS and Linux use the same commands with Python 3.10+.
 5. **Measure this stage** uses the SDK's seeded sampling on that stage's
    actual circuit prefix. It can return an invalid plan, especially before
    amplification. Live measurements increment the seed; set it back to repeat.
+   Each shot prepares that stage again; the plots remain its pre-measurement
+   state rather than displaying a collapsed state.
 6. Overlay the BFS shortest path. Then try eight iterations to see overshoot,
    Blocked exit to see a genuinely unreachable exit, and Choice-budget challenge
    to see a reachable maze that the bounded encoding cannot solve.
