@@ -154,6 +154,8 @@ jobs:
       - run: python -m unittest discover -s tests -p test_molecules.py -v
       - run: python examples/molecular_viewer.py
       - run: node scripts/check_molecule_ui.cjs
+      - run: python examples/quantum_maze.py --export .release-artifacts/maze/lesson.html
+      - run: node scripts/check_maze_ui.cjs
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
@@ -162,6 +164,7 @@ jobs:
           path: |
             .release-artifacts/explanations
             .release-artifacts/molecules
+            .release-artifacts/maze
 
   braket-local:
     runs-on: ubuntu-latest

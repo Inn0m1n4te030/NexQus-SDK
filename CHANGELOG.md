@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add a local Quantum Maze Explorer school project with editable mazes, a
+  bounded junction-plan oracle, actual Grover stage traces, BFS comparison,
+  seeded stage measurement, circuit views and self-contained lesson export.
+- Disclose classical oracle compilation and distinguish unreachable exits from
+  insufficient plan budgets; verify the algorithm and real-server UI interactions.
+
 - Add opt-in regularized classical/hybrid image GAN training with separate rates,
   lazy R1, symmetric differentiable translations and EMA previews.
 - Add fresh DCGAN spatial models and optional hybrid probability readout,

@@ -9,6 +9,11 @@ duplicate/latent diagnostics. Pet-image quality is still unvalidated; see
 
 ## Unreleased source-checkout addition
 
+The [Quantum Maze Explorer](QUANTUM_MAZE.md) is a local school-project example:
+draw mazes, inspect a bounded Grover search and BFS baseline, measure any stage,
+and export an offline circuit lesson. It requires only core NumPy. Classical
+oracle construction is disclosed; it does not establish a maze-solving speedup.
+
 The image example now defaults to convolutional classical/hybrid decoders and
 an image/label-conditioned convolutional discriminator. Epoch budgets,
 training-only horizontal flips, seeded file selection and periodic fixed-noise
