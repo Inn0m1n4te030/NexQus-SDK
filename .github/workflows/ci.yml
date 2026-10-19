@@ -223,6 +223,7 @@ jobs:
       - run: python -m pip install -e ".[tutorial,image-gan]"
       - run: python -m unittest discover -s tests/image_gan -v
       - run: python examples/image_gan.py --mode all --steps 2 --samples 16 --batch-size 2
+      - run: python examples/image_gan.py --mode hybrid --architecture dcgan --training regularized --latent-skip --size 8 --steps 2 --samples 16 --batch-size 2 --hidden 16 --learning-rate .0002 --output-dir .release-artifacts/image-gans-regularized
       - run: python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)"
       - run: python scripts/run_notebooks.py --engine jupyter --kernel nexqus --require-image-gan
       - uses: actions/upload-artifact@v7.0.2
@@ -232,6 +233,7 @@ jobs:
           name: image-gans-${{ matrix.os }}-${{ matrix.python }}
           path: |
             .release-artifacts/image-gans
+            .release-artifacts/image-gans-regularized
             .release-artifacts/notebook_execution.json
             notebooks/11_image_gans.ipynb
 

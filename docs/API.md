@@ -401,3 +401,26 @@ decoders; the API defaults to the compatible `mlp` architecture.
 the discriminator from the generator and can save training-only augmentation
 RNG state. See [IMAGE_GANS.md](IMAGE_GANS.md) for epoch budgets, progress
 previews, checkpoint compatibility and the unverified status of pet-image quality.
+
+
+### Image-GAN regularization and diagnostics (source checkout)
+
+`ClassicalImageGenerator(..., architecture='dcgan')` and its hybrid equivalent
+support fresh power-of-two sizes 8..64. Hybrid options are
+`readout='z'|'probabilities'`, `angle_map='tanh'|'linear'`, `latent_skip=False`.
+A bypass concatenates classical noise with quantum features; it does not
+establish quantum contribution. Old defaults and conv/mlp state layouts remain.
+
+`ImageGAN(..., training='legacy', generator_learning_rate=None,
+discriminator_learning_rate=None, r1_gamma=0., r1_every=16,
+diff_augment=False, ema_decay=0.)` preserves old defaults. Select
+`training='regularized'` and explicit controls to enable the features.
+The CLI's regularized preset is described in [IMAGE_GANS.md](IMAGE_GANS.md).
+`retune(...)` changes these controls while preserving weights, Adam moments
+and data order; it starts a changed experiment and cannot change model shape.
+`sample(..., use_ema=True)` and `sampling_generator(use_ema=True)` use EMA
+when available; use False for current weights. Schema 4 saves EMA,
+regularization and RNG settings; old checkpoint schemas remain loadable.
+Optional `nexqus.image_metrics` provides `image_diagnostics`,
+`nearest_training_images` and `hybrid_diagnostics`. These describe pixels and
+latent features, not recognizable objects or semantic quality.

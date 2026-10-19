@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Add opt-in regularized classical/hybrid image GAN training with separate rates,
+  lazy R1, symmetric differentiable translations and EMA previews.
+- Add fresh DCGAN spatial models and optional hybrid probability readout,
+  linear angles and classical latent bypass; preserve legacy model defaults.
+- Retune checkpoints without discarding learned weights/Adam state, retain
+  numbered checkpoints and reject accidental fresh overwrites. Show generated
+  images first with duplicate, latent and nearest-reference diagnostics.
+- Test R1 scaling, native gradients, old checkpoints and exact EMA/augmented
+  continuation. Pet-image quality remains unvalidated.
+
 - Add optional convolutional classical/quantum-feature image generators and a
   conditional convolutional discriminator; retain MLP checkpoint compatibility.
 - Default the image CLI to convolutional models; add epoch budgets, seeded file

@@ -1,5 +1,12 @@
 # NexQus SDK 1.2.0
 
+The source image-GAN workflow offers opt-in regularized training for both
+classical and hybrid models, a fresh `dcgan` architecture, checkpoint retuning
+without discarding learned weights, and generated-images-first reports with
+duplicate/latent diagnostics. Pet-image quality is still unvalidated; see
+[the image guide](IMAGE_GANS.md) for bounded retuning and fresh-run commands.
+
+
 ## Unreleased source-checkout addition
 
 The image example now defaults to convolutional classical/hybrid decoders and
