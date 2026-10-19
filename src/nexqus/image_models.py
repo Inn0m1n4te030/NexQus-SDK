@@ -37,9 +37,10 @@ def _image_shape(image_size, channels):
 
 
 def _architecture(value, image_size):
-    if value not in ('mlp', 'conv'): raise ValueError('architecture must be mlp or conv')
-    if value == 'conv' and image_size & (image_size-1):
+    if value not in ('mlp', 'conv', 'dcgan'): raise ValueError('architecture must be mlp, conv or dcgan')
+    if value in ('conv', 'dcgan') and image_size & (image_size-1):
         raise ValueError('Convolutional image sizes must be powers of two (4..64)')
+    if value == 'dcgan' and image_size < 8: raise ValueError('dcgan requires image_size >= 8')
     return value
 
 
@@ -57,6 +58,29 @@ def _conv_decoder(features, image_size, channels, hidden):
         width = output; resolution *= 2
     layers += [nn.Conv2d(width, channels, 3, padding=1), nn.Sigmoid()]
     return nn.Sequential(*layers)
+
+
+def _dcgan_decoder(features, image_size, channels, hidden):
+    """Spatial synthesis with a base channel width, capped at 512 channels."""
+    width = min(512, hidden*(image_size//8))
+    layers = [nn.Unflatten(1, (features, 1, 1)),
+              nn.ConvTranspose2d(features, width, 4, bias=False), nn.BatchNorm2d(width), nn.ReLU()]
+    resolution = 4
+    while resolution < image_size//2:
+        output = max(hidden, width//2)
+        layers += [nn.ConvTranspose2d(width, output, 4, stride=2, padding=1, bias=False),
+                   nn.BatchNorm2d(output), nn.ReLU()]
+        width = output; resolution *= 2
+    layers += [nn.ConvTranspose2d(width, channels, 4, stride=2, padding=1), nn.Tanh()]
+    return nn.Sequential(*layers)
+
+
+def _dcgan_init(module):
+    if isinstance(module, (nn.Conv2d, nn.ConvTranspose2d)):
+        nn.init.normal_(module.weight, 0., .02)
+        if module.bias is not None: nn.init.zeros_(module.bias)
+    elif isinstance(module, nn.BatchNorm2d):
+        nn.init.normal_(module.weight, 1., .02); nn.init.zeros_(module.bias)
 
 
 class _Probabilities:
@@ -222,35 +246,52 @@ class QuantumPatchGenerator(_Generator):
 
 
 class HybridImageGenerator(_Generator):
-    """Conditional quantum Z features -> MLP or convolutional image decoder."""
+    """Conditional quantum features with optional classical latent bypass."""
     def __init__(self, image_size=8, channels=1, latent_dim=4, num_classes=2,
-                 n_qubits=4, depth=1, hidden=64, seed=7, architecture='mlp'):
+                 n_qubits=4, depth=1, hidden=64, seed=7, architecture='mlp',
+                 readout='z', angle_map='tanh', latent_skip=False):
         super().__init__(); self._setup(image_size, channels, latent_dim, num_classes)
         seed = _seed(seed)
         image_size, channels, latent_dim, num_classes = self.image_size, self.channels, self.latent_dim, self.num_classes
         hidden = _bounded_int(hidden, 'hidden', 512)
         architecture = _architecture(architecture, image_size)
+        if readout not in ('z', 'probabilities'): raise ValueError('readout must be z or probabilities')
+        if angle_map not in ('tanh', 'linear'): raise ValueError('angle_map must be tanh or linear')
+        if not isinstance(latent_skip, bool): raise ValueError('latent_skip must be boolean')
         self.quantum = QuantumProbabilityLayer(n_qubits, depth, seed)
         n_qubits, depth = self.quantum.n_qubits, self.quantum.depth
         self.config = dict(kind='hybrid', image_size=image_size, channels=channels, latent_dim=latent_dim,
                            num_classes=num_classes, n_qubits=n_qubits, depth=depth, hidden=hidden, seed=seed,
-                           architecture=architecture)
+                           architecture=architecture, readout=readout, angle_map=angle_map, latent_skip=latent_skip)
         with torch.random.fork_rng(devices=[]):
             torch.random.default_generator.manual_seed(seed)
             self.encoder = nn.Linear(latent_dim, n_qubits); self.condition = nn.Embedding(num_classes, n_qubits)
-            self.decoder = (_conv_decoder(n_qubits, image_size, channels, hidden) if architecture == 'conv'
-                else nn.Sequential(nn.Linear(n_qubits, hidden), nn.LeakyReLU(.2),
-                    nn.Linear(hidden, channels*image_size**2), nn.Sigmoid()))
+            if angle_map == 'linear':
+                nn.init.normal_(self.encoder.weight, 0., .5/math.sqrt(latent_dim))
+                nn.init.zeros_(self.encoder.bias); nn.init.normal_(self.condition.weight, 0., .2)
+            features = (n_qubits if readout == 'z' else 2**n_qubits)+(latent_dim if latent_skip else 0)
+            if architecture == 'dcgan': self.decoder = _dcgan_decoder(features, image_size, channels, hidden)
+            elif architecture == 'conv': self.decoder = _conv_decoder(features, image_size, channels, hidden)
+            else: self.decoder = nn.Sequential(nn.Linear(features, hidden), nn.LeakyReLU(.2),
+                nn.Linear(hidden, channels*image_size**2), nn.Sigmoid())
+            if architecture == 'dcgan': self.decoder.apply(_dcgan_init)
         signs = [[1-2*((basis >> (n_qubits-1-wire)) & 1) for wire in range(n_qubits)] for basis in range(2**n_qubits)]
         self.register_buffer('z_signs', torch.tensor(signs, dtype=torch.float32))
 
     def encoded_angles(self, noise, labels):
-        return math.pi*torch.tanh(self.encoder(noise)+self.condition(labels))
+        raw = self.encoder(noise)+self.condition(labels)
+        return math.pi*torch.tanh(raw) if self.config['angle_map'] == 'tanh' else raw
+
+    def quantum_features(self, noise, labels):
+        self._inputs(noise, labels)
+        probabilities = self.quantum(self.encoded_angles(noise, labels))
+        return probabilities@self.z_signs if self.config['readout'] == 'z' else probabilities
 
     def forward(self, noise, labels):
-        self._inputs(noise, labels)
-        features = self.quantum(self.encoded_angles(noise, labels))@self.z_signs
-        return self.decoder(features).reshape(len(noise), self.channels, self.image_size, self.image_size)
+        features = self.quantum_features(noise, labels)
+        if self.config['latent_skip']: features = torch.cat([features, noise], dim=1)
+        image = self.decoder(features).reshape(len(noise), self.channels, self.image_size, self.image_size)
+        return (image+1)/2 if self.config['architecture'] == 'dcgan' else image
 
     def circuit_report(self, noise, labels):
         self._inputs(noise, labels)
@@ -270,14 +311,17 @@ class ClassicalImageGenerator(_Generator):
                            num_classes=num_classes, hidden=hidden, seed=seed, architecture=architecture)
         with torch.random.fork_rng(devices=[]):
             torch.random.default_generator.manual_seed(seed)
-            self.network = (_conv_decoder(latent_dim+num_classes, image_size, channels, hidden)
+            self.network = (_dcgan_decoder(latent_dim+num_classes, image_size, channels, hidden)
+                if architecture == 'dcgan' else _conv_decoder(latent_dim+num_classes, image_size, channels, hidden)
                 if architecture == 'conv' else nn.Sequential(nn.Linear(latent_dim+num_classes, hidden), nn.LeakyReLU(.2),
                     nn.Linear(hidden, hidden), nn.LeakyReLU(.2), nn.Linear(hidden, channels*image_size**2), nn.Sigmoid()))
+            if architecture == 'dcgan': self.network.apply(_dcgan_init)
 
     def forward(self, noise, labels):
         self._inputs(noise, labels)
         code = torch.nn.functional.one_hot(labels, self.num_classes).to(noise.dtype)
-        return self.network(torch.cat([noise, code], dim=1)).reshape(len(noise), self.channels, self.image_size, self.image_size)
+        image = self.network(torch.cat([noise, code], dim=1)).reshape(len(noise), self.channels, self.image_size, self.image_size)
+        return (image+1)/2 if self.config['architecture'] == 'dcgan' else image
 
 
 def build_generator(config):
