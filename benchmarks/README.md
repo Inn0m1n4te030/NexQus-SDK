@@ -122,3 +122,24 @@ bars experiment in [these recorded results](results/conv_bars_20261018.json).
 conditional orientation learning and limited position diversity after 1,000
 updates. This is a learning diagnostic, not a simulator performance comparison
 or validation of pet-image quality or quantum advantage.
+
+### Bounded image-GAN training trials
+
+`image_stability.py` compares legacy and opt-in regularized classical/hybrid
+training with fixed data/order/noise and records model sizes, controls and pixel
+diversity. Use `--data data/pets`, or install pyarrow separately and pass the
+explicit UofT CIFAR train mirror parquet with `--cifar-parquet FILE`. The script
+does not download data. Default cases include a fresh classical DCGAN trial;
+`--cases` can select individual cases. These training experiments are separate
+from the simulator correctness and runtime comparisons above.
+
+[Recorded settings and diagnostics](results/image_stability_20261019.json) and
+[actual generated previews](../examples/image_stability_trials/report.html)
+cover five 1000-update CPU trials on 1600/400 selected CIFAR cat/dog photos at
+32x32, seed 7. Manual inspection still shows blurry textures/blobs; no convincing
+pet-image improvement is demonstrated. Duplicate rates alone do not measure
+quality. This single-seed pilot does not validate 64x64 Kaggle pets or quantum
+advantage. Regularized hybrid changes readout, angles and bypass together, so it
+is not an ablation. Durations are single-session records, not comparative
+performance benchmarks. Exact commands, dataset URL/hash and fingerprints are
+included in the JSON. Download the HTML and open it locally to see the images.

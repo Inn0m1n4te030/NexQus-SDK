@@ -97,7 +97,7 @@ def main(argv=None):
             horizontal_flip=True, training='regularized' if regularized else 'legacy',
             generator_learning_rate=.0002, discriminator_learning_rate=.0001 if regularized else .0002,
             r1_gamma=1. if regularized else 0., r1_every=16, diff_augment=regularized, ema_decay=.995 if regularized else 0.)
-        before = trainer.sample(64, labels=labels, seed=101); save_image_grid(before, folder/'before.png', columns=8)
+        before = trainer.sample(64, labels=labels, seed=101); save_image_grid(before, folder/'before.png', columns=8, scale=2)
         def progress(record):
             if record['step'] % 250 == 0: print(case, record['step'], flush=True)
         if device.type == 'cuda': torch.cuda.synchronize(device)
@@ -106,7 +106,7 @@ def main(argv=None):
         if device.type == 'cuda': torch.cuda.synchronize(device)
         elapsed = perf_counter()-started
         after = trainer.sample(64, labels=labels, seed=101); raw = trainer.sample(64, labels=labels, seed=101, use_ema=False)
-        save_image_grid(after, folder/'after.png', columns=8); save_image_grid(raw, folder/'raw.png', columns=8); trainer.save(folder/'checkpoint.pt')
+        save_image_grid(after, folder/'after.png', columns=8, scale=2); save_image_grid(raw, folder/'raw.png', columns=8, scale=2); trainer.save(folder/'checkpoint.pt')
         record = dict(case=case, generator_config=generator.config, trainer_config=trainer.config, steps=trainer.steps,
             generator_parameters=sum(p.numel() for p in generator.parameters()), discriminator_parameters=sum(p.numel() for p in trainer.discriminator.parameters()),
             sampling_weights='EMA' if regularized else 'current', training_seconds=elapsed,

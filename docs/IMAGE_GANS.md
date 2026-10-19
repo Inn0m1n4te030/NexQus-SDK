@@ -80,9 +80,10 @@ pet dataset after 5,000 updates. It did not validate recognizable cat/dog
 synthesis. More steps alone are not an established fix. The CLI now defaults
 to `--architecture conv`: a learned 4×4 feature grid followed by nearest-neighbor
 upsampling, 3×3 convolutions, BatchNorm and ReLU. The discriminator learns
-strided convolutional features conditioned on spatial label planes and a class-projection score. The hybrid
+strided convolutional features conditioned on spatial label planes and a class-projection score. With legacy settings, the hybrid
 uses the same decoder design but receives Z features through its quantum
-circuit, with no direct latent bypass. These are new, untrained architectures;
+circuit. Optional probability readout and a classical latent bypass are
+described in the regularized-training section below. These are new, untrained architectures;
 real-pet generation quality still needs a full dataset experiment.
 
 Create `data/pets/cats/` and `data/pets/dogs/`. Start with the classical baseline:
@@ -384,3 +385,12 @@ References: [zero-centered gradient penalties / R1](https://arxiv.org/abs/1801.0
 [PyTorch DCGAN tutorial](https://docs.pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html).
 The preset combines selected techniques, without reproducing all settings or
 quality claims of those works.
+
+[Actual generated previews](../examples/image_stability_trials/report.html) and
+[recorded settings](../benchmarks/results/image_stability_20261019.json) show a
+five-case, 1000-update CPU pilot on 1600 training / 400 validation CIFAR cat/dog
+photos at 32x32, seed 7. The outputs remain blurry; no convincing pet-image
+improvement is demonstrated. Zero duplicate pairs did not imply recognizable
+images. This does not validate the 64x64 Kaggle workflow. Recorded times are
+single-session logs, not runtime comparisons; no CUDA or quantum advantage is
+claimed. Download the HTML and open it locally to view the generated grids.

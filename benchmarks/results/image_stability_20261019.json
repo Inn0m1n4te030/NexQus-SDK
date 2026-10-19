@@ -1,0 +1,678 @@
+{
+  "software": {
+    "torch": "2.14.1+cpu",
+    "numpy": "2.5.4",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39"
+  },
+  "device": "cpu",
+  "threads": 1,
+  "source": {
+    "kind": "UofT CIFAR-10 train mirror",
+    "url": "https://huggingface.co/datasets/uoft-cs/cifar10/resolve/main/plain_text/train-00000-of-00001.parquet",
+    "file_sha256": "8428b53a88a11ac374111006708df51469e315a22ac6d66470afd9c78d2ae883"
+  },
+  "seed": 7,
+  "batch_size": 32,
+  "latent_dim": 16,
+  "classes": [
+    "cat",
+    "dog"
+  ],
+  "training_samples": 1600,
+  "validation_samples": 400,
+  "training_fingerprint": "d52a678539f87d0ed763c37eed311212cccfe0c34faddd17417259407fede23f",
+  "validation_fingerprint": "0a375ae67d972c72b48769ff31e5d149d686372de7e6e2f579f6b9826db5cda1",
+  "image_shape": [
+    3,
+    32,
+    32
+  ],
+  "evaluation_seed": 101,
+  "evaluation_samples_per_class": 32,
+  "semantic_quality": "not automatically evaluated",
+  "comparison": "Same data/order/prior/updates; model parameter counts differ. Regularized hybrid changes readout, angle map and bypass together, not an ablation.",
+  "limitations": [
+    "Single seed and bounded steps; not validation of the 64x64 Kaggle pet workflow.",
+    "Training times are single-session records, not comparative performance benchmarks.",
+    "Pixel diversity is not semantic quality; no quantum advantage claim."
+  ],
+  "models": [
+    {
+      "case": "classical-legacy",
+      "generator_config": {
+        "kind": "classical",
+        "image_size": 32,
+        "channels": 3,
+        "latent_dim": 16,
+        "num_classes": 2,
+        "hidden": 64,
+        "seed": 7,
+        "architecture": "conv"
+      },
+      "trainer_config": {
+        "learning_rate": 0.0002,
+        "discriminator_hidden": 64,
+        "seed": 7,
+        "device": "cpu",
+        "discriminator_architecture": "conv",
+        "horizontal_flip": true,
+        "training": "legacy",
+        "generator_learning_rate": 0.0002,
+        "discriminator_learning_rate": 0.0002,
+        "r1_gamma": 0.0,
+        "r1_every": 16,
+        "diff_augment": false,
+        "ema_decay": 0.0
+      },
+      "steps": 1000,
+      "generator_parameters": 45491,
+      "discriminator_parameters": 82353,
+      "sampling_weights": "current",
+      "training_seconds": 54.84952731599992,
+      "timing_scope": "Training and logging, synchronized CUDA; excludes setup, sampling and export. Single session, no repeated timing benchmark.",
+      "before": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.047240838408470154,
+          "generated_pixel_std": 0.0019719202537089586,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.0022549026180058718,
+          "closest_pair_pixel_mae": 0.001300041563808918,
+          "near_duplicate_pair_fraction": 1.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.0017376767937093973
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.04934289678931236,
+          "generated_pixel_std": 0.0019741745200008154,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.002251187339425087,
+          "closest_pair_pixel_mae": 0.0013288859045132995,
+          "near_duplicate_pair_fraction": 1.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.0017339212354272604
+        }
+      },
+      "after": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.06526779383420944,
+          "generated_pixel_std": 0.21235567331314087,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.24541303515434265,
+          "closest_pair_pixel_mae": 0.11145149916410446,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.21686206758022308
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.06739222258329391,
+          "generated_pixel_std": 0.19685523211956024,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.22619205713272095,
+          "closest_pair_pixel_mae": 0.1276768445968628,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.19636711478233337
+        }
+      },
+      "raw": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.06526779383420944,
+          "generated_pixel_std": 0.21235567331314087,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.24541303515434265,
+          "closest_pair_pixel_mae": 0.11145149916410446,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.21686206758022308
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.06739222258329391,
+          "generated_pixel_std": 0.19685523211956024,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.22619205713272095,
+          "closest_pair_pixel_mae": 0.1276768445968628,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.19636711478233337
+        }
+      },
+      "final_losses": {
+        "discriminator_loss": 0.684712290763855,
+        "generator_loss": 0.6856949925422668,
+        "generated_mean": 0.455648809671402,
+        "step": 1000,
+        "epoch": 19
+      },
+      "preview_path": "classical-legacy/after.png"
+    },
+    {
+      "case": "classical-regularized",
+      "generator_config": {
+        "kind": "classical",
+        "image_size": 32,
+        "channels": 3,
+        "latent_dim": 16,
+        "num_classes": 2,
+        "hidden": 64,
+        "seed": 7,
+        "architecture": "conv"
+      },
+      "trainer_config": {
+        "learning_rate": 0.0002,
+        "discriminator_hidden": 64,
+        "seed": 7,
+        "device": "cpu",
+        "discriminator_architecture": "conv",
+        "horizontal_flip": true,
+        "training": "regularized",
+        "generator_learning_rate": 0.0002,
+        "discriminator_learning_rate": 0.0001,
+        "r1_gamma": 1.0,
+        "r1_every": 16,
+        "diff_augment": true,
+        "ema_decay": 0.995
+      },
+      "steps": 1000,
+      "generator_parameters": 45491,
+      "discriminator_parameters": 82353,
+      "sampling_weights": "EMA",
+      "training_seconds": 47.531684854000105,
+      "timing_scope": "Training and logging, synchronized CUDA; excludes setup, sampling and export. Single session, no repeated timing benchmark.",
+      "before": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.047240838408470154,
+          "generated_pixel_std": 0.0019719202537089586,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.0022549026180058718,
+          "closest_pair_pixel_mae": 0.001300041563808918,
+          "near_duplicate_pair_fraction": 1.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.0017376767937093973
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.04934289678931236,
+          "generated_pixel_std": 0.0019741745200008154,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.002251187339425087,
+          "closest_pair_pixel_mae": 0.0013288859045132995,
+          "near_duplicate_pair_fraction": 1.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.0017339212354272604
+        }
+      },
+      "after": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.09823013097047806,
+          "generated_pixel_std": 0.2364615797996521,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.2765565514564514,
+          "closest_pair_pixel_mae": 0.1101156696677208,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.25646641850471497
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.07333892583847046,
+          "generated_pixel_std": 0.22451017796993256,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.26196086406707764,
+          "closest_pair_pixel_mae": 0.11475091427564621,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.24120013415813446
+        }
+      },
+      "raw": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.08875477313995361,
+          "generated_pixel_std": 0.1876625269651413,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.217312291264534,
+          "closest_pair_pixel_mae": 0.12957139313220978,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.1857052892446518
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.10775163024663925,
+          "generated_pixel_std": 0.17141741514205933,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.19709688425064087,
+          "closest_pair_pixel_mae": 0.11608944088220596,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.1650477647781372
+        }
+      },
+      "final_losses": {
+        "discriminator_loss": 0.687303364276886,
+        "generator_loss": 0.7050588130950928,
+        "r1_penalty": 0.0,
+        "discriminator_total_loss": 0.687303364276886,
+        "real_probability": 0.499570369720459,
+        "fake_probability": 0.49326103925704956,
+        "generated_mean": 0.44602271914482117,
+        "step": 1000,
+        "epoch": 19
+      },
+      "preview_path": "classical-regularized/after.png"
+    },
+    {
+      "case": "hybrid-legacy",
+      "generator_config": {
+        "kind": "hybrid",
+        "image_size": 32,
+        "channels": 3,
+        "latent_dim": 16,
+        "num_classes": 2,
+        "n_qubits": 4,
+        "depth": 1,
+        "hidden": 64,
+        "seed": 7,
+        "architecture": "conv",
+        "readout": "z",
+        "angle_map": "tanh",
+        "latent_skip": false
+      },
+      "trainer_config": {
+        "learning_rate": 0.0002,
+        "discriminator_hidden": 64,
+        "seed": 7,
+        "device": "cpu",
+        "discriminator_architecture": "conv",
+        "horizontal_flip": true,
+        "training": "legacy",
+        "generator_learning_rate": 0.0002,
+        "discriminator_learning_rate": 0.0002,
+        "r1_gamma": 0.0,
+        "r1_every": 16,
+        "diff_augment": false,
+        "ema_decay": 0.0
+      },
+      "steps": 1000,
+      "generator_parameters": 31243,
+      "discriminator_parameters": 82353,
+      "sampling_weights": "current",
+      "training_seconds": 62.14072174099988,
+      "timing_scope": "Training and logging, synchronized CUDA; excludes setup, sampling and export. Single session, no repeated timing benchmark.",
+      "before": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.045005083084106445,
+          "generated_pixel_std": 0.0006110862013883889,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.0006763377459719777,
+          "closest_pair_pixel_mae": 2.286352355440613e-05,
+          "near_duplicate_pair_fraction": 1.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.0005269299144856632
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.04737091436982155,
+          "generated_pixel_std": 0.0007969803991727531,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.0008953406359069049,
+          "closest_pair_pixel_mae": 6.219524220796302e-05,
+          "near_duplicate_pair_fraction": 1.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.000713532674126327
+        }
+      },
+      "after": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.14580214023590088,
+          "generated_pixel_std": 0.13682901859283447,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.15178093314170837,
+          "closest_pair_pixel_mae": 0.016988394781947136,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.14473384618759155
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.1351657211780548,
+          "generated_pixel_std": 0.16220897436141968,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.1864340752363205,
+          "closest_pair_pixel_mae": 0.009030429646372795,
+          "near_duplicate_pair_fraction": 0.002016128972172737,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.17723290622234344
+        }
+      },
+      "raw": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.14580214023590088,
+          "generated_pixel_std": 0.13682901859283447,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.15178093314170837,
+          "closest_pair_pixel_mae": 0.016988394781947136,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.14473384618759155
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.1351657211780548,
+          "generated_pixel_std": 0.16220897436141968,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.1864340752363205,
+          "closest_pair_pixel_mae": 0.009030429646372795,
+          "near_duplicate_pair_fraction": 0.002016128972172737,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.17723290622234344
+        }
+      },
+      "final_losses": {
+        "discriminator_loss": 0.7503820657730103,
+        "generator_loss": 0.7662668228149414,
+        "generated_mean": 0.4554048478603363,
+        "step": 1000,
+        "epoch": 19
+      },
+      "preview_path": "hybrid-legacy/after.png",
+      "hybrid_bottleneck": {
+        "readout": "z",
+        "angle_map": "tanh",
+        "latent_skip": false,
+        "quantum_feature_dimension": 4,
+        "decoder_inputs": "quantum features only",
+        "classes": {
+          "0": {
+            "sample_count": 32,
+            "mean_angle_std": 1.3189984560012817,
+            "mean_quantum_feature_std": 0.26355981826782227,
+            "tanh_saturation_fraction": 0.0
+          },
+          "1": {
+            "sample_count": 32,
+            "mean_angle_std": 0.9376826286315918,
+            "mean_quantum_feature_std": 0.4177634119987488,
+            "tanh_saturation_fraction": 0.2109375
+          }
+        }
+      }
+    },
+    {
+      "case": "hybrid-regularized",
+      "generator_config": {
+        "kind": "hybrid",
+        "image_size": 32,
+        "channels": 3,
+        "latent_dim": 16,
+        "num_classes": 2,
+        "n_qubits": 4,
+        "depth": 1,
+        "hidden": 64,
+        "seed": 7,
+        "architecture": "conv",
+        "readout": "probabilities",
+        "angle_map": "linear",
+        "latent_skip": true
+      },
+      "trainer_config": {
+        "learning_rate": 0.0002,
+        "discriminator_hidden": 64,
+        "seed": 7,
+        "device": "cpu",
+        "discriminator_architecture": "conv",
+        "horizontal_flip": true,
+        "training": "regularized",
+        "generator_learning_rate": 0.0002,
+        "discriminator_learning_rate": 0.0001,
+        "r1_gamma": 1.0,
+        "r1_every": 16,
+        "diff_augment": true,
+        "ema_decay": 0.995
+      },
+      "steps": 1000,
+      "generator_parameters": 59915,
+      "discriminator_parameters": 82353,
+      "sampling_weights": "EMA",
+      "training_seconds": 53.27030629900014,
+      "timing_scope": "Training and logging, synchronized CUDA; excludes setup, sampling and export. Single session, no repeated timing benchmark.",
+      "before": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.0540425069630146,
+          "generated_pixel_std": 0.0013030931586399674,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.0014728870010003448,
+          "closest_pair_pixel_mae": 0.0008635413832962513,
+          "near_duplicate_pair_fraction": 1.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.0011364505626261234
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.05673213675618172,
+          "generated_pixel_std": 0.0012634285958483815,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.00144716736394912,
+          "closest_pair_pixel_mae": 0.0008652757969684899,
+          "near_duplicate_pair_fraction": 1.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.0010890534613281488
+        }
+      },
+      "after": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.15506483614444733,
+          "generated_pixel_std": 0.23530615866184235,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.263053834438324,
+          "closest_pair_pixel_mae": 0.08546694368124008,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.2476530522108078
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.11313825100660324,
+          "generated_pixel_std": 0.25599828362464905,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.2912386655807495,
+          "closest_pair_pixel_mae": 0.13550764322280884,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.2704007625579834
+        }
+      },
+      "raw": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.06875661015510559,
+          "generated_pixel_std": 0.18000106513500214,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.209034264087677,
+          "closest_pair_pixel_mae": 0.10252238065004349,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.19059181213378906
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.08573292940855026,
+          "generated_pixel_std": 0.1896224021911621,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.219624325633049,
+          "closest_pair_pixel_mae": 0.12224629521369934,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.1980389952659607
+        }
+      },
+      "final_losses": {
+        "discriminator_loss": 0.691534161567688,
+        "generator_loss": 0.6918132305145264,
+        "r1_penalty": 0.0,
+        "discriminator_total_loss": 0.691534161567688,
+        "real_probability": 0.5028631091117859,
+        "fake_probability": 0.500719428062439,
+        "generated_mean": 0.4461403787136078,
+        "step": 1000,
+        "epoch": 19
+      },
+      "preview_path": "hybrid-regularized/after.png",
+      "hybrid_bottleneck": {
+        "readout": "probabilities",
+        "angle_map": "linear",
+        "latent_skip": true,
+        "quantum_feature_dimension": 16,
+        "decoder_inputs": "quantum features plus classical noise",
+        "classes": {
+          "0": {
+            "sample_count": 32,
+            "mean_angle_std": 0.4072578549385071,
+            "mean_quantum_feature_std": 0.025567755103111267,
+            "tanh_saturation_fraction": null
+          },
+          "1": {
+            "sample_count": 32,
+            "mean_angle_std": 0.43876758217811584,
+            "mean_quantum_feature_std": 0.04177941009402275,
+            "tanh_saturation_fraction": null
+          }
+        }
+      }
+    },
+    {
+      "case": "classical-dcgan",
+      "generator_config": {
+        "kind": "classical",
+        "image_size": 32,
+        "channels": 3,
+        "latent_dim": 16,
+        "num_classes": 2,
+        "hidden": 64,
+        "seed": 7,
+        "architecture": "dcgan"
+      },
+      "trainer_config": {
+        "learning_rate": 0.0002,
+        "discriminator_hidden": 64,
+        "seed": 7,
+        "device": "cpu",
+        "discriminator_architecture": "dcgan",
+        "horizontal_flip": true,
+        "training": "regularized",
+        "generator_learning_rate": 0.0002,
+        "discriminator_learning_rate": 0.0001,
+        "r1_gamma": 1.0,
+        "r1_every": 16,
+        "diff_augment": true,
+        "ema_decay": 0.995
+      },
+      "steps": 1000,
+      "generator_parameters": 733059,
+      "discriminator_parameters": 673217,
+      "sampling_weights": "EMA",
+      "training_seconds": 168.8707305979999,
+      "timing_scope": "Training and logging, synchronized CUDA; excludes setup, sampling and export. Single session, no repeated timing benchmark.",
+      "before": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.049390364438295364,
+          "generated_pixel_std": 0.0006328251329250634,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.000727510021533817,
+          "closest_pair_pixel_mae": 0.0004255290550645441,
+          "near_duplicate_pair_fraction": 1.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.00018353147606831044
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.051965463906526566,
+          "generated_pixel_std": 0.0006468408391810954,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.000745846948120743,
+          "closest_pair_pixel_mae": 0.00048451623297296464,
+          "near_duplicate_pair_fraction": 1.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.0001904229720821604
+        }
+      },
+      "after": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.08027297258377075,
+          "generated_pixel_std": 0.18741029500961304,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.21761146187782288,
+          "closest_pair_pixel_mae": 0.060181017965078354,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.21060484647750854
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.066044382750988,
+          "generated_pixel_std": 0.1848437786102295,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.21426346898078918,
+          "closest_pair_pixel_mae": 0.07570017129182816,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.20747460424900055
+        }
+      },
+      "raw": {
+        "cat": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.09211916476488113,
+          "generated_pixel_std": 0.23399828374385834,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.26755964756011963,
+          "closest_pair_pixel_mae": 0.08604830503463745,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.25825780630111694
+        },
+        "dog": {
+          "sample_count": 32,
+          "class_mean_pixel_mae": 0.07396414875984192,
+          "generated_pixel_std": 0.2405286580324173,
+          "pair_count": 496,
+          "mean_pairwise_pixel_mae": 0.27784594893455505,
+          "closest_pair_pixel_mae": 0.08524558693170547,
+          "near_duplicate_pair_fraction": 0.0,
+          "near_duplicate_threshold": 0.01,
+          "mean_pairwise_pooled_mae": 0.26791343092918396
+        }
+      },
+      "final_losses": {
+        "discriminator_loss": 0.7129061818122864,
+        "generator_loss": 0.6782514452934265,
+        "r1_penalty": 0.0,
+        "discriminator_total_loss": 0.7129061818122864,
+        "real_probability": 0.49074888229370117,
+        "fake_probability": 0.5058045387268066,
+        "generated_mean": 0.4417050778865814,
+        "step": 1000,
+        "epoch": 19
+      },
+      "preview_path": "classical-dcgan/after.png"
+    }
+  ],
+  "observed_quality": "Manual inspection of these short trials still shows blurry textures and blobs; no convincing pet-image improvement is demonstrated.",
+  "reproduction": "python benchmarks/image_stability.py --cifar-parquet FILE --steps 1000 --output .release-artifacts/stability-real"
+}
