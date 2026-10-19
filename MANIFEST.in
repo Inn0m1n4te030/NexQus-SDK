@@ -3,6 +3,7 @@ recursive-include src *.py
 recursive-include tests *.py
 recursive-include examples *.py
 recursive-include examples *.html
+include examples/maze_previews/quantum_walk/walk.json
 recursive-include benchmarks *.py *.md *.json *.csv *.txt *.svg
 recursive-include scripts *.py *.sh
 recursive-include scripts *.cjs

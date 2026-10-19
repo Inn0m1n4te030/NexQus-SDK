@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a monitored coined quantum walk with SDK coin/shift operations, a matched
+  dephased classical walk, BFS, exact exit detection, warmed CPU timings and a
+  self-contained visual report. Verify against independent matrix/Markov models;
+  report finite-instance random-walk benefits without claiming a BFS speedup.
 - Explain maze BFS queue visits and Grover encoding, phase marking, diffusion
   arithmetic and measurement; show actual logical operation counts and warmed
   CPU timing including classical oracle construction, separate from trace replay.

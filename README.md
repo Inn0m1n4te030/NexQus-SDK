@@ -32,6 +32,10 @@ step through Grover marking/amplification, inspect signed amplitudes, measure
 plans and open the actual circuit lesson. It runs locally with core NumPy only.
 Use `--export maze_lesson.html` for a self-contained offline lesson. The bounded
 plan search discloses classical oracle-building work; it is not a BFS speedup.
+Try `python examples/quantum_maze_walk.py --steps 32 --open` for a separate
+coined-walk lesson: compare quantum interference with a matched classical random
+walk, inspect cell probabilities and exit detection, and retain BFS as the
+shortest-route baseline. No QPU is used; exit detection does not recover a route.
 
 The development checkout adds [two conditional image QGANs](docs/IMAGE_GANS.md):
 quantum pixel patches and quantum features with a classical decoder, plus a

@@ -183,6 +183,89 @@ separate BFS result with its queue trace. Use `breadth_first(maze, trace=True)`
 to request BFS frames directly; the default omits them.
 `experiment.explanation()` returns the SDK's standalone circuit explanation.
 
+## Try a quantum walk instead of route-plan search
+
+```bash
+python examples/quantum_maze_walk.py --steps 32 --open
+python examples/quantum_maze_walk.py --steps 128 --open
+python examples/quantum_maze_walk.py --preset "Open 6 by 6" --steps 64 --open
+```
+
+The command writes `.release-artifacts/maze-walk/walk.html` and `walk.json`.
+The HTML is self-contained. `--open` opens it in your browser; without that flag
+the command prints its path. Change `--output` to retain separate experiments.
+For custom grids, save a plain text file with `. # S G` rows and pass
+`--maze my_maze.txt`. Bounds remain 2..8 rows/columns, with 1..128 walk steps.
+No junction-choice budget applies to this experiment.
+
+This uses a **discrete-time four-port coined quantum walk** on cell positions,
+not the earlier global Grover search. The basis is `|position, direction>`;
+directions are R/D/L/U in the two low bits. A local Grover coin
+`C = 2|s><s| - I` mixes the four port amplitudes. A flip-flop shift moves an
+open port into its neighbor's opposite port. Blocked ports are reflecting
+self-loops. Padded positions and wall cells are unreachable from S.
+The coin is an actual two-qubit SDK unitary, and the shift uses the SDK's
+permutation operation. There is no route enumeration or solution oracle.
+Shift construction still reads the entire known grid; it is not a native-gate
+decomposition or a black-box graph-access implementation.
+
+After every step, a two-outcome detector asks whether the walker is at G.
+Probability detected there is accumulated and removed. The surviving branch
+keeps its coherence. Internally each surviving SDK state is normalized for
+execution, then restored to its unconditional weight. The displayed cell masses
+are **not** renormalized to 100%: remaining mass plus cumulative detection is
+100%. Measuring all cell positions each step would destroy the interference.
+
+The matched classical walk is the **fully dephased version of the same coin
+and shift**. Every squared coin entry is 1/4, so each step chooses a port
+uniformly, stays put at blocked ports, and applies the same exit detector.
+Both initial conditions are uniform over S's ports. Classical probabilities
+are propagated exactly, not estimated from a noisy sample of random walkers.
+This classical walk is not intended as the strongest classical maze solver;
+BFS is shown separately and returns a full shortest route.
+
+### Recorded experiments
+
+The following use a fixed 32-step horizon chosen before comparison; all six
+included presets are reported. Values are exact CPU-simulated probabilities
+rounded for display, not QPU measurements.
+
+| Maze | Quantum exit detection by step 32 | Classical walk detection | BFS route moves |
+| --- | ---: | ---: | ---: |
+| Two corridors (4×4) | 60.713% | 19.473% | 6 |
+| Long hallway (5×5) | 86.718% | 0.006656% | 16 |
+| Blocked exit (4×4) | 0% | 0% | No route |
+| Choice-budget challenge (open 4×4) | 86.216% | 36.713% | 6 |
+| Open 6×6 | 60.638% | 7.109% | 10 |
+| Snake 8×8 | 0% | 0% | 35 |
+
+The snake cannot reach G within 32 local shifts: its shortest route takes 35
+moves. For Two corridors, a separate 128-step run reaches 50% cumulative
+detection at step **18 quantum versus 74 classical**. At step 128 the respective
+probabilities are 90.086% and 73.470%. These are **finite-instance benefits over
+this random-walk baseline**, not evidence of a scaling advantage or a BFS
+speedup. Different coins, boundary conditions, initialization, monitoring
+schedules and graphs may change the outcome; interference can trap amplitude.
+
+Both walk times include initialization, grid/shift construction and all steps.
+For conservative matched preparation, the classical implementation uses the
+same builder including coin validation. Each has two warmups and nine measured
+trials. Times exclude trace capture and chart export. The quantum SDK CPU
+simulation was slower than BFS and the classical probability propagation in
+these trials. The report lists all three times and exports raw timing samples.
+
+**Detecting the exit does not recover a route.** Measuring position provides
+the endpoint, not the sequence traversed. No shortest-path extraction is
+implemented for the quantum walk. The report shows survivor heatmaps, cumulative
+detection curves for every step, and clickable local coin arithmetic.
+
+Relevant research: [Childs et al., STOC 2003](https://arxiv.org/abs/quant-ph/0209131)
+proves exponential speedup for a specially constructed black-box graph problem.
+That access model and graph are different from our known grid. The maze
+framework of [Matsuoka, Ohno and Segawa](https://arxiv.org/abs/2411.12191) uses
+absorbing holes and self-loops to analyze long-time path concentration. This
+small coined-walk experiment is not a reproduction of either construction.
+
 ## Verification
 
 ```bash
@@ -190,6 +273,9 @@ python -m unittest discover -s tests -p test_maze.py -v
 python examples/quantum_maze.py --export .release-artifacts/maze/lesson.html
 npm install --no-save --no-package-lock jsdom@26.1.0
 node scripts/check_maze_ui.cjs
+python examples/quantum_maze_walk.py
+node scripts/check_maze_walk_ui.cjs
+python -m unittest discover -s tests -p test_maze_walk.py -v
 ```
 
 NumPy tests independently check phase flips, diffusion about the mean, the
@@ -198,3 +284,7 @@ algorithm, seeded unfiltered measurement, maze paths and bounds. The UI test
 also starts a real Python server and exercises editing, oracle rebuilding,
 navigation, playback, stage measurement, downloads and no-path/budget cases.
 jsdom is a development-only UI test dependency; students do not need Node.
+Walk tests compare actual SDK states with an independent dense unitary and
+exit projection, and compare the classical baseline with a position-only grid
+Markov chain. They check locality, reversible shift, no wall leakage, total
+probability accounting, no early arrival, unreachable exits and timing samples.

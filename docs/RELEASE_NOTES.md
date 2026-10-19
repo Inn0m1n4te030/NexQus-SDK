@@ -17,6 +17,10 @@ The lesson now includes a navigable BFS queue/exploration trace, selected-plan
 amplitude arithmetic and a warmed CPU timing table that includes classical
 oracle construction. It identifies Grover explicitly and separates visits,
 route moves, iterations and logical operation counts.
+A separate `examples/quantum_maze_walk.py --steps 32 --open` experiment compares
+monitored coined quantum/classical walks with BFS. Its offline report shows
+cell/port amplitudes, cumulative exit detection and full-work CPU timings.
+Exit detection is distinct from route extraction; no BFS speedup is established.
 
 The image example now defaults to convolutional classical/hybrid decoders and
 an image/label-conditioned convolutional discriminator. Epoch budgets,

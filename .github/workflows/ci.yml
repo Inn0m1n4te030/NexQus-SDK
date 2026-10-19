@@ -156,6 +156,8 @@ jobs:
       - run: node scripts/check_molecule_ui.cjs
       - run: python examples/quantum_maze.py --export .release-artifacts/maze/lesson.html
       - run: node scripts/check_maze_ui.cjs
+      - run: python examples/quantum_maze_walk.py --output .release-artifacts/maze-walk
+      - run: node scripts/check_maze_walk_ui.cjs
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
@@ -165,6 +167,7 @@ jobs:
             .release-artifacts/explanations
             .release-artifacts/molecules
             .release-artifacts/maze
+            .release-artifacts/maze-walk
 
   braket-local:
     runs-on: ubuntu-latest
