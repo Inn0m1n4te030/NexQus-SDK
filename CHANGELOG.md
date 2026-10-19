@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Reproduce random-cycle glued-tree continuous-time transport with actual SDK
+  column circuits, positive classical probabilities, analytic uniform-time
+  quantum success, small full-graph validation, a depth sweep and an offline
+  explanation. Separate the published oracle theorem from classical simulation.
 - Add a monitored coined quantum walk with SDK coin/shift operations, a matched
   dephased classical walk, BFS, exact exit detection, warmed CPU timings and a
   self-contained visual report. Verify against independent matrix/Markov models;

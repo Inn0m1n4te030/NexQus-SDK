@@ -36,6 +36,10 @@ Try `python examples/quantum_maze_walk.py --steps 32 --open` for a separate
 coined-walk lesson: compare quantum interference with a matched classical random
 walk, inspect cell probabilities and exit detection, and retain BFS as the
 shortest-route baseline. No QPU is used; exit detection does not recover a route.
+Run `python examples/glued_trees.py --open` to reproduce continuous-time
+transport on random-cycle glued binary trees. Inspect the widening exit-probability
+gap, exact column reduction and independent small full-graph checks. The demo
+distinguishes the published hidden-oracle advantage from CPU column simulation.
 
 The development checkout adds [two conditional image QGANs](docs/IMAGE_GANS.md):
 quantum pixel patches and quantum features with a classical decoder, plus a

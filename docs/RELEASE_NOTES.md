@@ -21,6 +21,10 @@ A separate `examples/quantum_maze_walk.py --steps 32 --open` experiment compares
 monitored coined quantum/classical walks with BFS. Its offline report shows
 cell/port amplitudes, cumulative exit detection and full-work CPU timings.
 Exit detection is distinct from route extraction; no BFS speedup is established.
+The source example `examples/glued_trees.py --open` reproduces continuous-time
+transport on random-cycle glued trees using exact column symmetry. It includes
+independent full-graph checks and explicitly distinguishes the theoretical
+hidden-oracle separation from this classical CPU simulation.
 
 The image example now defaults to convolutional classical/hybrid decoders and
 an image/label-conditioned convolutional discriminator. Epoch budgets,

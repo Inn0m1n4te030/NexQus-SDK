@@ -266,6 +266,116 @@ framework of [Matsuoka, Ohno and Segawa](https://arxiv.org/abs/2411.12191) uses
 absorbing holes and self-loops to analyze long-time path concentration. This
 small coined-walk experiment is not a reproduction of either construction.
 
+## Glued binary trees: reproduce the transport behind an exponential separation
+
+```bash
+python examples/glued_trees.py --open
+python examples/glued_trees.py --depths 2 4 8 16 32 --samples 129 --open
+```
+
+The command saves `.release-artifacts/glued-trees/glued_trees.html` and
+`glued_trees.json`. The standalone report shows a small explicit graph, hidden
+names and neighbor queries, column probabilities and complex amplitudes, final
+exit probability curves, a depth sweep and separate CPU timings. `--output`
+retains a separate run; `--seed` changes the bounded random-cycle reference
+graphs; `--samples 17..257` changes inspection resolution, not the analytic
+uniform-time success metric. Supply 1..8 distinct depths in 2..32.
+
+The relevant construction is **two complete binary trees of depth n connected
+at their leaves by one random alternating cycle**. It has `2^(n+2)-2` vertices.
+All vertices except the entrance/exit have degree 3. Simply identifying the two
+trees' leaves is a different graph: outperforming a random walker there does
+not establish the stronger algorithmic result.
+
+This experiment uses **continuous-time quantum walk**, not the four-port coined
+maze walk. It follows `H = γA` with `γ=1/√2`. Starting at the entrance, column
+symmetry is preserved despite the random weld. In the basis of normalized
+equal-amplitude column states, H is a line of `2n+2` states with couplings 1
+except for √2 across the central weld. NexQus executes an exact spectral
+circuit: basis change, energy-phase evolution, inverse basis change. These
+three logical reduced-register operations are not the paper's efficient
+hidden-name oracle circuit or a hardware-native gate count.
+
+For the classical continuous-time walk, each incident edge has jump rate γ.
+The column probabilities obey a birth/death generator, with rates given by
+the number of inter-column edges divided by the source column size. It is
+not correct to square quantum column amplitudes and use those as transition
+rates. A positive Poisson/uniformization calculation avoids cancellation of
+the very small classical exit probabilities.
+
+### Measurement protocol and recorded results
+
+For each depth, set `T=4(n+1)` before evaluating the data. Reset to the entrance,
+draw a final time uniformly in `[0,T]`, evolve without intermediate measurements,
+then measure once. The quantum success probability is integrated analytically
+over time; the classical average is computed with positive Poisson-tail weights.
+The exit is **not absorbing**, and the curves show endpoint occupancy rather
+than cumulative first detection. The sampled maximum is shown only as a
+descriptive statistic, not as the time-selection strategy. This short window
+is a numerical transport experiment, not the theorem's conservative guaranteed
+polynomial-time window.
+
+| Depth | Implied graph vertices | Columns simulated | Quantum uniform-time exit | Classical uniform-time exit |
+| --- | ---: | ---: | ---: | ---: |
+| 2 | 14 | 6 | 20.0378% | 5.00455% |
+| 4 | 62 | 10 | 13.0539% | 0.946947% |
+| 8 | 1,022 | 18 | 7.14511% | 0.0462481% |
+| 16 | 262,142 | 34 | 3.73409% | 0.000148889% |
+| 32 | 17,179,869,182 | 66 | 1.95686% | 0.00000000199371% |
+
+The finite sweep shows a widening transport gap against the classical random
+walk. It does not independently prove an asymptotic lower bound. A single
+quantum attempt can fail: for example, depth 32 success is about 1.96%, not
+near certainty. Independent resets/repeats can increase overall success.
+
+The report also separates two expected model-time quantities: classical mean
+first-passage time and repeated quantum uniform-time attempts with expected
+evolution budget `T/(2p)`. This latter expression assumes zero reset/verification
+cost and is not a QPU runtime estimate. At depth 2 it is approximately 29.94
+model-time units versus 16.09 for the classical random walk: the quantum
+protocol is worse on that metric at this small depth, even though its endpoint
+success probability is higher. Never equate occupancy, first passage, oracle
+queries and CPU milliseconds.
+
+### What the theorem assumes, and what this demo computes
+
+| Aspect | Exponential-separation setting | This local reproduction |
+| --- | --- | --- |
+| Graph access | Random hidden vertex names; local neighbor oracle | Known analytic column model; small graphs also explicit |
+| Quantum evolution | Coherent oracle-based sparse Hamiltonian simulation | Spectral unitary on column-index qubits |
+| Classical comparison | Lower bound against all classical algorithms in that oracle model | Exact random-walk probabilities and one bounded neighbor-query BFS |
+| Large graph | Exponentially many vertices in n | Only 2n+2 column amplitudes computed |
+| Conclusion | Published query-complexity theorem | Numerical transport reproduction and explainability |
+
+At depth 32 the report implies a 17-billion-vertex graph, but it computes only
+66 column states, padded into a seven-qubit column register. It does **not**
+simulate 17 billion explicit vertices, a full 34-qubit compact vertex register,
+or the theorem's 64-bit hidden-name register plus workspace. Both local models
+benefit from knowing the columns; they are easy to simulate classically with
+that information. The theorem concerns algorithms that are not given it.
+The actual quantum dynamics do not need the column assignment; symmetry is
+preserved automatically. The reduction is an analyst's simulation shortcut.
+No paid QPU is used, and observing an exit name does not recover a route.
+
+Full graphs at depths 2,3,4 are independently generated and checked. The
+intertwining identity `Aγ B = B Hcolumn` verifies invariance, and full-vertex
+spectral evolution agrees with SDK column states at five times. Tests cover
+several random cycles/seeds. The bounded BFS receives only entrance name and
+neighbor-name lists, identifies the other degree-2 root, and counts its queries.
+It does not receive the exit name or columns. It is not a test of every
+possible classical algorithm.
+
+CPU medians use five measured trials after two warmups per method. They include
+setup, the average-success calculation and one endpoint distribution at T/2,
+but exclude graph generation, full-graph validation, plotting and export.
+Differences reflect the numerical implementations of the two reduced models,
+not a quantum computer running faster than a CPU.
+
+Primary reference: [Childs et al., *Exponential algorithmic speedup by quantum
+walk*, STOC 2003](https://arxiv.org/abs/quant-ph/0209131), Sections II, III C
+(Eq. 27) and IV. The published exponential separation is specific to its
+oracular access assumptions; it is not a blanket claim about ordinary mazes.
+
 ## Verification
 
 ```bash
@@ -276,6 +386,9 @@ node scripts/check_maze_ui.cjs
 python examples/quantum_maze_walk.py
 node scripts/check_maze_walk_ui.cjs
 python -m unittest discover -s tests -p test_maze_walk.py -v
+python examples/glued_trees.py
+node scripts/check_glued_trees_ui.cjs
+python -m unittest discover -s tests -p test_glued_trees.py -v
 ```
 
 NumPy tests independently check phase flips, diffusion about the mean, the
