@@ -37,8 +37,8 @@ python -m pip install torch torchvision --index-url https://download.pytorch.org
 | Generator | Quantum component | Classical component | Image formation |
 |---|---|---|---|
 | `QuantumPatchGenerator` | One circuit per channel/patch; trainable RY/RZ/RX layers and CNOT entanglers | Latent-noise encoder and label embedding | Ancilla=0 probabilities become pixels; patches tile into an image |
-| `HybridImageGenerator` | A trainable circuit returns Z expectation features | Angle encoder, label embedding and an MLP or convolutional decoder | Decoder maps quantum features to sigmoid pixels |
-| `ClassicalImageGenerator` | None | Conditional MLP or convolutional generator | Noise and one-hot labels map to sigmoid pixels |
+| `HybridImageGenerator` | A trainable circuit returns Z expectations or full probabilities | Angle encoder, label embedding and an MLP or convolutional decoder | Decoder maps quantum features (optionally plus classical noise) to pixels |
+| `ClassicalImageGenerator` | None | Conditional MLP or convolutional generator | Noise and one-hot labels map to pixels |
 
 All accept `(noise, labels)` with float tensors shaped `(batch, latent_dim)`
 and int64 labels shaped `(batch,)`, matching model device/dtype. Output shape is `(batch, channels, size,
@@ -80,9 +80,10 @@ pet dataset after 5,000 updates. It did not validate recognizable cat/dog
 synthesis. More steps alone are not an established fix. The CLI now defaults
 to `--architecture conv`: a learned 4×4 feature grid followed by nearest-neighbor
 upsampling, 3×3 convolutions, BatchNorm and ReLU. The discriminator learns
-strided convolutional features conditioned on spatial label planes and a class-projection score. The hybrid
+strided convolutional features conditioned on spatial label planes and a class-projection score. With legacy settings, the hybrid
 uses the same decoder design but receives Z features through its quantum
-circuit, with no direct latent bypass. These are new, untrained architectures;
+circuit. Optional probability readout and a classical latent bypass are
+described in the regularized-training section below. These are new, untrained architectures;
 real-pet generation quality still needs a full dataset experiment.
 
 Create `data/pets/cats/` and `data/pets/dogs/`. Start with the classical baseline:
@@ -198,7 +199,7 @@ restores that device's training state. Moving CPU↔CUDA requires `reset_rng=Tru
 (`--reset-rng` in the CLI) because those noise streams differ. Old schema-1 CPU
 weights load, but numerical trajectories can change with the new Torch algorithm.
 Schema-1/2 MLP checkpoints reconstruct their MLP generator/discriminator; new
-checkpoints use schema 3. A convolutional run starts from fresh weights; an old
+checkpoints use schema 4 (including optional EMA). A convolutional run starts from fresh weights; an old
 MLP checkpoint cannot be converted into a trained convolutional model.
 
 For CLI resume use one mode, the same data/split/model/training flags, and
@@ -290,3 +291,106 @@ diversity and imperfect shapes. This checks some learned conditional structure;
 it does not establish full distribution learning, pet-image quality or quantum
 advantage. It is one seed and one small configuration, not a quality benchmark.
 Reproduce it with `python benchmarks/image_learning.py`. No download is needed.
+
+## Regularized training and larger spatial models (source checkout)
+
+The classical and hybrid conv results still need image-quality improvements.
+More training alone is not a demonstrated fix. The controls below are opt-in,
+experimental settings, not a validated recipe for recognizable pets or a claim
+of quantum advantage. Short real-image development trials still produced poor
+images. Software checks and pixel diversity do not establish semantic quality.
+
+`--training regularized` supplies this CLI preset:
+
+| Control | Preset | Purpose |
+|---|---|---|
+| Generator learning rate | `--learning-rate` | Generator update size |
+| Discriminator rate | Half generator rate | Independently control discriminator pace |
+| R1 | gamma 1, every 16 updates | Penalize squared real-image discriminator gradients |
+| Differentiable translations | On real and fake | Same policy during both losses |
+| EMA sampling | decay 0.995 | Average generator parameters and copy buffers after each update |
+| Hybrid readout | Full probabilities | Retain more output features than one Z expectation per wire |
+| Hybrid angles | Linear with small initial scale | Avoid saturating tanh encoding; rotations remain periodic |
+
+Override with `--generator-lr`, `--discriminator-lr`, `--r1-gamma`,
+`--r1-every`, `--diff-augment`/`--no-diff-augment` and `--ema-decay` (0 disables).
+R1 is `gamma * interval / 2 * mean(||grad D(real)||²)` at the scheduled updates.
+History records adversarial D loss, R1, total D loss and G loss separately.
+Regularized training reuses one generator forward for both losses, updating
+BatchNorm once per alternating update. The legacy path remains available.
+Translation RNG is checkpointed and sampling does not consume training RNG.
+
+`--architecture dcgan` uses fresh transposed-convolution models with tanh output
+rescaled to [0,1], DCGAN-style convolution/BatchNorm initialization, and more
+channels in high-resolution stages. `--hidden` is the base channel width for
+this architecture, capped internally at 512 channels. The old conv model keeps
+its previous width semantics and state layout. dcgan supports sizes 8..64 in
+powers of two. `--discriminator-hidden` can set D's width independently.
+
+A fresh classical pilot (inspect early previews before using the full budget):
+
+```bash
+python examples/image_gan.py --mode classical --architecture dcgan --training regularized --data data/pets --size 64 --channels 3 --samples 10000 --epochs 100 --batch-size 64 --hidden 64 --latent-dim 64 --learning-rate 0.0002 --data-seed 7 --horizontal-flip --preview-every 500 --checkpoint-every 1000 --output-dir results/pets-dcgan-classical
+```
+
+Append `--device cuda:0` with CUDA-enabled Torch. For a smaller CPU experiment,
+use size 32, hidden 32, fewer samples and bounded `--steps` instead of `--epochs`.
+Local validation used CPU; real CUDA is unverified for the new controls.
+For hybrid replace the mode with `--mode hybrid --qubits 6 --depth 2 --latent-skip`
+and use a separate output folder. The bypass concatenates classical noise and
+quantum features; it may dominate generation and does not establish quantum
+contribution. Compare with `--no-latent-skip`. `--readout z|probabilities` and
+`--angle-map tanh|linear` are explicit architecture options, fixed on resume.
+API defaults stay mlp/legacy/z/tanh/no-bypass for old code.
+
+### Retune an existing checkpoint
+
+Explicit `--retune` preserves G/D weights, Adam moments and data order while
+changing training controls. This is a changed experiment, not exact continuation
+of the old settings. Newly enabled EMA starts from current weights. Keep the
+original data, split seed, batch size, shape and architecture. For the previous
+64x64 conv classical configuration, try 1000 additional updates with previews
+every 100:
+
+```bash
+python examples/image_gan.py --mode classical --architecture conv --training regularized --retune --resume results/pets-conv-classical/classical/checkpoint.pt --data data/pets --size 64 --channels 3 --samples 10000 --steps 1000 --batch-size 64 --hidden 256 --latent-dim 64 --learning-rate 0.0002 --data-seed 7 --horizontal-flip --device cuda:0 --preview-every 100 --checkpoint-every 100 --keep-checkpoints --output-dir results/pets-conv-retuned
+```
+
+Replace the checkpoint path and match its actual flags. A fresh dcgan model
+cannot inherit trained conv weights. Without `--retune`, changed controls are
+rejected. `--keep-checkpoints` saves numbered periodic copies alongside the latest
+checkpoint. A fresh run refuses to overwrite an existing output checkpoint
+unless `--overwrite` is explicit. Use separate output folders for comparisons.
+
+### Inspect actual generated outputs
+
+The report leads with generated `after.png`; real training and validation photos
+are clearly marked at the bottom. EMA previews are labelled, and `after_raw.png`
+shows current weights with the same noise. `independent.png` uses a separate
+fixed seed and `--diagnostic-samples` per class (default 32; max 128 total).
+Metrics include pairwise pixel MAE, closest pair and fraction of pairs below
+MAE 0.01, plus pooled 8x8 diversity. Identical outputs yield duplicate fraction
+1. Random noise can be diverse without meaningful images: these are not quality
+scores. `nearest_training.png` aligns same-class pooled-pixel references with
+the preview positions; this is not perceptual similarity or a memorization proof.
+Hybrid diagnostics record angle/feature spread, tanh saturation where applicable,
+readout dimension and bypass status. They identify possible information
+bottlenecks without proving the cause of bad images. Parameter interventions
+and circuit reports use the same current/EMA model as the preview.
+Schema 4 includes EMA and regularization/augmentation settings; schemas 1–3
+remain loadable. CPU exact continuation including augmentation and EMA is tested.
+
+References: [zero-centered gradient penalties / R1](https://arxiv.org/abs/1801.04406),
+[differentiable augmentation](https://arxiv.org/abs/2006.10738),
+[PyTorch DCGAN tutorial](https://docs.pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html).
+The preset combines selected techniques, without reproducing all settings or
+quality claims of those works.
+
+[Actual generated previews](../examples/image_stability_trials/report.html) and
+[recorded settings](../benchmarks/results/image_stability_20261019.json) show a
+five-case, 1000-update CPU pilot on 1600 training / 400 validation CIFAR cat/dog
+photos at 32x32, seed 7. The outputs remain blurry; no convincing pet-image
+improvement is demonstrated. Zero duplicate pairs did not imply recognizable
+images. This does not validate the 64x64 Kaggle workflow. Recorded times are
+single-session logs, not runtime comparisons; no CUDA or quantum advantage is
+claimed. Download the HTML and open it locally to view the generated grids.

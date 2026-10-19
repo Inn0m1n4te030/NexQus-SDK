@@ -204,3 +204,12 @@ on pull requests. Ordinary CI tests NumPy and Torch CPU, including Windows, and
 reports unavailable CUDA tests as skips. This development environment has no
 CUDA device: live CUDA and GPU4PySCF execution remain unverified until that strict
 hardware check passes.
+
+
+Regularized image-GAN training keeps models, R1 autograd, translated images,
+EMA parameters and optimizers on the selected device. Translation offsets come
+from the checkpointed CPU augmentation RNG. The dcgan and hybrid probability
+paths use the same device selection. New tests run when CUDA is available;
+local validation of this change used CPU, so CUDA performance and R1 double
+backward remain to be verified on real hardware. No remote GPU or QPU is
+provisioned. See [IMAGE_GANS.md](IMAGE_GANS.md) for a short checkpoint-retuning pilot.

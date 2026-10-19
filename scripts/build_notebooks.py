@@ -1072,7 +1072,10 @@ if image_gan_available:
         options = {} if constructor == QuantumPatchGenerator else {'architecture': 'conv', 'hidden': 32}
         generator = constructor(image_size=4, latent_dim=2, seed=7, **options)
         trainer = ImageGAN(generator, seed=7, device=image_device,
-                           discriminator_architecture='conv', discriminator_hidden=32)
+                           discriminator_architecture='conv', discriminator_hidden=32,
+                           training='regularized', generator_learning_rate=.0002,
+                           discriminator_learning_rate=.0001, r1_gamma=1., r1_every=16,
+                           diff_augment=True, ema_decay=.995)
         before = trainer.sample(8, seed=19)
         trainer.fit(training, epochs=1, batch_size=2, max_steps=2)
         after = trainer.sample(8, seed=19)
@@ -1101,7 +1104,7 @@ explain an entire dataset or establish that the model learned animal semantics.
 code('''
 if image_gan_available:
     for name in ('patch', 'hybrid'):
-        generator = trainers[name].generator
+        generator = trainers[name].sampling_generator()
         noise = torch.tensor([[.2, -.4]], device=image_device)
         label = torch.tensor([0], device=image_device)
         effect = generator.parameter_effect(noise, label, delta=.25)
@@ -1143,21 +1146,28 @@ Put photos under `data/pets/cats/` and `data/pets/dogs/`. The loader center-crop
 resizes and scales RGB pixels to [0,1]. Use the terminal example for longer runs:
 
 ```bash
-python examples/image_gan.py --data data/pets --mode classical --architecture conv --size 64 --channels 3 --samples 10000 --epochs 100 --batch-size 64 --hidden 256 --latent-dim 64 --learning-rate 0.0002 --data-seed 7 --horizontal-flip --output-dir results/pets-conv-classical
+python examples/image_gan.py --data data/pets --mode classical --architecture dcgan --training regularized --size 64 --channels 3 --samples 10000 --epochs 100 --batch-size 64 --hidden 64 --latent-dim 64 --learning-rate 0.0002 --data-seed 7 --horizontal-flip --output-dir results/pets-dcgan-classical
 ```
 
 Or optionally install compatible torchvision from the same CPU index and use
 `--cifar10 data/cifar10 --download` instead of `--data data/pets`.
-The example saves real/before/after images, losses, checkpoints, held-out pixel
+The regularized preset adds separate learning rates, R1, symmetric translations
+and EMA sampling. dcgan requires fresh weights. The hybrid CLI preset uses
+probability readout and linear angles; --latent-skip adds a classical noise
+bypass whose contribution must be assessed separately. The report shows
+generated images first and saves real/before/after images, losses, checkpoints,
+duplicate-output diagnostics, held-out pixel
 diagnostics, parameter sensitivity plots and gate-by-gate circuit reports.
 `report.html` ties the images and settings together. See `docs/IMAGE_GANS.md`.
 
 The CLI now defaults to a convolutional decoder and discriminator. Replace
---mode classical with --mode hybrid --qubits 6 --depth 2 for the quantum-feature
+--mode classical with --mode hybrid --qubits 6 --depth 2 --latent-skip for the quantum-feature
 comparison, using a separate output directory. These are starting experiments;
 recognizable pet generation has not been validated. Periodic fixed-noise
 previews and checkpoints help inspect training before it completes.
-Two updates verify the training path only. GAN losses and mean
+Use --resume with --retune to change training controls while preserving weights
+and Adam moments. See docs/IMAGE_GANS.md for bounded retuning and checkpoint
+compatibility. Two updates verify the training path only. GAN losses and mean
 pixel errors alone do not measure semantic image quality.
 
 **Try it:** increase the update count, inspect both class labels at fixed noise,

@@ -320,3 +320,10 @@ decoders and a conditional convolutional discriminator. Use epoch budgets and
 periodic fixed-noise previews to inspect training; completing updates does not
 validate recognizable cat/dog synthesis. See [the image guide](docs/IMAGE_GANS.md)
 for 64×64 experiments and compatible MLP checkpoint continuation.
+
+
+The source image-GAN workflow offers opt-in regularized training for both
+classical and hybrid models, a fresh `dcgan` architecture, checkpoint retuning
+without discarding learned weights, and generated-images-first reports with
+duplicate/latent diagnostics. Pet-image quality is still unvalidated; see
+[the image guide](docs/IMAGE_GANS.md) for bounded retuning and fresh-run commands.

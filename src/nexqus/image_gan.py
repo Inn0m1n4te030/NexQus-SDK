@@ -4,6 +4,7 @@ Optional import: from nexqus.image_gan import ... . Core nexqus does not import
 PyTorch, Pillow or this module. Quantum/classical execution supports CPU/CUDA.
 """
 import os
+from copy import deepcopy
 from pathlib import Path
 import tempfile
 try:
@@ -14,7 +15,7 @@ except ImportError as exc:
 from .circuit import positive_integer
 from .parameters import real_scalar
 from .image_models import (QuantumProbabilityLayer, QuantumPatchGenerator,
-    HybridImageGenerator, ClassicalImageGenerator, build_generator, _bounded_int, _seed, _architecture)
+    HybridImageGenerator, ClassicalImageGenerator, build_generator, _bounded_int, _seed, _architecture, _dcgan_init)
 from .image_data import ImageDataset, synthetic_bars, load_cifar10_cats_dogs, save_image_grid
 from .torch_circuit import tensor_device
 
@@ -30,17 +31,20 @@ class ImageDiscriminator(nn.Module):
                 self.network = nn.Sequential(nn.Linear(channels*image_size**2+num_classes, hidden),
                     nn.LeakyReLU(.2), nn.Linear(hidden, hidden), nn.LeakyReLU(.2), nn.Linear(hidden, 1))
             else:
-                layers = []; width = channels+num_classes; resolution = image_size; output = max(16, hidden//8)
+                layers = []; width = channels+num_classes; resolution = image_size
+                output = hidden if architecture == 'dcgan' else max(16, hidden//8)
                 while resolution > 4:
                     layers += [nn.Conv2d(width, output, 4, stride=2, padding=1), nn.LeakyReLU(.2)]
-                    width = output; output = min(hidden, output*2); resolution //= 2
-                layers += [nn.Conv2d(width, hidden, 3, padding=1), nn.LeakyReLU(.2)]
+                    width = output; output = min(512 if architecture == 'dcgan' else hidden, output*2); resolution //= 2
+                if architecture == 'conv':
+                    layers += [nn.Conv2d(width, hidden, 3, padding=1), nn.LeakyReLU(.2)]; width = hidden
                 self.features = nn.Sequential(*layers)
-                self.unconditional = nn.Linear(hidden*4*4, 1)
-                self.condition = nn.Embedding(num_classes, hidden*4*4)
+                self.unconditional = nn.Linear(width*4*4, 1)
+                self.condition = nn.Embedding(num_classes, width*4*4)
+                if architecture == 'dcgan': self.features.apply(_dcgan_init)
 
     def forward(self, images, labels):
-        if self.architecture == 'conv':
+        if self.architecture in ('conv', 'dcgan'):
             classes = torch.nn.functional.one_hot(labels, self.num_classes).to(images.dtype)
             planes = classes[:,:,None,None].expand(-1,-1,images.shape[2],images.shape[3])
             features = self.features(torch.cat([2*images-1, planes], dim=1)).flatten(1)
@@ -58,7 +62,9 @@ class ImageGAN:
     with the same dataset fingerprint and batch size.
     """
     def __init__(self, generator, *, learning_rate=.002, discriminator_hidden=64, seed=7,device=None,
-                 discriminator_architecture=None, horizontal_flip=False):
+                 discriminator_architecture=None, horizontal_flip=False, training='legacy',
+                 generator_learning_rate=None, discriminator_learning_rate=None,
+                 r1_gamma=0., r1_every=16, diff_augment=False, ema_decay=0.):
         seed = _seed(seed); discriminator_hidden = _bounded_int(discriminator_hidden, 'discriminator_hidden', 512)
         if not isinstance(generator, (QuantumPatchGenerator, HybridImageGenerator, ClassicalImageGenerator)):
             raise TypeError('Expected a supported image generator')
@@ -83,7 +89,94 @@ class ImageGAN:
         self.epoch = 0; self.steps = 0; self.history = []
         self._order = None; self._cursor = 0; self._batch_size = None; self._fingerprint = None
 
+        self.ema_generator = None
+        self.retune(training=training,
+            generator_learning_rate=learning_rate if generator_learning_rate is None else generator_learning_rate,
+            discriminator_learning_rate=learning_rate if discriminator_learning_rate is None else discriminator_learning_rate,
+            r1_gamma=r1_gamma, r1_every=r1_every, diff_augment=diff_augment, ema_decay=ema_decay)
+
+    def retune(self, *, training='regularized', generator_learning_rate=None,
+               discriminator_learning_rate=None, r1_gamma=0., r1_every=16,
+               diff_augment=False, ema_decay=0.):
+        """Explicitly change training controls, preserving weights, Adam moments and data order."""
+        if training not in ('legacy', 'regularized'): raise ValueError('training must be legacy or regularized')
+        r1_gamma = real_scalar(r1_gamma); ema_decay = real_scalar(ema_decay)
+        r1_every = _bounded_int(r1_every, 'r1_every', 1024)
+        if r1_gamma < 0 or not 0 <= ema_decay < 1: raise ValueError('Invalid R1 gamma or EMA decay')
+        if not isinstance(diff_augment, bool): raise ValueError('diff_augment must be boolean')
+        if training == 'legacy' and (r1_gamma or ema_decay or diff_augment):
+            raise ValueError('Regularization and EMA require training=regularized')
+        rates = []
+        for rate, optimizer in ((generator_learning_rate, self.generator_optimizer),
+                                (discriminator_learning_rate, self.discriminator_optimizer)):
+            rate = real_scalar(optimizer.param_groups[0]['lr'] if rate is None else rate)
+            if rate <= 0: raise ValueError('Learning rates must be positive')
+            rates.append(rate)
+        for optimizer, rate in zip((self.generator_optimizer, self.discriminator_optimizer), rates):
+            for group in optimizer.param_groups: group['lr'] = rate
+        if ema_decay and self.ema_generator is None:
+            self.ema_generator = deepcopy(self.generator).eval().requires_grad_(False)
+        if not ema_decay: self.ema_generator = None
+        self.config.update(training=training, generator_learning_rate=rates[0], discriminator_learning_rate=rates[1],
+            r1_gamma=r1_gamma, r1_every=r1_every, diff_augment=diff_augment, ema_decay=ema_decay)
+        return self
+
+    def _augment(self, images):
+        """Differentiable zero-padded translations, independently sampled for real and fake."""
+        if not self.config['diff_augment']: return images
+        size = images.shape[-1]; shift = max(1, size//8); count = len(images)
+        offsets = torch.randint(-shift, shift+1, (count, 2), generator=self.augmentation_rng).to(images.device)
+        rows = torch.arange(size, device=images.device)[None,:,None]+offsets[:,0,None,None]+shift
+        columns = torch.arange(size, device=images.device)[None,None,:]+offsets[:,1,None,None]+shift
+        padded = torch.nn.functional.pad(images, (shift, shift, shift, shift)).permute(0,2,3,1)
+        return padded[torch.arange(count, device=images.device)[:,None,None], rows, columns].permute(0,3,1,2)
+
+    def sampling_generator(self, use_ema=True):
+        return self.ema_generator if use_ema and self.ema_generator is not None else self.generator
+
     def _step(self, real, labels):
+        if self.config['training'] == 'legacy': return self._legacy_step(real, labels)
+        g, d = self.generator, self.discriminator
+        g.train(); d.train(); self.generator_optimizer.zero_grad(set_to_none=True)
+        noise = torch.randn(len(real), g.latent_dim, generator=self.noise_rng, device=self.device)
+        fake = g(noise, labels)  # One BatchNorm update, reused for both losses.
+        apply_r1 = self.config['r1_gamma'] > 0 and self.steps % self.config['r1_every'] == 0
+        real = real.detach().requires_grad_(apply_r1)
+        self.discriminator_optimizer.zero_grad(set_to_none=True)
+        real_logits = d(self._augment(real), labels)
+        fake_logits = d(self._augment(fake.detach()), labels)
+        loss_d = .5*(torch.nn.functional.softplus(-real_logits).mean()+torch.nn.functional.softplus(fake_logits).mean())
+        penalty = loss_d.new_zeros(())
+        if apply_r1:
+            gradient = torch.autograd.grad(real_logits.sum(), real, create_graph=True)[0]
+            penalty = .5*self.config['r1_gamma']*self.config['r1_every']*gradient.flatten(1).square().sum(1).mean()
+        total = loss_d+penalty
+        if not torch.isfinite(total): raise FloatingPointError('Discriminator loss is not finite')
+        total.backward()
+        if any(p.grad is not None and not torch.isfinite(p.grad).all() for p in d.parameters()):
+            raise FloatingPointError('Discriminator gradient is not finite')
+        self.discriminator_optimizer.step()
+        for p in d.parameters(): p.requires_grad_(False)
+        try:
+            loss_g = torch.nn.functional.softplus(-d(self._augment(fake), labels)).mean()
+            if not torch.isfinite(loss_g): raise FloatingPointError('Generator loss is not finite')
+            loss_g.backward()
+            if any(p.grad is not None and not torch.isfinite(p.grad).all() for p in g.parameters()):
+                raise FloatingPointError('Generator gradient is not finite')
+            self.generator_optimizer.step()
+        finally:
+            for p in d.parameters(): p.requires_grad_(True)
+        if self.ema_generator is not None:
+            with torch.no_grad():
+                for averaged, current in zip(self.ema_generator.parameters(), g.parameters()):
+                    averaged.lerp_(current, 1-self.config['ema_decay'])
+                for averaged, current in zip(self.ema_generator.buffers(), g.buffers()): averaged.copy_(current)
+        return dict(discriminator_loss=float(loss_d.detach()), generator_loss=float(loss_g.detach()),
+                    r1_penalty=float(penalty.detach()), discriminator_total_loss=float(total.detach()),
+                    real_probability=float(real_logits.detach().sigmoid().mean()),
+                    fake_probability=float(fake_logits.detach().sigmoid().mean()), generated_mean=float(fake.detach().mean()))
+
+    def _legacy_step(self, real, labels):
         g, d = self.generator, self.discriminator
         g.train(); d.train()
         noise = torch.randn(len(real), g.latent_dim, generator=self.noise_rng,device=self.device)
@@ -146,22 +239,24 @@ class ImageGAN:
             if max_steps is not None and self.steps-start_steps >= max_steps: break
         return self
 
-    def sample(self, count=16, *, labels=None, seed=0):
+    def sample(self, count=16, *, labels=None, seed=0, use_ema=True):
         count = _bounded_int(count, 'count', 128)
         if labels is None: labels = torch.arange(count, dtype=torch.long,device=self.device) % self.generator.num_classes
         if not isinstance(labels, torch.Tensor) or labels.shape != (count,): raise ValueError('Supply one label per image')
         labels=labels.to(self.device)
         noise = torch.randn(count, self.generator.latent_dim, generator=torch.Generator(device=self.device).manual_seed(seed),device=self.device)
-        previous = self.generator.training; self.generator.eval()
+        model = self.sampling_generator(use_ema)
+        previous = model.training; model.eval()
         try:
-            with torch.no_grad(): return self.generator(noise, labels).clone()
-        finally: self.generator.train(previous)
+            with torch.no_grad(): return model(noise, labels).clone()
+        finally: model.train(previous)
 
     def save(self, filename):
         """Atomic tensor/primitives checkpoint; includes optimizers and RNG/data order."""
         filename = Path(filename); filename.parent.mkdir(parents=True, exist_ok=True)
-        state = dict(schema_version=3, generator_config=self.generator.config, trainer_config=self.config,
-            generator_state=self.generator.state_dict(), discriminator_state=self.discriminator.state_dict(),
+        state = dict(schema_version=4, generator_config=self.generator.config, trainer_config=self.config,
+            generator_state=self.generator.state_dict(),
+            ema_state=self.ema_generator.state_dict() if self.ema_generator is not None else None, discriminator_state=self.discriminator.state_dict(),
             generator_optimizer=self.generator_optimizer.state_dict(), discriminator_optimizer=self.discriminator_optimizer.state_dict(),
             noise_rng=self.noise_rng.get_state(), order_rng=self.order_rng.get_state(),
             augmentation_rng=self.augmentation_rng.get_state(),
@@ -178,7 +273,7 @@ class ImageGAN:
     def load(cls, filename, *, device=None,reset_rng=False):
         """Load only tensor/primitives data; no custom model pickle objects."""
         state = torch.load(filename, map_location='cpu', weights_only=True)
-        if not isinstance(state, dict) or state.get('schema_version') not in (1,2,3): raise ValueError('Unsupported checkpoint')
+        if not isinstance(state, dict) or state.get('schema_version') not in (1,2,3,4): raise ValueError('Unsupported checkpoint')
         config=dict(state['trainer_config']); saved_device=config.pop('device','cpu')
         target=tensor_device(device if device is not None else saved_device)
         if target.type!=torch.device(saved_device).type and not reset_rng:
@@ -186,12 +281,15 @@ class ImageGAN:
         trainer = cls(build_generator(state['generator_config']),device=target,**config)
         missing,unexpected=trainer.generator.load_state_dict(state['generator_state'],strict=False)
         if unexpected or any('tensor_circuit.' not in n for n in missing): raise ValueError('Invalid checkpoint model state')
+        if trainer.ema_generator is not None:
+            if state.get('ema_state') is None: raise ValueError('Checkpoint lacks EMA state')
+            trainer.ema_generator.load_state_dict(state['ema_state'])
         trainer.discriminator.load_state_dict(state['discriminator_state'])
         trainer.generator_optimizer.load_state_dict(state['generator_optimizer'])
         trainer.discriminator_optimizer.load_state_dict(state['discriminator_optimizer'])
         if not reset_rng: trainer.noise_rng.set_state(state['noise_rng'])
         trainer.order_rng.set_state(state['order_rng'])
-        if state['schema_version'] == 3: trainer.augmentation_rng.set_state(state['augmentation_rng'])
+        if state['schema_version'] >= 3: trainer.augmentation_rng.set_state(state['augmentation_rng'])
         trainer.epoch = int(state['epoch']); trainer.steps = int(state['steps']); trainer.history = state['history']
         trainer._order = state['order']; trainer._cursor = int(state['cursor'])
         trainer._batch_size = state['batch_size']; trainer._fingerprint = state['fingerprint']
