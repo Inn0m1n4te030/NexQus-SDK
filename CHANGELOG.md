@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Explain maze BFS queue visits and Grover encoding, phase marking, diffusion
+  arithmetic and measurement; show actual logical operation counts and warmed
+  CPU timing including classical oracle construction, separate from trace replay.
 - Add a local Quantum Maze Explorer school project with editable mazes, a
   bounded junction-plan oracle, actual Grover stage traces, BFS comparison,
   seeded stage measurement, circuit views and self-contained lesson export.

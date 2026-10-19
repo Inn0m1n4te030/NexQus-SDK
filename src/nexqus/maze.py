@@ -8,6 +8,9 @@ from collections import deque
 from dataclasses import dataclass
 import math
 import numbers
+import platform
+import statistics
+import time
 import numpy as np
 from .circuit import Circuit
 from .simulator import Simulator
@@ -59,18 +62,32 @@ class Maze:
                 and self.rows[r+dr][c+dc] != '#']
 
 
-def breadth_first(maze):
+def breadth_first(maze, trace=False):
     """Complete four-direction BFS, returning a shortest path and node counts."""
     queue = deque([maze.start]); parents = {maze.start: None}; expanded = 0
+    frames = []; visited = []; neighbor_checks = 0; path = []
     while queue:
         cell = queue.popleft(); expanded += 1
+        if trace: visited.append(cell)
+        added = []
         if cell == maze.goal:
-            path = []
-            while cell is not None: path.append(cell); cell = parents[cell]
-            return dict(path=path[::-1], expanded_nodes=expanded, discovered_nodes=len(parents))
-        for neighbor in maze.neighbors(cell):
-            if neighbor not in parents: parents[neighbor] = cell; queue.append(neighbor)
-    return dict(path=[], expanded_nodes=expanded, discovered_nodes=len(parents))
+            cursor = cell
+            while cursor is not None: path.append(cursor); cursor = parents[cursor]
+            path.reverse()
+        else:
+            for neighbor in maze.neighbors(cell):
+                neighbor_checks += 1
+                if neighbor not in parents:
+                    parents[neighbor] = cell; queue.append(neighbor)
+                    if trace: added.append(neighbor)
+        if trace:
+            frames.append(dict(current=cell, queue=list(queue), visited=visited.copy(),
+                               added=added, found=cell == maze.goal))
+        if cell == maze.goal: break
+    result = dict(path=path, expanded_nodes=expanded, discovered_nodes=len(parents),
+                  neighbor_checks=neighbor_checks)
+    if trace: result['frames'] = frames
+    return result
 
 
 def check_plan(maze, bits, junctions=3):
@@ -124,14 +141,15 @@ class MazeExperiment:
                     reason=candidate['reason'], frame=frame, seed=seed)
 
     def to_dict(self, seed=7, offline=False):
-        valid = sum(p['valid'] for p in self.candidates); classical = breadth_first(self.maze)
+        valid = sum(p['valid'] for p in self.candidates); classical = breadth_first(self.maze, trace=True)
         return dict(rows=self.maze.rows, junctions=self.junctions, qubits=self.circuit.n_qubits,
             iterations=self.iterations, suggested_iterations=self.suggested_iterations,
             candidates=self.candidates, frames=self.frames, valid_plans=valid,
-            classical=classical, offline=offline, seed=seed,
+            classical=classical, timings=benchmark(self, seed), offline=offline, seed=seed,
             resources=dict(classical_route_checks=len(self.candidates),
                 classical_route_cell_visits=sum(len(p['path']) for p in self.candidates),
                 logical_oracle_calls=self.iterations, logical_depth=self.circuit.depth(),
+                logical_operations=len(self.circuit.operations),
                 logical_gate_counts=self.circuit.count_ops()),
             circuit_svg=str(self.circuit.draw('svg', fold=14)),
             samples=[self.measure(i, seed) for i in range(len(self.frames))],
@@ -149,6 +167,10 @@ def explore(maze, junctions=3, iterations=None):
     compiler already checks every plan; its cost is disclosed, not hidden in a
     query-complexity claim. BFS is a separate baseline and never marks the oracle.
     """
+    return _build_experiment(maze, junctions, iterations, record_frames=True)
+
+
+def _build_experiment(maze, junctions, iterations, record_frames=False):
     if not isinstance(maze, Maze): raise TypeError('Expected a Maze')
     junctions = _integer(junctions, 'junctions', 1, 3); n = 2*junctions; size = 2**n
     candidates = [check_plan(maze, format(index, f'0{n}b'), junctions) for index in range(size)]
@@ -159,6 +181,7 @@ def explore(maze, junctions=3, iterations=None):
     iterations = suggested if iterations is None else _integer(iterations, 'iterations', 0, 8)
     q = Circuit(n); frames = []; simulator = Simulator(backend='numpy', method='statevector')
     def snapshot(phase, iteration):
+        if not record_frames: return
         result = simulator.run(q, shots=0)
         frames.append(dict(phase=phase, iteration=iteration, operation_stop=len(q.operations),
             real=result.statevector.real.tolist(), imag=result.statevector.imag.tolist(),
@@ -174,3 +197,37 @@ def explore(maze, junctions=3, iterations=None):
         for wire in range(n): q.h(wire)
         snapshot('amplify', iteration)
     return MazeExperiment(maze, junctions, iterations, suggested, candidates, frames, q)
+
+
+def benchmark(experiment, seed=7):
+    """Warmed local wall time; exclude teaching traces, HTML and chart export.
+
+    Each quantum trial rebuilds the explicit oracle and circuit, then simulates
+    it once and samples one result. This is CPU simulation time, not QPU time.
+    Both methods have two untimed warmups and nine measured trials. Timing
+    correctness is never tested with a machine-dependent speed threshold.
+    """
+    seed = _integer(seed, 'seed', 0, 2**32-1)
+    samples = {key: [] for key in ('bfs_ms', 'compile_ms', 'simulate_ms', 'quantum_total_ms')}
+    simulator = Simulator(backend='numpy', method='statevector')
+    for trial in range(11):
+        start = time.perf_counter_ns()
+        breadth_first(experiment.maze)
+        bfs_done = time.perf_counter_ns()
+        built = _build_experiment(experiment.maze, experiment.junctions, experiment.iterations)
+        compile_done = time.perf_counter_ns()
+        outcome = simulator.run(built.circuit, shots=1, seed=seed)
+        built.candidates[int(next(iter(outcome.counts)), 2)]['valid']
+        end = time.perf_counter_ns()
+        if trial >= 2:
+            for key, duration in zip(samples, (bfs_done-start, compile_done-bfs_done,
+                                               end-compile_done, end-bfs_done)):
+                samples[key].append(duration/1e6)
+    return dict(median_ms={key: statistics.median(values) for key, values in samples.items()},
+                samples_ms=samples, warmups=2, repeats=9, clock='perf_counter_ns',
+                platform=platform.platform(), python=platform.python_version(), numpy=np.__version__,
+                backend='numpy / CPU statevector / complex128',
+                scope='BFS: solve and reconstruct shortest path. Quantum: enumerate/check all plans, '
+                      'build oracle and circuit, simulate once, sample and look up validity. '
+                      'No tracing, charts, HTML, network or imports. Two warmups per method. '
+                      'Component medians need not sum to the total median. One quantum shot can fail.')

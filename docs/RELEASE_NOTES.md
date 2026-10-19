@@ -13,6 +13,10 @@ The [Quantum Maze Explorer](QUANTUM_MAZE.md) is a local school-project example:
 draw mazes, inspect a bounded Grover search and BFS baseline, measure any stage,
 and export an offline circuit lesson. It requires only core NumPy. Classical
 oracle construction is disclosed; it does not establish a maze-solving speedup.
+The lesson now includes a navigable BFS queue/exploration trace, selected-plan
+amplitude arithmetic and a warmed CPU timing table that includes classical
+oracle construction. It identifies Grover explicitly and separates visits,
+route moves, iterations and logical operation counts.
 
 The image example now defaults to convolutional classical/hybrid decoders and
 an image/label-conditioned convolutional discriminator. Epoch budgets,

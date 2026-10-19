@@ -13,6 +13,41 @@ from nexqus.maze_html import render_explorer
 
 
 class MazeTests(unittest.TestCase):
+    def test_bfs_trace_records_fifo_and_reconstructs_shortest_path(self):
+        maze = Maze(PRESETS['Two corridors'])
+        traced = breadth_first(maze, trace=True)
+        plain = breadth_first(maze)
+        self.assertEqual({k: v for k, v in traced.items() if k != 'frames'}, plain)
+        queue = [maze.start]; discovered = {maze.start}; visited = []
+        for frame in traced['frames']:
+            current = queue.pop(0); visited.append(current)
+            self.assertEqual(frame['current'], current)
+            added = [] if current == maze.goal else [n for n in maze.neighbors(current) if n not in discovered]
+            discovered.update(added); queue.extend(added)
+            self.assertEqual(frame['added'], added)
+            self.assertEqual(frame['queue'], queue)
+            self.assertEqual(frame['visited'], visited)
+        self.assertTrue(traced['frames'][-1]['found'])
+        self.assertEqual(traced['expanded_nodes'], 12)
+
+    def test_benchmark_times_real_complete_work_without_teaching_trace(self):
+        from nexqus.maze import benchmark, _build_experiment
+        experiment = explore(Maze(PRESETS['Two corridors']))
+        built = _build_experiment(experiment.maze, experiment.junctions, experiment.iterations)
+        self.assertEqual(built.frames, [])
+        actual = Simulator().run(built.circuit, shots=0)
+        np.testing.assert_allclose(actual.statevector.real, experiment.frames[-1]['real'])
+        report = benchmark(experiment)
+        self.assertEqual(report['repeats'], 9)
+        for key, values in report['samples_ms'].items():
+            self.assertEqual(len(values), 9)
+            self.assertTrue(all(np.isfinite(v) and v >= 0 for v in values))
+            self.assertEqual(report['median_ms'][key], sorted(values)[4])
+        for compile_ms, simulate_ms, total_ms in zip(report['samples_ms']['compile_ms'],
+                report['samples_ms']['simulate_ms'], report['samples_ms']['quantum_total_ms']):
+            self.assertAlmostEqual(compile_ms + simulate_ms, total_ms)
+        self.assertEqual(len(built.circuit.operations), 62)
+
     def test_paths_and_canonical_choice_encoding(self):
         maze = Maze(PRESETS['Two corridors']); result = explore(maze)
         valid = [p for p in result.candidates if p['valid']]

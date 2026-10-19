@@ -83,7 +83,65 @@ Logical calls refer to the final circuit. Tracing and example samples rerun
 circuit prefixes, so total simulator work exceeds that logical count.
 The classical compiler has already inspected the whole encoded search space;
 the project therefore does **not** demonstrate an end-to-end speedup over BFS.
-No runtime chart or quantum-advantage verdict is inferred.
+The lesson measures local CPU runtime without inferring quantum advantage.
+
+### Step through both algorithms
+
+The classical algorithm is **breadth-first search (BFS)**. Its FIFO queue starts
+with S. Each visit removes the oldest cell, checks its open neighbors, and adds
+unseen neighbors to the back. Parent pointers reconstruct the route when G is
+removed. Use Previous/Next visit or the BFS slider to inspect the actual queue,
+newly discovered cells and expanded cells. Enable the exploration overlay to see
+expanded cells in cyan and waiting cells in purple. Coordinates are zero-based.
+
+The quantum algorithm is **Grover amplitude amplification**, a gate-based
+search over encoded route instructions. It is neither quantum annealing nor a
+quantum walk. Hadamards prepare equal amplitudes; the oracle changes valid-plan
+amplitude signs without changing their probabilities; diffusion reflects every
+amplitude around the mean. Interference concentrates probability on marked
+plans until the optimum iteration count. One measurement returns one plan,
+not all the plans or a guaranteed answer. The selected-plan arithmetic updates
+with each stage and candidate selection.
+
+For the default maze:
+
+| Quantity | Actual count |
+| --- | ---: |
+| BFS queue removals (including S and G) | 12 |
+| BFS open-neighbor checks | 23 |
+| Shortest route moves | 6 |
+| Encoded plans checked classically for the oracle | 64 |
+| Classical compiler route-cell visits | 215 |
+| Qubits | 6 |
+| Grover iterations / oracle calls | 4 |
+| Logical operations | 62 (54 H, 4 oracle, 4 diffusion phase) |
+| Logical depth | 17 |
+| Valid-plan probability before / after | 3.125% / approximately 99.918% |
+
+These units are not interchangeable. The logical diagonal operations do not
+represent a hardware-native decomposition. A maze move is different from a BFS
+visit or a Grover iteration. At the first marking stage, a valid plan's amplitude
+changes from +0.125 to −0.125. The mean becomes 0.1171875; diffusion produces
+2 × 0.1171875 − (−0.125) = 0.359375, making that plan's probability about 12.915%.
+Both marked plans together then have approximately 25.830% probability.
+
+### What the time comparison measures
+
+Each solve/export reports medians of nine runs after two untimed warmups of
+**both** methods (including the sampler). BFS time includes solving and path
+reconstruction. Quantum total includes enumerating/checking all plans, building
+the oracle and circuit, one complete CPU statevector simulation, one seeded
+shot and its validity lookup. Compilation and simulation medians also appear
+separately; their sum need not equal the median total. Raw samples, environment,
+precision and timing scope are included in the JSON download.
+
+Tracing, SVG/HTML export, network and animation are excluded. The benchmark uses
+the same circuit builder as the lesson but disables educational prefix replays.
+The result is **local NumPy CPU time**, not QPU time or a hardware-speedup
+prediction. A tiny maze is well suited to BFS. A quantum shot can fail and need
+repetition; the table reports one attempt, not time to guaranteed success.
+Timings vary by machine and load. Offline lessons retain their export-time
+measurements; running the Python example measures on your own machine.
 
 BFS is complete on the grid and returns a shortest path. Grover marks valid
 encoded routes without minimizing their length. A valid sampled route may be
@@ -120,7 +178,9 @@ experiment.circuit.draw('svg', filename='maze_circuit.svg')
 `experiment.frames` records every prepared/oracle/diffusion stage, signed
 amplitudes, probabilities and operation stops. `experiment.measure(frame=0,
 seed=7)` samples the prepared stage. `experiment.to_dict()` includes all candidate
-paths, validation reasons, resource counts and the separate BFS result.
+paths, validation reasons, resource counts, warmed timing samples and the
+separate BFS result with its queue trace. Use `breadth_first(maze, trace=True)`
+to request BFS frames directly; the default omits them.
 `experiment.explanation()` returns the SDK's standalone circuit explanation.
 
 ## Verification
