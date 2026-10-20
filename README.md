@@ -26,6 +26,21 @@ Examples and notebooks are available in the source repository and source archive
 
 ## Your first circuit
 
+The development checkout includes a [Quantum Maze Explorer](docs/QUANTUM_MAZE.md)
+school project. Run `python examples/quantum_maze.py` to edit a maze, compare BFS,
+step through Grover marking/amplification, inspect signed amplitudes, measure
+plans and open the actual circuit lesson. It runs locally with core NumPy only.
+Use `--export maze_lesson.html` for a self-contained offline lesson. The bounded
+plan search discloses classical oracle-building work; it is not a BFS speedup.
+Try `python examples/quantum_maze_walk.py --steps 32 --open` for a separate
+coined-walk lesson: compare quantum interference with a matched classical random
+walk, inspect cell probabilities and exit detection, and retain BFS as the
+shortest-route baseline. No QPU is used; exit detection does not recover a route.
+Run `python examples/glued_trees.py --open` to reproduce continuous-time
+transport on random-cycle glued binary trees. Inspect the widening exit-probability
+gap, exact column reduction and independent small full-graph checks. The demo
+distinguishes the published hidden-oracle advantage from CPU column simulation.
+
 The development checkout adds [two conditional image QGANs](docs/IMAGE_GANS.md):
 quantum pixel patches and quantum features with a classical decoder, plus a
 classical GAN comparison, training checkpoints and parameter-to-pixel views.

@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+- Reproduce random-cycle glued-tree continuous-time transport with actual SDK
+  column circuits, positive classical probabilities, analytic uniform-time
+  quantum success, small full-graph validation, a depth sweep and an offline
+  explanation. Separate the published oracle theorem from classical simulation.
+- Add a monitored coined quantum walk with SDK coin/shift operations, a matched
+  dephased classical walk, BFS, exact exit detection, warmed CPU timings and a
+  self-contained visual report. Verify against independent matrix/Markov models;
+  report finite-instance random-walk benefits without claiming a BFS speedup.
+- Explain maze BFS queue visits and Grover encoding, phase marking, diffusion
+  arithmetic and measurement; show actual logical operation counts and warmed
+  CPU timing including classical oracle construction, separate from trace replay.
+- Add a local Quantum Maze Explorer school project with editable mazes, a
+  bounded junction-plan oracle, actual Grover stage traces, BFS comparison,
+  seeded stage measurement, circuit views and self-contained lesson export.
+- Disclose classical oracle compilation and distinguish unreachable exits from
+  insufficient plan budgets; verify the algorithm and real-server UI interactions.
+
 - Add opt-in regularized classical/hybrid image GAN training with separate rates,
   lazy R1, symmetric differentiable translations and EMA previews.
 - Add fresh DCGAN spatial models and optional hybrid probability readout,
