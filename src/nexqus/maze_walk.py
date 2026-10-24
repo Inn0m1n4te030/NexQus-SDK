@@ -9,7 +9,7 @@ import statistics
 import time
 import numpy as np
 from .circuit import Circuit
-from .simulator import Simulator
+from .walk_device import walk_simulator, device_scope
 from .maze import Maze, PRESETS, _DIRECTIONS, _integer, breadth_first
 
 
@@ -48,8 +48,8 @@ def walk_operators(maze):
     return circuit, initial, mapping, goal
 
 
-def _quantum(circuit, initial, goal, steps, trace=False):
-    simulator = Simulator(backend='numpy', method='statevector')
+def _quantum(circuit, initial, goal, steps, trace=False, simulator=None):
+    simulator = simulator or walk_simulator()
     survivor = initial.copy(); detected = 0.; frames = []
     if trace: frames.append(dict(real=survivor.real.tolist(), imag=survivor.imag.tolist(),
         probabilities=(abs(survivor.reshape(-1,4))**2).sum(axis=1).tolist(),
@@ -83,7 +83,7 @@ def _classical(initial, mapping, goal, steps, trace=False):
     return frames, detected
 
 
-def compare_walks(maze, steps=32):
+def compare_walks(maze, steps=32, *, device='cpu', backend=None):
     """Same start, grid, reflecting walls and after-every-step exit detector.
 
     Exact distributions, no Monte Carlo or best-time selection. Nine full-work
@@ -91,14 +91,17 @@ def compare_walks(maze, steps=32):
     BFS returns a full shortest path; the walkers only detect arrival at G.
     """
     steps = _integer(steps, 'steps', 1, 128)
+    simulator = walk_simulator(device, backend)
     circuit, initial, mapping, goal = walk_operators(maze)
-    qframes, qhit = _quantum(circuit, initial, goal, steps, trace=True)
+    qframes, qhit = _quantum(circuit, initial, goal, steps, trace=True, simulator=simulator)
     cframes, chit = _classical(initial, mapping, goal, steps, trace=True)
     times = {key: [] for key in ('bfs_ms', 'quantum_ms', 'classical_walk_ms')}
     for trial in range(11):
+        simulator.backend.sync()
         start = time.perf_counter_ns(); breadth_first(maze); bfs_end = time.perf_counter_ns()
         q, state, shift, target = walk_operators(maze)
-        _quantum(q, state, target, steps); qend = time.perf_counter_ns()
+        _quantum(q, state, target, steps, simulator=simulator)
+        simulator.backend.sync(); qend = time.perf_counter_ns()
         # Use the same grid builder for matched preparation cost, including its
         # coin validation; this is a conservative classical implementation.
         _, state, shift, target = walk_operators(maze)
@@ -118,7 +121,8 @@ def compare_walks(maze, steps=32):
         timings=dict(median_ms={key:statistics.median(v) for key,v in times.items()},
             samples_ms=times, warmups=2, repeats=9, python=platform.python_version(),
             numpy=np.__version__, platform=platform.platform(),
-            scope=f'CPU wall time, {steps} monitored walk steps or one complete BFS. '
+            device=simulator.backend.device, backend=simulator.backend.name,
+            scope=device_scope(simulator)+f'Wall time, {steps} monitored walk steps or one complete BFS. '
                   'Each walk includes grid/shift construction and initial-state preparation. '
                   'Classical uses the same builder, including coin validation. '
                   'Quantum includes SDK simulation and detector projection. '

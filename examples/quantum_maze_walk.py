@@ -20,11 +20,13 @@ def main():
     parser.add_argument('--steps', type=int, default=32, help='1..128 walk steps; chosen before comparison')
     parser.add_argument('--output', type=Path, default=Path('.release-artifacts/maze-walk'))
     parser.add_argument('--open', action='store_true', help='Open the saved report in your browser')
+    parser.add_argument('--device',default='cpu',help='cpu, cuda or cuda:N; CUDA requires PyTorch')
+    parser.add_argument('--backend',choices=('numpy','torch'),default=None)
     args = parser.parse_args()
     try:
         rows = args.maze.read_text(encoding='utf-8').splitlines() if args.maze else WALK_PRESETS[args.preset]
-        result = compare_walks(Maze(rows), args.steps)
-    except (ValueError, TypeError, OSError) as error: parser.error(str(error))
+        result = compare_walks(Maze(rows), args.steps,device=args.device,backend=args.backend)
+    except (ValueError, TypeError, OSError, ImportError, RuntimeError) as error: parser.error(str(error))
     args.output.mkdir(parents=True, exist_ok=True)
     report = args.output/'walk.html'
     report.write_text(render_walk(result), encoding='utf-8')
@@ -32,7 +34,8 @@ def main():
     print(f"Exit detected by step {args.steps}: quantum {result['quantum_hit']:.3%}; classical walk {result['classical_hit']:.3%}")
     print('BFS:', result['bfs']['expanded_nodes'], 'visits;',
           len(result['bfs']['path'])-1 if result['bfs']['path'] else 'no', 'path moves')
-    print('Median CPU ms:', result['timings']['median_ms'])
+    print('Median wall ms:', result['timings']['median_ms'])
+    print(result['timings']['scope'])
     print('Walkers detect arrival only; they do not output the route. No BFS speedup established.')
     print('Open', report.resolve())
     if args.open: webbrowser.open(report.resolve().as_uri())

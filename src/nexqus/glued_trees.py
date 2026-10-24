@@ -12,8 +12,8 @@ import statistics
 import time
 import numpy as np
 from .circuit import Circuit
-from .simulator import Simulator
 from .maze import _integer
+from .walk_device import walk_simulator, device_scope
 
 GAMMA = 1/math.sqrt(2)  # Per-edge coupling/rate, matching the paper's Eq. 27.
 
@@ -78,7 +78,8 @@ def bfs_hidden(graph):
 
 class ColumnQuantumWalk:
     """Actual SDK spectral circuit for the small invariant column subspace."""
-    def __init__(self, depth):
+    def __init__(self, depth, *, device='cpu', backend=None):
+        self.simulator = walk_simulator(device, backend)
         self.counts, self.edges, self.h, self.k = column_model(depth)
         self.depth = depth; self.dimension = len(self.counts)
         self.n_qubits = (self.dimension-1).bit_length(); size = 2**self.n_qubits
@@ -101,7 +102,7 @@ class ColumnQuantumWalk:
         return q
 
     def states(self, times):
-        simulator = Simulator(backend='numpy', method='statevector')
+        simulator = self.simulator
         return np.array([simulator.run(self.circuit(float(t)), shots=0).statevector[:self.dimension] for t in times])
 
     def uniform_time_exit_probability(self, horizon):
@@ -155,20 +156,22 @@ def verify_full_graph(depth=3, seed=7):
                 bfs=bfs_hidden(graph))
 
 
-def experiment(depth=4, samples=129):
+def experiment(depth=4, samples=129, *, device='cpu', backend=None):
     depth = _integer(depth,'depth',2,32); samples = _integer(samples,'samples',17,257)
     # Set horizon before observing data; no peak-time optimization in primary metric.
     horizon = 4.*(depth+1); times = np.linspace(0,horizon,samples)
-    model = ColumnQuantumWalk(depth); states = model.states(times)
+    model = ColumnQuantumWalk(depth, device=device, backend=backend); states = model.states(times)
     classical, average_classical = classical_transport(model.k,times,horizon)
     average_quantum = model.uniform_time_exit_probability(horizon)
     peak = int(np.argmax(abs(states[:,-1])**2))
     timings = {key:[] for key in ('quantum_ms','classical_ms')}
     for trial in range(7):
+        model.simulator.backend.sync()
         start = time.perf_counter_ns()
-        prepared = ColumnQuantumWalk(depth)
+        prepared = ColumnQuantumWalk(depth, device=device, backend=backend)
         prepared.uniform_time_exit_probability(horizon)
         prepared.states([horizon/2])
+        prepared.simulator.backend.sync()
         qend = time.perf_counter_ns()
         _,_,_,generator = column_model(depth)
         classical_transport(generator,[horizon/2],horizon)
@@ -190,20 +193,21 @@ def experiment(depth=4, samples=129):
         circuit_svg=str(model.circuit(horizon/2).draw('svg')),
         timing=dict(median_ms={key:statistics.median(v) for key,v in timings.items()},samples_ms=timings,
             warmups=2,repeats=5,python=platform.python_version(),numpy=np.__version__,platform=platform.platform(),
-            scope='Local CPU column models: setup, uniform-time success calculation and one state at T/2. '
+            device=model.simulator.backend.device, backend=model.simulator.backend.name,
+            scope=device_scope(model.simulator)+'Wall time: setup, uniform-time success calculation and one state at T/2. '
                   'Quantum includes eigendecomposition, SDK circuit construction/validation and statevector execution. '
                   'Classical includes generator construction and positive Poisson uniformization. '
                   'No graph generation, full-graph verification, plots or export. '
                   'Both models use known column symmetry. Not oracle-query cost or QPU time.'))
 
 
-def compare_depths(depths=(2,4,8,16,32), seed=7, samples=129):
+def compare_depths(depths=(2,4,8,16,32), seed=7, samples=129, *, device='cpu', backend=None):
     if not isinstance(depths,(list,tuple)) or not 1<=len(depths)<=8:
         raise ValueError('Supply 1..8 distinct depths')
     depths = [_integer(d,'depth',2,32) for d in depths]
     if len(set(depths))!=len(depths): raise ValueError('Depths must be distinct')
     seed = _integer(seed,'seed',0,2**32-1)
-    results = [experiment(depth,samples) for depth in depths]
+    results = [experiment(depth,samples,device=device,backend=backend) for depth in depths]
     verification = [verify_full_graph(depth,seed) for depth in (2,3,4)]
     # Bounded full graph is for visual explanation and classical oracle queries.
     graph = glued_graph(4,seed)
