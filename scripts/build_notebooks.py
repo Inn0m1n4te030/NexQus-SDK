@@ -16,7 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import nexqus
 from nexqus import Circuit, Simulator, Parameter, Noise, NoiseModel, algorithms
-assert nexqus.__version__ == '1.2.0', 'Install NexQus SDK 1.2.0 in this kernel environment and restart it'
+assert nexqus.__version__ == '1.3.0rc1', 'Install NexQus SDK 1.3.0rc1 in this kernel environment and restart it'
 print('NexQus SDK:', nexqus.__version__)
 ''')
 
@@ -27,7 +27,7 @@ md('''
 # 00 · Your first NexQus circuit / စတင်အသုံးပြုခြင်း
 
 **Goal:** install NexQus, run a Bell circuit, and distinguish probabilities from sampled counts.
-**Time:** about 15 minutes. No physics or GPU background is required. Targets NexQus SDK 1.2.0.
+**Time:** about 15 minutes. No physics or GPU background is required. Targets NexQus SDK 1.3.0rc1.
 
 NexQus ဖြင့် မိမိကွန်ပျူတာပေါ်တွင် quantum circuit ကို simulation လုပ်နိုင်ပါသည်။
 စတင်ရန် quantum hardware သို့မဟုတ် GPU မလိုအပ်ပါ။
@@ -35,7 +35,7 @@ NexQus ဖြင့် မိမိကွန်ပျူတာပေါ်တွ
 Open a terminal in the extracted SDK folder, activate your environment, and run:
 
 ```bash
-python -m pip install 'nexqus-sdk[tutorial]==1.2.0'
+python -m pip install -e ".[tutorial]"
 python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)"
 jupyter lab notebooks
 ```
@@ -86,7 +86,7 @@ print('Checks passed. Next: 01_qubits_and_gates.ipynb')
 md('''
 ## Draw your own circuit / Circuit ပုံဆွဲခြင်း
 
-SDK 1.2.0 draws any ordinary circuit without simulating it. Here RX and RY
+SDK 1.3.0rc1 draws any ordinary circuit without simulating it. Here RX and RY
 are rotations in radians; `cx` is CNOT. All eight wires appear, including idle
 wires. `draw()` returns terminal text; `draw('svg')` displays in Jupyter.
 To save a vector file, use `custom.draw('svg', filename='custom.svg')`.
@@ -168,7 +168,7 @@ print('QFT inverse and Grover checks passed.')
 md('''
 ## Shor factoring and resources / Shor algorithm
 
-In SDK 1.2.0, `shor` combines quantum order finding, inverse QFT and classical
+In SDK 1.3.0rc1, `shor` combines quantum order finding, inverse QFT and classical
 factor recovery. Modular operations use compact permutation maps. Inspect
 resources before trying larger inputs: storing a statevector still grows
 exponentially with the total qubit count, and the memory checks are estimates.
@@ -464,7 +464,7 @@ code('''
 colors = {'Quantum circuit': '#2563eb', 'Classical MLP': '#ea580c',
           'Classical sinusoid': '#9333ea'}
 fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-fig.suptitle('NexQus 1.2.0: quantum vs classical sine regression', fontsize=15)
+fig.suptitle('NexQus 1.3.0rc1: quantum vs classical sine regression', fontsize=15)
 axes[0, 0].plot(grid, np.sin(grid), color='#111827', lw=2, alpha=.45, label='Target sin(x)')
 axes[0, 0].scatter(train_x, train_y, color='#111827', s=17, label='20 training samples', zorder=5)
 for name in names:
@@ -664,16 +664,16 @@ md('''
 # 07 · Circuit inspection and reusable QML / Circuit စစ်ဆေးခြင်းနှင့် QML
 
 **Goal:** inspect/export a circuit and build a differentiable data-reuploading
-model. About 20 minutes. Install NexQus 1.2.0 with
-`python -m pip install 'nexqus-sdk[tutorial,visualization]==1.2.0'` and restart
+model. About 20 minutes. Install NexQus 1.3.0rc1 with
+`python -m pip install -e ".[tutorial,visualization]"` and restart
 the kernel. PNG/PDF export also requires native Cairo on your system.
 
 Data encoding နှင့် trainable layer များကို helper များဖြင့် ပြန်သုံးနိုင်ပါသည်။
-ဤ lesson အတွက် NexQus SDK 1.2.0 ကို install လုပ်ထားရန် လိုပါသည်။
+ဤ lesson အတွက် NexQus SDK 1.3.0rc1 ကို install လုပ်ထားရန် လိုပါသည်။
 '''),SETUP,
 code('''
 from nexqus import templates, QuantumFunction
-assert hasattr(Circuit, 'depth'), 'Install NexQus SDK 1.2.0 and restart the kernel'
+assert hasattr(Circuit, 'depth'), 'Install NexQus SDK 1.3.0rc1 and restart the kernel'
 q = Circuit(8).rx(.5, 0).cx(0, 1).ry(.8, 3).cx(3, 7)
 assert q.depth() == 2
 assert q.count_ops() == {'RX': 1, 'CX': 2, 'RY': 1}
@@ -769,7 +769,7 @@ if missing:
         'Install the current source into this notebook kernel with %pip install --upgrade '
         '"nexqus-sdk[tutorial] @ https://github.com/Inn0m1n4te030/NexQus-SDK/archive/refs/heads/main.zip" '
         'or %pip install -e "/path/to/NexQus-SDK[tutorial]", then restart the kernel and Run All. '
-        'The published 1.2.0 wheel lacks these additions; version 1.2.0 alone is not a feature check. '
+        'The published 1.2.0 wheel lacks these additions; install the 1.3.0rc1 candidate and restart. '
         'QGAN and this fixed-H2 lesson do not require the chemistry extra or PySCF.')
 ''')
 
@@ -854,7 +854,7 @@ BOOKS.append(('09_h2_energy_explained', [
 md('''
 # 09 · Explain H₂ energy / မော်လီကျူး စွမ်းအင်ကို လေ့လာခြင်း
 
-**Unreleased source-checkout lesson.** Install this checkout with the tutorial
+**NexQus 1.3.0rc1 candidate lesson.** Install this checkout with the tutorial
 extra: `python -m pip install -e ".[tutorial]"`, then restart the notebook kernel.
 This fixed-geometry lesson works on native Windows and does not need PySCF.
 To regenerate integrals and compare a bond-length curve against independent
@@ -1022,7 +1022,7 @@ python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)
 ```
 
 Restart the kernel and select **Python (NexQus)**. These new optional APIs are
-not in the published 1.2.0 wheel, even though the source version is still 1.2.0.
+not in the published 1.2.0 wheel, and are included in the 1.3.0rc1 candidate.
 The chemistry extra and PySCF are not needed. If PyTorch is absent this optional
 lesson explicitly skips; image-GAN CI executes it with PyTorch installed.
 '''), SETUP,
@@ -1300,7 +1300,7 @@ def main():
             content.append(cell)
         notebook=dict(cells=content,metadata=dict(kernelspec=dict(display_name='Python (NexQus)',language='python',name='nexqus'),
                         language_info=dict(name='python',version='3.10'),
-                        nexqus=dict(lesson=name,sdk_version='1.2.0')),nbformat=4,nbformat_minor=5)
+                        nexqus=dict(lesson=name,sdk_version='1.3.0rc1')),nbformat=4,nbformat_minor=5)
         (directory/(name+'.ipynb')).write_text(json.dumps(notebook,ensure_ascii=False,indent=1)+'\n',encoding='utf-8')
     # Keep the terminal comparison and lesson 04 on exactly the same code.
     learning_cells = next(cells for name, cells in BOOKS if name == '04_gradients_and_learning')

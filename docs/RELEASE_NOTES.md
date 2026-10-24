@@ -1,4 +1,43 @@
-# NexQus SDK 1.2.0
+# NexQus SDK 1.3.0rc1 — release candidate
+
+This candidate is prepared for volunteer testing; no index upload has occurred.
+The latest stable version is 1.2.0. Use the candidate checkout or built wheel.
+
+## Changes since stable 1.2.0
+
+- Explain circuits and QNNs through local state traces and offline visual reports.
+- Train explainable distribution QGANs and optional classical/hybrid image GANs.
+- Inspect molecular structures and bounded H₂ VQE/FCI references. These examples
+  do not establish drug-discovery capability or recognizable pet-image quality.
+- Explore editable Grover mazes, seeded quantum/classical walk animations and
+  continuous-time glued-tree transport with explicit classical baselines.
+- Select CPU/Torch/CUDA circuit execution for walk examples; their reports
+  disclose CPU analysis and transfers. Real CUDA validation is still pending.
+- Prepare optional Braket circuits offline; no QPU submission has been tested.
+- Synchronize all thirteen notebooks with candidate version checks.
+
+## Install and validate the candidate
+
+From the candidate checkout:
+
+```bash
+python -m pip install -e '.[tutorial]'
+python scripts/check_release.py --public
+python scripts/run_notebooks.py --engine python
+python examples/quantum_maze_walk.py --open
+python examples/glued_trees.py --open
+```
+
+Optional image examples need `.[image-gan]`. New chemistry integral generation
+needs `.[chemistry]` on Linux/macOS/WSL; the fixed H₂ lesson works without it.
+For a real CUDA installation, run `python scripts/check_gpu_workflows.py` and
+retain its zero-skip hardware report. CPU testing does not validate CUDA.
+
+Maintainers must complete fresh wheel/sdist installation checks, current CI,
+GPU validation and volunteer review before promoting the candidate to 1.3.0.
+See [RELEASING.md](RELEASING.md) for the publishing workflow.
+
+## Historical 1.2.0 development notes
 
 The source image-GAN workflow offers opt-in regularized training for both
 classical and hybrid models, a fresh `dcgan` architecture, checkpoint retuning

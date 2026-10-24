@@ -31,12 +31,12 @@ python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)
 jupyter lab notebooks
 ```
 
-The original eight lessons target SDK 1.2.0. Lessons 08/09 require the unreleased
-source checkout; the published 1.2.0 wheel does not include their new APIs.
+All thirteen lessons target SDK 1.3.0rc1. Install the candidate checkout with
+the command above. The published 1.2.0 wheel lacks the newer APIs.
 The command above installs the current checkout into the activated environment.
 Add `.[visualization]` separately if you need optional PNG/PDF export. Lessons
 08/09 check required APIs and show the imported package and Python paths because
-the source additions and published wheel both currently report version 1.2.0.
+an older installed wheel can otherwise be selected by the notebook kernel.
 QGAN and the fixed-H₂ lesson work on native Windows without PySCF. The optional
 PySCF driver requires Linux, macOS or WSL on Windows; install `.[chemistry]`
 only in one of those environments. See [import recovery](../docs/QGAN_CHEMISTRY.md#recover-from-a-missing-qgan-import).

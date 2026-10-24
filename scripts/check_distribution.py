@@ -108,6 +108,13 @@ def main():
                   'from nexqus import Simulator, algorithms; '
                   'r=Simulator().run(algorithms.bell(), shots=0); '
                   'assert abs(r.expectation("ZZ")-1)<1e-10; '
+                  'from nexqus import Circuit, Parameter, QuantumDistribution, QGAN, Molecule; '
+                  'QGAN(QuantumDistribution(Circuit(1).ry(Parameter("theta"),0)), {"theta":1.3}); '
+                  'from nexqus.maze import Maze, PRESETS; '
+                  'from nexqus.maze_walk import compare_walks; '
+                  'from nexqus.glued_trees import experiment; '
+                  'assert compare_walks(Maze(PRESETS["Two corridors"]),2)["steps"] == 2; '
+                  'assert experiment(2,17)["columns"] == 6; '
                   'print("Installed distribution:", nexqus.__version__, nexqus.__file__)')
             run([python,'-c',code],scratch,environment)
             run([python,'-m','unittest','discover','-s',ROOT/'tests'],scratch,environment)
