@@ -126,12 +126,17 @@ class Explanation:
 
 def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_roles=None,
             initial_state=None, title='Inside the circuit', max_qubits=10, max_steps=256,
-            max_report_mb=32,backend=None,device=None):
+            max_report_mb=32,backend=None,device=None, interventions=None):
     """Trace operations on CPU/CUDA; export snapshot diagnostics to host JSON.
 
     No cloud access, sampling, external JS or language model. Rejects noise and
     dynamic circuits. Blocks are caller annotations using half-open op ranges;
     parameter_roles labels parameters as feature/weight/parameter, not attribution.
+    interventions is up to 16 dictionaries with a zero-based operation index and
+    either skip=True or angle=<radians>. Optional axis is rx/ry/rz; it is
+    required for ambiguous matrices (for example a zero-angle rotation). Angle edits require an actual RX/RY/RZ
+    matrix with a recorded numerical angle. Alternatives are independent edits
+    of the bound circuit, calculated in Python and embedded for offline selection.
     Limits are checked before state/trace allocation and again after serialization.
     """
     if not isinstance(circuit,Circuit): raise TypeError('Expected a Circuit')
@@ -200,6 +205,49 @@ def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_r
                'Z covariance measures basis-dependent correlation; it is not an entanglement test.',
                'Reduced entropy quantifies qubit-versus-rest entanglement here because the global state is pure.',
                'Block/parameter roles are caller annotations. No feature attribution or causal importance is computed.'])
+    requests=[] if interventions is None else list(interventions)
+    if len(requests)>16: raise ValueError('At most 16 interventions per report')
+    alternatives=[]
+    for request in requests:
+        if not isinstance(request,dict): raise ValueError('Each intervention must be a dictionary')
+        index=request.get('operation')
+        if isinstance(index,bool) or not isinstance(index,numbers.Integral) or not 0<=index<count:
+            raise ValueError('Intervention operation must be a valid zero-based index')
+        if set(request)=={'operation','skip'} and request['skip'] is True:
+            # Identity retains the stage indices and caller block boundaries.
+            edited=copy.deepcopy(bound)
+            replacement=Circuit(n).diagonal(np.ones(2**len(bound.operations[index].wires)),bound.operations[index].wires)
+            edited.operations[index]=replacement.operations[0]
+            description=f'Skip operation {index+1}: {operations[index]["label"]}'
+        elif set(request) in ({'operation','angle'}, {'operation','angle','axis'}):
+            angle=real_scalar(request['angle']); op=bound.operations[index]
+            if op.kind!='unitary' or len(op.wires)!=1 or len(op.params)!=1:
+                raise ValueError('Angle edits require a recorded RX, RY or RZ rotation')
+            axes=[]
+            for name,pauli in [('rx',X),('ry',Y),('rz',Z)]:
+                original=float(op.params[0])
+                if np.allclose(op.data,np.cos(original/2)*I-1j*np.sin(original/2)*pauli,atol=1e-12,rtol=0):
+                    axes.append(name)
+            if 'axis' in request:
+                axes=[a for a in axes if a==request['axis']]
+            if len(axes)!=1: raise ValueError('Rotation axis is ambiguous or unsupported; supply axis=rx, ry or rz matching the original matrix')
+            axis=axes[0]
+            edited=copy.deepcopy(bound)
+            edited.operations[index]=getattr(Circuit(n),axis)(angle,op.wires[0]).operations[0]
+            description=f'Operation {index+1}: {axis.upper()}({angle:.6g})'
+        else: raise ValueError('Intervention needs exactly operation and skip=True or angle')
+        variant=explain(edited,observable=observable,blocks=annotations,initial_state=initial_state,
+            title=title,max_qubits=max_qubits,max_steps=max_steps,max_report_mb=limit,
+            backend=backend.name,device=backend.device).to_dict()
+        # Keep the original symbolic occurrence labels as context, not a new binding.
+        for a,b in zip(variant['operations'],operations): a['parameters']=b['parameters']
+        variant['parameters']=copy.deepcopy(data['parameters'])
+        variant['intervention']=dict(request)
+        alternatives.append(dict(label=description,trace=variant))
+        # Enforce the aggregate budget after every alternative, not just each trace.
+        if len(json.dumps(dict(data,alternatives=alternatives),ensure_ascii=False,allow_nan=False).encode('utf-8'))>limit*1024**2:
+            raise ValueError('Combined intervention traces exceed max_report_mb')
+    data['alternatives']=alternatives
     if len(json.dumps(data,ensure_ascii=False,allow_nan=False).encode('utf-8'))>limit*1024**2:
         raise ValueError('Serialized trace exceeds max_report_mb')
     return Explanation(data)

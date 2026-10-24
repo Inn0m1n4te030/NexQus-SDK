@@ -10,6 +10,44 @@ from nexqus import Circuit, Simulator, Parameter, Noise, algorithms
 
 
 class ExplainTests(unittest.TestCase):
+    def test_interventions_match_independent_circuits_and_preserve_source(self):
+        theta=Parameter('theta')
+        circuit=Circuit(2).ry(theta,0).cx(0,1)
+        data=circuit.explain(bindings={'theta':.5},interventions=[
+            {'operation':0,'angle':1.2},{'operation':1,'skip':True}]).to_dict()
+        expected=[Circuit(2).ry(1.2,0).cx(0,1),Circuit(2).ry(.5,0)]
+        for variant,reference in zip(data['alternatives'],expected):
+            frame=variant['trace']['frames'][-1]
+            result=Simulator().run(reference,shots=0)
+            np.testing.assert_allclose(frame['probabilities'],result.probabilities,atol=1e-12)
+            self.assertAlmostEqual(frame['expectation'],result.expectation('ZI'))
+        self.assertEqual(circuit.parameters,('theta',))
+        self.assertEqual(len(circuit.operations),2)
+        self.assertAlmostEqual(data['alternatives'][1]['trace']['frames'][-1]['qubits'][0]['entropy'],0)
+
+    def test_intervention_validation_and_aggregate_budget(self):
+        q=Circuit(1).rx(.5,0)
+        for request in [{'operation':True,'skip':True},{'operation':1,'skip':True},
+                        {'operation':0,'skip':False},{'operation':0,'angle':float('nan')},
+                        {'operation':0,'skip':True,'angle':1}]:
+            with self.assertRaises(ValueError): q.explain(interventions=[request])
+        with self.assertRaises(ValueError): q.explain(interventions=[{'operation':0,'skip':True}]*17)
+        with self.assertRaises(ValueError): Circuit(1).h(0).explain(interventions=[{'operation':0,'angle':1}])
+        base=q.explain().to_dict()
+        size=len(json.dumps(base,ensure_ascii=False,allow_nan=False).encode())
+        with self.assertRaisesRegex(ValueError,'Combined'):
+            q.explain(interventions=[{'operation':0,'skip':True}],max_report_mb=size*1.5/1024**2)
+
+    def test_zero_angle_requires_explicit_verified_axis(self):
+        q=Circuit(1).ry(0,0)
+        with self.assertRaisesRegex(ValueError,'ambiguous'):
+            q.explain(interventions=[{'operation':0,'angle':.7}])
+        data=q.explain(interventions=[{'operation':0,'angle':.7,'axis':'ry'}]).to_dict()
+        np.testing.assert_allclose(data['alternatives'][0]['trace']['frames'][-1]['probabilities'],
+                                   [np.cos(.35)**2,np.sin(.35)**2],atol=1e-12)
+        with self.assertRaises(ValueError):
+            Circuit(1).rx(.5,0).explain(interventions=[{'operation':0,'angle':.7,'axis':'ry'}])
+
     def test_bell_explains_joint_state_and_reduced_mixedness(self):
         data=Circuit(2).h(0).cx(0,1).explain(observable='ZZ').to_dict()
         self.assertEqual(len(data['frames']),3)
