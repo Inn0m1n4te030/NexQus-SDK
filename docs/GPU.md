@@ -1,7 +1,7 @@
 # CPU and CUDA across NexQus
 
-These changes require the current source checkout; the published 1.2.0 wheel
-does not contain them. Core installation still needs only NumPy. CUDA requires
+These workflows are included in the 1.3.0rc1 candidate; the published 1.2.0 wheel
+does not contain them. Install the candidate checkout or built wheel. Core installation still needs only NumPy. CUDA requires
 an NVIDIA GPU, working driver and a CUDA-enabled PyTorch build. This work does
 not provision cloud GPUs or submit QPU jobs. Apple MPS is not supported.
 

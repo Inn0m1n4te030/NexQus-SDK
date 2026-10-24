@@ -1,6 +1,6 @@
 # Optional Amazon Braket adapter
 
-This is an unreleased source-checkout addition after SDK 1.2.0. The published
+This bridge is included in the 1.3.0rc1 candidate. The published
 1.2.0 wheel does not include it. No cloud job is submitted by installation,
 imports, preparation, the example, or CI. All development validation uses local
 simulation or mocked AWS tasks. Real QPU execution has not been verified.

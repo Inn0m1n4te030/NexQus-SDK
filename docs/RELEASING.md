@@ -6,6 +6,13 @@ RELEASE_NOTES.md. Generated test reports and audit outputs belong in
 
 ## Prepare a release
 
+The current candidate is **1.3.0rc1**, targeting stable **1.3.0**. Candidate
+artifacts have not been uploaded. Validate the checkout/wheels and collect
+volunteer feedback first; only TestPyPI accepts candidates in this repository's
+publishing workflow. Production promotion requires a final version bump to
+1.3.0, regenerated notebooks, repeated package validation and reviewed CI.
+Do not copy historical CPU reports as evidence of a CUDA hardware run.
+
 1. Update the single __version__ value in src/nexqus/__init__.py.
 2. Update the changelog, release notes and installation instructions, including
    notebooks/README.md and the setup/version text in scripts/build_notebooks.py.
@@ -68,7 +75,7 @@ first, then retrieve only the SDK from TestPyPI with --no-deps. After a producti
 upload, verify a fresh installation from ordinary PyPI and run smoke examples:
 
 ```bash
-python -m pip install nexqus-sdk==1.2.0
+python -m pip install nexqus-sdk==1.3.0
 python -c 'import nexqus; print(nexqus.__version__)'
 ```
 

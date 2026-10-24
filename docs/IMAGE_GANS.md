@@ -1,6 +1,6 @@
 # Image GANs: convolutional models and quantum features
 
-These **unreleased source-checkout APIs** add both image-generation approaches,
+These **1.3.0rc1 candidate APIs** add both image-generation approaches,
 conditional class labels, a classical GAN comparison and pixel explanations.
 They are not in the published PyPI 1.2.0 wheel. Import from `nexqus.image_gan`;
 core `import nexqus` still requires only NumPy. Training supports local CPU/CUDA.

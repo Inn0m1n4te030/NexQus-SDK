@@ -5,11 +5,16 @@ with noise channels, reusable algorithms, analytic gradients and Burmese/English
 tutorials. NexQus implements its own circuit representation and evolution kernels;
 other quantum SDKs are not execution dependencies.
 
-**Version 1.2.0 · MIT license.**
+**Version 1.3.0rc1 · release candidate for 1.3.0 · MIT license.**
+
+This candidate is being validated and has not been published to an index.
+Install this checkout with the editable commands below, or install its built
+wheel. The latest stable release remains 1.2.0. Candidate features include
+circuit/QNN explanations, QGANs, molecular views and visual quantum walks.
 
 Version 1.2 adds numerical circuit angles, depth/counts, optional PNG/PDF export,
 reusable QML templates and independent simulator benchmarks. Install tutorial
-and export dependencies with `python -m pip install 'nexqus-sdk[tutorial,visualization]==1.2.0'`.
+and export dependencies with `python -m pip install -e ".[tutorial,visualization]"`.
 [Source and issue tracking](https://github.com/Inn0m1n4te030/NexQus-SDK).
 
 ## Install
@@ -17,7 +22,7 @@ and export dependencies with `python -m pip install 'nexqus-sdk[tutorial,visuali
 In an activated Python 3.10+ virtual environment:
 
 ```bash
-python -m pip install nexqus-sdk==1.2.0
+python -m pip install -e .
 ```
 
 The distribution name is **nexqus-sdk**; the Python import is **nexqus**.
@@ -224,7 +229,7 @@ measurement/reset and an end-to-end experiment. Start with
 Lesson 04 includes quantum versus classical sine predictions, loss curves and
 held-out errors. A [rendered comparison and terminal instructions](docs/LEARNING.md)
 are available without executing a notebook.
-All eight lessons target SDK 1.2.0. Lesson 07 covers inspection, binary export
+All thirteen lessons target SDK 1.3.0rc1. Lesson 07 covers inspection, binary export
 and reusable QML building blocks.
 The source distribution includes tutorials, tests, examples and documentation;
 the small runtime wheel contains the importable SDK and package metadata.

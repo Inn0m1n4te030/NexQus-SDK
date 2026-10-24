@@ -1,7 +1,7 @@
 # Circuit explainability explorer
 
-This is an unreleased source-checkout addition after SDK 1.2.0. It is not in
-the existing PyPI 1.2.0 wheel. The explorer traces local, exact, double-precision
+This explorer is included in the 1.3.0rc1 candidate and is absent from
+the existing PyPI 1.2.0 wheel. It traces local, exact, double-precision
 pure states. It makes no cloud calls and submits no QPU jobs.
 Use `q.explain(device='cuda:0')` or `examples/explain_circuits.py --device cuda:0`
 to evolve states on CUDA. Per-frame diagnostics and HTML/JSON export remain
