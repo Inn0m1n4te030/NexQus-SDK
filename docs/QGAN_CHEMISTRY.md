@@ -4,7 +4,7 @@ For rotatable atom/bond views, methane and larger organic examples, and H₂
 geometry with calculated energy results, see [MOLECULES.md](MOLECULES.md).
 `python examples/molecular_viewer.py` runs on native Windows without PySCF.
 
-These APIs are included in the 1.3.0rc1 candidate. The published PyPI 1.2.0 wheel does not
+These APIs are included in the 1.3.0 release. The published PyPI 1.2.0 wheel does not
 contain these APIs. Install this branch/checkout before using them:
 
 ```bash
@@ -39,7 +39,7 @@ The message `Successfully built nexqus-sdk` means a wheel was built, not that
 it was installed. If a combined install ends with `Failed to build pyscf`,
 the kernel may still use an older NexQus package. A running kernel can also
 retain the previous module until it is restarted. Earlier source additions and
-the stable wheel both reported 1.2.0. This candidate reports 1.3.0rc1; check
+the stable wheel both reported 1.2.0. This release reports 1.3.0; check
 the imported path and restart the kernel after upgrading.
 
 Run this **inside the notebook** to install the current source into its Python

@@ -1,12 +1,10 @@
 # Public API policy for NexQus 1.x
 
 This policy covers the documented public API beginning with version 1.0.0.
-The current stable release is 1.2.0, including circuit inspection, PNG/PDF export
-and QML templates documented in API.md. These additions follow the same 1.x
-compatibility contract as the existing circuit and simulation interfaces.
-The 1.3.0rc1 candidate includes the newer explainability, generative, chemistry
-and bridge interfaces. These were absent from published 1.2.0 archives. Candidate
-interfaces are under volunteer review before stable 1.3.0 promotion.
+The current stable release is 1.3.0, including circuit inspection, PNG/PDF export,
+QML templates, explainability, generative, chemistry and bridge interfaces.
+These additions follow the same 1.x compatibility contract as existing circuit
+and simulation interfaces. The newer interfaces were absent from 1.2.0 archives.
 
 ## Supported surface
 

@@ -4,8 +4,8 @@ Draw a maze, compare classical BFS with a small Grover experiment, and inspect
 the actual circuit states. It runs on NumPy CPU with no GPU, paid QPU, cloud
 account, web framework or internet connection after installation.
 
-These examples are included in the **1.3.0rc1 candidate**, with source files in
-the checkout/source archive. They are absent from PyPI 1.2.0. From the candidate checkout:
+These examples are included in the **1.3.0 release**, with source files in
+the checkout/source archive. They are absent from PyPI 1.2.0. From the release checkout:
 
 ```bash
 python -m pip install -e .

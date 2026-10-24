@@ -31,8 +31,9 @@ python -m ipykernel install --user --name nexqus --display-name "Python (NexQus)
 jupyter lab notebooks
 ```
 
-All thirteen lessons target SDK 1.3.0rc1. Install the candidate checkout with
-the command above. The published 1.2.0 wheel lacks the newer APIs.
+All thirteen lessons target SDK 1.3.0. Install the release with
+`python -m pip install "nexqus-sdk[tutorial]==1.3.0"`, or use the checkout command
+above. The older 1.2.0 wheel lacks the newer APIs.
 The command above installs the current checkout into the activated environment.
 Add `.[visualization]` separately if you need optional PNG/PDF export. Lessons
 08/09 check required APIs and show the imported package and Python paths because

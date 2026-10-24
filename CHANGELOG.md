@@ -1,10 +1,11 @@
 # Changelog
 
-## 1.3.0rc1 — candidate for 1.3.0
+## 1.3.0 — 2026-10-24
 
-This is a validation candidate, not a published stable release. It packages the
-explainability, QGAN, chemistry, visualization and walk additions below. CUDA
-hardware validation and volunteer feedback remain release prerequisites.
+Promote the CI-validated 1.3.0rc1 candidate to a production release with no
+runtime changes beyond the version identifier. The candidate passed fresh
+TestPyPI installation checks. CUDA hardware validation and volunteer feedback
+remain ongoing; CPU parity and skipped CUDA tests are not hardware evidence.
 
 - Add seeded maze-run playback with a classical trail, quantum wave/coin-flow
   display, visible exit detection, step controls and explicit horizon failures.

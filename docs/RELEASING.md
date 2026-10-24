@@ -6,12 +6,12 @@ RELEASE_NOTES.md. Generated test reports and audit outputs belong in
 
 ## Prepare a release
 
-The current candidate is **1.3.0rc1**, targeting stable **1.3.0**. Candidate
-artifacts have not been uploaded. Validate the checkout/wheels and collect
-volunteer feedback first; only TestPyPI accepts candidates in this repository's
-publishing workflow. Production promotion requires a final version bump to
-1.3.0, regenerated notebooks, repeated package validation and reviewed CI.
-Do not copy historical CPU reports as evidence of a CUDA hardware run.
+The current stable version is **1.3.0**, promoted from **1.3.0rc1** after
+passing CI and fresh TestPyPI installation checks. Production promotion updates
+the version, regenerates notebooks and repeats package validation and CI.
+CUDA hardware validation remains pending; do not copy CPU reports as evidence
+of a CUDA hardware run. Collect volunteer feedback and hardware reports for
+follow-up maintenance releases.
 
 1. Update the single __version__ value in src/nexqus/__init__.py.
 2. Update the changelog, release notes and installation instructions, including

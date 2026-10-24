@@ -6,7 +6,7 @@ exact energy reference; geometry rendering remains host/browser work. Optional
 new-molecule RHF can use GPU4PySCF on Linux/WSL, with integrals and mapping
 explicitly retained on CPU. See [GPU.md](GPU.md).
 
-The 1.3.0rc1 candidate supplies a native, offline molecular viewer.
+The 1.3.0 release supplies a native, offline molecular viewer.
 It works on Windows without PySCF, RDKit, a web service or a QPU.
 
 For an immediate preview, open `examples/molecular_previews/gallery.html` or
@@ -22,7 +22,7 @@ python examples/molecular_viewer.py
 Open `.release-artifacts/molecules/gallery.html` in a browser to rotate H₂,
 methane, water, ethene and benzene. Open `h2_vqe.html` to see the H₂ geometry
 with locally calculated VQE and classical reference energies. A file can be
-opened directly; no web server is needed. The candidate reports 1.3.0rc1;
+opened directly; no web server is needed. The release reports 1.3.0;
 the existing published 1.2.0 wheel does not contain these additions.
 
 The prepared HTML snapshots can be refreshed by running the example and copying

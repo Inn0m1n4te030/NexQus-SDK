@@ -18,7 +18,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import nexqus
 from nexqus import Circuit, Simulator, Parameter, Noise, NoiseModel, algorithms
-assert nexqus.__version__ == '1.3.0rc1', 'Install NexQus SDK 1.3.0rc1 in this kernel environment and restart it'
+assert nexqus.__version__ == '1.3.0', 'Install NexQus SDK 1.3.0 in this kernel environment and restart it'
 print('NexQus SDK:', nexqus.__version__)
 
 from time import perf_counter
@@ -126,7 +126,7 @@ assert all(np.isfinite(r['test_mse']) for r in records)
 colors = {'Quantum circuit': '#2563eb', 'Classical MLP': '#ea580c',
           'Classical sinusoid': '#9333ea'}
 fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-fig.suptitle('NexQus 1.3.0rc1: quantum vs classical sine regression', fontsize=15)
+fig.suptitle('NexQus 1.3.0: quantum vs classical sine regression', fontsize=15)
 axes[0, 0].plot(grid, np.sin(grid), color='#111827', lw=2, alpha=.45, label='Target sin(x)')
 axes[0, 0].scatter(train_x, train_y, color='#111827', s=17, label='20 training samples', zorder=5)
 for name in names:

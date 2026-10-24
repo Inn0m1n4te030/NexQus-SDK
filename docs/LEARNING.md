@@ -12,7 +12,7 @@ build ordinary circuits compatible with the gradients described here.
 
 ## Install and run
 
-From the NexQus 1.3.0rc1 source checkout, in your existing environment:
+From the NexQus 1.3.0 source checkout, in your existing environment:
 
 ```bash
 python -m pip install --upgrade -e .
@@ -193,7 +193,7 @@ loss rather than relying only on the built-in MSE models.
 
 ## Scope
 
-The published NexQus 1.3.0rc1 APIs provide explicit analytic gradients. General
+The published NexQus 1.3.0 APIs provide explicit analytic gradients. General
 noisy PyTorch autograd integration, trajectory gradients, dynamic-circuit gradients
 and hardware training remain outside those APIs; the source image module has
 the narrower Torch bridge described above. The small learning examples demonstrate circuit

@@ -1,7 +1,7 @@
-# NexQus SDK 1.3.0rc1 — release candidate
+# NexQus SDK 1.3.0
 
-This candidate is prepared for volunteer testing; no index upload has occurred.
-The latest stable version is 1.2.0. Use the candidate checkout or built wheel.
+Production release promoted from 1.3.0rc1 after passing CI and fresh TestPyPI
+installation checks. CUDA hardware validation remains pending.
 
 ## Changes since stable 1.2.0
 
@@ -14,11 +14,12 @@ The latest stable version is 1.2.0. Use the candidate checkout or built wheel.
 - Select CPU/Torch/CUDA circuit execution for walk examples; their reports
   disclose CPU analysis and transfers. Real CUDA validation is still pending.
 - Prepare optional Braket circuits offline; no QPU submission has been tested.
-- Synchronize all thirteen notebooks with candidate version checks.
+- Synchronize all thirteen notebooks with release version checks.
 
-## Install and validate the candidate
+## Install and validate
 
-From the candidate checkout:
+Install the release with `python -m pip install "nexqus-sdk[tutorial]==1.3.0"`.
+For examples and notebooks, use the matching source checkout:
 
 ```bash
 python -m pip install -e '.[tutorial]'
@@ -33,9 +34,7 @@ needs `.[chemistry]` on Linux/macOS/WSL; the fixed H₂ lesson works without it.
 For a real CUDA installation, run `python scripts/check_gpu_workflows.py` and
 retain its zero-skip hardware report. CPU testing does not validate CUDA.
 
-Maintainers must complete fresh wheel/sdist installation checks, current CI,
-GPU validation and volunteer review before promoting the candidate to 1.3.0.
-See [RELEASING.md](RELEASING.md) for the publishing workflow.
+See [RELEASING.md](RELEASING.md) for package validation and publishing.
 
 ## Historical 1.2.0 development notes
 
@@ -46,7 +45,7 @@ duplicate/latent diagnostics. Pet-image quality is still unvalidated; see
 [the image guide](IMAGE_GANS.md) for bounded retuning and fresh-run commands.
 
 
-## Unreleased source-checkout addition
+## Included examples and interfaces
 
 The [Quantum Maze Explorer](QUANTUM_MAZE.md) is a local school-project example:
 draw mazes, inspect a bounded Grover search and BFS baseline, measure any stage,
