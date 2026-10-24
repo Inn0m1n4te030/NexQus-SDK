@@ -192,6 +192,16 @@ python examples/quantum_maze_walk.py --preset "Open 6 by 6" --steps 64 --open
 ```
 
 The command writes `.release-artifacts/maze-walk/walk.html` and `walk.json`.
+The report starts with a seeded run animation: a classical walker and its trail
+beside a quantum probability wave, outgoing coin-flow arrows and an exit
+detector. Use **Run until exit**, **One step**, speed selection and reset.
+The default horizon is now 128 steps. Each walker stops at its sampled exit
+event; playback ends when both finish or the horizon is exhausted.
+The quantum run samples first-detection time from the SDK's cumulative exit
+distribution. Before detection, circles show the normalized no-detection branch;
+at detection the display collapses onto G. It does not draw an invented quantum
+trajectory. The classical dot samples uniform directional moves, including wall
+self-loops. The existing distribution charts remain below for inspection.
 The HTML is self-contained. `--open` opens it in your browser; without that flag
 the command prints its path. Change `--output` to retain separate experiments.
 For custom grids, save a plain text file with `. # S G` rows and pass

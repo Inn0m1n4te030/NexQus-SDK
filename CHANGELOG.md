@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add seeded maze-run playback with a classical trail, quantum wave/coin-flow
+  display, visible exit detection, step controls and explicit horizon failures.
 - Add explicit CPU/Torch/CUDA circuit device selection to glued-tree and maze
   walks; disclose CPU analysis stages and synchronize GPU wall timings.
 - Reproduce random-cycle glued-tree continuous-time transport with actual SDK

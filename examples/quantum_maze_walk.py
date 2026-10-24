@@ -17,7 +17,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--preset', choices=list(WALK_PRESETS), default='Two corridors')
     parser.add_argument('--maze', type=Path, help='Text grid with . # S G; 2..8 rows/columns')
-    parser.add_argument('--steps', type=int, default=32, help='1..128 walk steps; chosen before comparison')
+    parser.add_argument('--steps', type=int, default=128, help='1..128 walk steps; chosen before comparison')
     parser.add_argument('--output', type=Path, default=Path('.release-artifacts/maze-walk'))
     parser.add_argument('--open', action='store_true', help='Open the saved report in your browser')
     parser.add_argument('--device',default='cpu',help='cpu, cuda or cuda:N; CUDA requires PyTorch')
