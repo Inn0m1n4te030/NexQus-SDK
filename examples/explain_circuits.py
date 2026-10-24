@@ -14,6 +14,13 @@ def generate(output,device=None):
         blocks=[dict(name='Create superposition',start=0,stop=1,role='encoding'),
                 dict(name='Entangle',start=1,stop=2,role='entangling')]
     ).to_html(filename=output/'bell.html')
+    Circuit(2).rx(.5,0).cx(0,1).explain(**execution,
+        title='Circuit laboratory · rotate, entangle, compare',
+        blocks=[dict(name='Encoding',start=0,stop=1,role='encoding'),
+                dict(name='Entangling',start=1,stop=2,role='entangling')],
+        interventions=[dict(operation=0,angle=a) for a in [0.,np.pi/2,np.pi]]+
+                     [dict(operation=1,skip=True)]
+    ).to_html(filename=output/'laboratory.html')
     interference=Circuit(1).h(0).z(0).h(0)
     interference.explain(**execution,title='Interference · a phase change becomes a probability change'
     ).to_html(filename=output/'interference.html')

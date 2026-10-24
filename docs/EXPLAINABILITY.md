@@ -159,3 +159,45 @@ DOM tests execute the real report script without loading external resources and
 check navigation, playback, annotations, highlighting, readout, trace download,
 empty circuits, SVG numerical bounds and malicious-label handling. They do not
 replace browser-engine layout testing across all notebook/browser frontends.
+
+## Before/after views and offline circuit interventions
+
+The explorer now shows the input and output of the selected operation together:
+complex amplitudes, probabilities and their differences, reduced Bloch vectors,
+and qubit-versus-rest entanglement entropy. Basis tables show at most 16 states;
+the JSON download includes the full state history.
+
+Precompute independent alternatives when exporting a report:
+
+```python
+from nexqus import Circuit
+
+circuit = Circuit(2).rx(0.5, 0).cx(0, 1)
+circuit.explain(
+    blocks=[dict(name='Encoding', start=0, stop=1, role='encoding'),
+            dict(name='Entangling', start=1, stop=2, role='entangling')],
+    interventions=[dict(operation=0, angle=0.0),
+                   dict(operation=0, angle=1.5707963267948966),
+                   dict(operation=1, skip=True)],
+).to_html(filename='circuit_laboratory.html')
+```
+
+Open the HTML and choose a calculated alternative. All later states are
+recomputed in Python before export. No server, QPU, or external asset is needed.
+Each choice edits the original bound circuit independently; choices do not stack.
+A removed gate is represented by identity to preserve stage and block indices.
+Logical depth/counts in that alternative therefore include the identity stage.
+Original parameter chips remain context, while the gate label shows the new
+angle. The downloaded JSON contains the selected trace and intervention.
+
+Angle edits support validated RX/RY/RZ matrices, not arbitrary gate names. At
+zero angle, axes are indistinguishable from the matrix alone: specify, for
+example, `dict(operation=0, angle=0.5, axis='ry')` to select the intended axis.
+There are at most 16 alternatives, and their combined serialized size must fit
+`max_report_mb`. Larger circuits or many alternatives may exceed that budget.
+These are finite exported presets; to add an arbitrary angle, regenerate from
+Python. Comparing a gate removal on one input is not a general importance or
+feature-attribution score. Noise and dynamic circuits remain unsupported.
+
+Run `python examples/explain_circuits.py` and open
+`.release-artifacts/explanations/laboratory.html` for the complete example.

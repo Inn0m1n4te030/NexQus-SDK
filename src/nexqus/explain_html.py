@@ -28,7 +28,18 @@ _HTML=r'''<!doctype html>
  <div class="caption" id="block-label"></div><div class="blocks" id="blocks"></div>
  <div class="parameters" id="parameters" aria-label="Parameter highlighting"></div>
 </section>
+<section class="card circuit-card" aria-label="Circuit interventions">
+<h2>What if I change this circuit?</h2>
+<label for="variant">Calculated alternative</label> <select id="variant"><option value="original">Original circuit</option></select>
+<p id="variant-summary" class="caption" aria-live="polite"></p>
+<p class="caption">Each option is one independent edit of the original bound circuit, recomputed by NexQus before export. Choices do not accumulate. Parameter chips retain the original binding as context; the edited gate label shows its actual angle. Add angle presets or gate removals with the Python interventions option.</p>
+</section>
 <div class="layout"><div class="stack">
+<section class="card"><h2>Before → after the selected gate</h2><p class="caption" id="transition-label"></p>
+<div class="scroll"><table><thead><tr><th>Basis</th><th>P before</th><th>P after</th><th>ΔP</th><th>Amplitude before → after</th></tr></thead><tbody id="transition"></tbody></table></div>
+<p class="caption" id="transition-coverage"></p>
+<div class="scroll"><table><thead><tr><th>Qubit</th><th>Bloch (x, y, z) before → after</th><th>Entropy before → after (bits)</th></tr></thead><tbody id="qubit-transition"></tbody></table></div>
+</section>
  <section class="card"><h2>What changed?</h2><div id="explanation" class="explanation"></div><div class="two"><div class="metric"><strong id="tv"></strong><span>Probability change · total variation</span></div><div class="metric"><strong id="fidelity"></strong><span>State fidelity to previous step</span></div></div><p class="caption" id="phase-change"></p></section>
  <section class="card"><div class="toolbar"><h2>Measurement probabilities</h2><label for="basis-order" class="caption">Show states</label><select id="basis-order"><option value="probability">Largest probability</option><option value="basis">Basis order</option></select></div><svg id="probability" class="plot" viewBox="0 0 640 280" role="img" aria-label="Basis measurement probabilities"></svg><div class="caption" id="coverage"></div></section>
  <section class="card"><h2>Amplitudes and relative phase</h2><div class="two"><svg id="phase" class="plot" viewBox="0 0 260 250" role="img" aria-label="Complex amplitude plane with relative phases"></svg><div><p class="caption">Radius is amplitude magnitude √P. Angle is relative phase. Colours match the basis states below.</p><p class="caption phase-note" id="phase-reference"></p><p class="caption">Zero-probability phases are undefined. A change in global phase alone has no observable effect.</p></div></div><div class="scroll"><table><thead><tr><th>Basis</th><th>Probability</th><th>Amplitude Re</th><th>Amplitude Im</th><th>Relative phase</th></tr></thead><tbody id="amplitudes"></tbody></table></div></section>
@@ -42,7 +53,7 @@ _HTML=r'''<!doctype html>
 <script>
 'use strict';
 (()=>{
-const d=JSON.parse(document.getElementById('trace-data').textContent), $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg';
+const original=JSON.parse(document.getElementById('trace-data').textContent); let d=original; const $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg';
 let step=0,highlight=null,timer=null; const last=d.frames.length-1;
 function text(id,value){$(id).textContent=value;}
 function svg(tag,attributes={},value){let e=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attributes))e.setAttribute(k,String(v));if(value!==undefined)e.textContent=value;return e;}
@@ -86,8 +97,26 @@ function covariance(f){let s=$('correlation');s.replaceChildren();let side=270/d
  for(let j=0;j<d.n_qubits;j++){let v=f.z_covariance[i][j],a=Math.min(1,Math.abs(v)),fill=i===j?'#eff0f5':v>=0?`rgba(49,118,190,${.07+.88*a})`:`rgba(198,118,50,${.07+.88*a})`;let r=add(s,'rect',{x:50+j*side,y:42+i*side,width:side-2,height:side-2,rx:3,fill});add(r,'title',{},i===j?`q${i}: diagonal variance omitted`:`q${i},q${j}: covariance ${v}`);if(d.n_qubits<=6)add(s,'text',{x:50+(j+.5)*side,y:46+(i+.5)*side,'text-anchor':'middle','font-size':12,fill:a>.65&&i!==j?'white':'#424858'},i===j?'—':fmt(v,2));}}
 }
 function readout(f){text('observable',`Pauli observable ${d.observable} · q0 first`);text('expectation',fmt(f.expectation,6));let s=$('readout');s.replaceChildren();add(s,'line',{x1:12,y1:55,x2:408,y2:55,stroke:'#dce0e9'});let x=i=>12+396*i/Math.max(1,last),y=v=>55-v*42;let pts=d.frames.map((f,i)=>`${x(i)},${y(f.expectation)}`).join(' ');add(s,'polyline',{points:pts,fill:'none',stroke:'#6150c8','stroke-width':2});add(s,'circle',{cx:x(step),cy:y(f.expectation),r:5,fill:'#6150c8'});add(s,'text',{x:12,y:107,fill:'#626779','font-size':11},'Initial');add(s,'text',{x:408,y:107,'text-anchor':'end',fill:'#626779','font-size':11},'Final');}
-function render(){let f=d.frames[step],op=step?d.operations[step-1]:null;text('step-title',step?`${step}. ${op.label}`:'Initial state');text('status',`Step ${step} / ${last}`);text('explanation',f.explanation);text('tv',fmt(f.probability_change,6));text('fidelity',fmt(f.fidelity_to_previous,6));text('phase-change',f.phase_change===null?'Relative-phase change: not defined across fewer than two shared nonzero basis amplitudes.':`Largest relative-phase change on shared nonzero amplitudes: ${fmt(f.phase_change,6)} radians.`);let block=op&&op.block!==null?d.blocks[op.block]:null;text('block-label',block?`Author annotation: ${block.name} · ${block.role}`:'No block annotation at this step.');$('step').value=step;$('back').disabled=step===0;$('next').disabled=step===last;$('play').disabled=last===0;circuit();parameters();let indices=basis(f);probabilities(f,indices);phase(f,indices);qubits(f);covariance(f);readout(f);for(let b of $('blocks').children)b.classList.toggle('active',Number(b.dataset.stop)===step);}
-text('title',d.title);document.title=d.title+' · NexQus';text('qubit-count',d.n_qubits);text('gate-count',last);text('depth',d.depth);text('footer',`NexQus SDK ${d.sdk_version} · schema ${d.schema_version} · NumPy double precision · offline report · no external assets`);$('step').max=last;
+function transition(f){
+ const before=d.frames[Math.max(0,step-1)], body=$('transition');body.replaceChildren();
+ text('transition-label',step?`Input to operation ${step} → output of operation ${step}. Amplitudes retain the simulator convention; a global phase has no observable effect.`:'Initial state: there is no preceding gate.');
+ const indices=Array.from({length:f.probabilities.length},(_,i)=>i).sort((a,b)=>Math.abs(f.probabilities[b]-before.probabilities[b])-Math.abs(f.probabilities[a]-before.probabilities[a])||f.probabilities[b]-f.probabilities[a]||a-b).slice(0,16);
+ const complex=a=>`${fmt(a[0],5)} ${a[1]<0?'−':'+'} ${fmt(Math.abs(a[1]),5)}i`;
+ for(const i of indices){const row=document.createElement('tr');for(const value of [label(i),fmt(before.probabilities[i],6),fmt(f.probabilities[i],6),fmt(f.probabilities[i]-before.probabilities[i],6),complex(before.amplitudes[i])+' → '+complex(f.amplitudes[i])]){const c=document.createElement('td');c.textContent=value;row.append(c);}body.append(row);}
+ text('transition-coverage',`Showing ${indices.length} of ${f.probabilities.length} states, ordered by absolute probability change. The other panels and JSON retain phase information and the full trace.`);
+ const qbody=$('qubit-transition');qbody.replaceChildren();
+ for(const q of f.qubits){const b=before.qubits[q.wire],row=document.createElement('tr');for(const value of ['q'+q.wire,b.bloch.map(x=>fmt(x)).join(', ')+' → '+q.bloch.map(x=>fmt(x)).join(', '),fmt(b.entropy)+' → '+fmt(q.entropy)]){const c=document.createElement('td');c.textContent=value;row.append(c);}qbody.append(row);}
+}
+function variantSummary(){
+ const base=original.frames[last],current=d.frames[last];
+ const tv=current.probabilities.reduce((sum,p,i)=>sum+Math.abs(p-base.probabilities[i]),0)/2;
+ text('variant-summary',d===original?(original.alternatives?.length?'Original circuit selected. Choose an alternative to inspect its full recalculated trace.':'No alternatives were exported. Add interventions when calling circuit.explain().'):`Final output versus original: probability total variation ${fmt(tv,6)}; observable expectation ${fmt(base.expectation,6)} → ${fmt(current.expectation,6)}. A difference on this input is not a general gate-importance score.`);
+}
+function render(){let f=d.frames[step],op=step?d.operations[step-1]:null;text('step-title',step?`${step}. ${op.label}`:'Initial state');text('status',`Step ${step} / ${last}`);text('explanation',f.explanation);text('tv',fmt(f.probability_change,6));text('fidelity',fmt(f.fidelity_to_previous,6));text('phase-change',f.phase_change===null?'Relative-phase change: not defined across fewer than two shared nonzero basis amplitudes.':`Largest relative-phase change on shared nonzero amplitudes: ${fmt(f.phase_change,6)} radians.`);let block=op&&op.block!==null?d.blocks[op.block]:null;text('block-label',block?`Author annotation: ${block.name} · ${block.role}`:'No block annotation at this step.');$('step').value=step;$('back').disabled=step===0;$('next').disabled=step===last;$('play').disabled=last===0;circuit();parameters();let indices=basis(f);probabilities(f,indices);phase(f,indices);qubits(f);covariance(f);readout(f);transition(f);variantSummary();for(let b of $('blocks').children)b.classList.toggle('active',Number(b.dataset.stop)===step);}
+for(const [i,item] of (original.alternatives||[]).entries()){const option=document.createElement('option');option.value=String(i);option.textContent=item.label;$('variant').append(option);}
+$('variant').disabled=!(original.alternatives||[]).length;
+$('variant').onchange=()=>{stop();d=$('variant').value==='original'?original:original.alternatives[Number($('variant').value)].trace;render();text('depth',d.depth);};
+text('title',d.title);document.title=d.title+' · NexQus';text('qubit-count',d.n_qubits);text('gate-count',last);text('depth',d.depth);text('footer',`NexQus SDK ${d.sdk_version} · schema ${d.schema_version} · ${d.execution.backend} / ${d.execution.device} · double precision · offline report · no external assets`);$('step').max=last;
 for(let note of d.notes){let li=document.createElement('li');li.textContent=note;$('notes').append(li);}
 for(let b of d.blocks){let button=document.createElement('button');button.className='chip';button.textContent=b.name;button.dataset.stop=b.stop;button.onclick=()=>{stop();step=b.stop;render();};$('blocks').append(button);}
 $('granularity').querySelector('option[value="block"]').disabled=d.blocks.length===0;

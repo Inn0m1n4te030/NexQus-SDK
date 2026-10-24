@@ -31,6 +31,21 @@ function replaceData(source,data){return source.replace(/(<script type="applicat
  (_,a,b)=>a+JSON.stringify(data).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026')+b);}
 (async()=>{
  const source=fs.readFileSync(path.join(directory,'bell.html'),'utf8'),bell=open(source);
+ const lab=open(fs.readFileSync(path.join(directory,'laboratory.html'),'utf8'));
+ setStep(lab,2);
+ assert.match(lab.get('qubit-transition').textContent,/0 → 0.332/);
+ assert.equal(lab.get('variant').options.length,5);
+ lab.get('variant').value='0';lab.get('variant').dispatchEvent(new lab.w.Event('change'));
+ assert.equal(lab.get('expectation').textContent,'1');
+ assert.match(lab.get('variant-summary').textContent,/Final output versus original/);
+ setStep(lab,1);assert.match(lab.get('step-title').textContent,/RX\(0\)/);
+ lab.get('variant').value='3';lab.get('variant').dispatchEvent(new lab.w.Event('change'));
+ setStep(lab,2);assert.match(lab.get('qubit-transition').textContent,/0 → 0/);
+ assert.match(lab.get('transition').textContent,/→/);checkSVG(lab);
+ lab.get('download').click();const edited=await lab.payload();assert.equal(edited.intervention.skip,true);
+ lab.get('variant').value='original';lab.get('variant').dispatchEvent(new lab.w.Event('change'));
+ assert.match(lab.get('explanation').textContent,/entangled/);
+ lab.dom.window.close();
  assert.equal(bell.get('status').textContent,'Step 0 / 2');
  bell.get('next').click();assert.equal(bell.get('step-title').textContent,'1. H');
  bell.get('next').click();assert.equal(bell.get('step-title').textContent,'2. CX');
