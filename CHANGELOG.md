@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add explicit CPU/Torch/CUDA circuit device selection to glued-tree and maze
+  walks; disclose CPU analysis stages and synchronize GPU wall timings.
 - Reproduce random-cycle glued-tree continuous-time transport with actual SDK
   column circuits, positive classical probabilities, analytic uniform-time
   quantum success, small full-graph validation, a depth sweep and an offline

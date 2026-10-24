@@ -19,9 +19,11 @@ def main():
     parser.add_argument('--seed',type=int,default=7,help='Random cycle and hidden names for full-graph checks')
     parser.add_argument('--output',type=Path,default=Path('.release-artifacts/glued-trees'))
     parser.add_argument('--open',action='store_true')
+    parser.add_argument('--device',default='cpu',help='cpu, cuda or cuda:N; CUDA requires PyTorch')
+    parser.add_argument('--backend',choices=('numpy','torch'),default=None)
     args = parser.parse_args()
-    try: result = compare_depths(args.depths,args.seed,args.samples)
-    except (ValueError,TypeError) as error: parser.error(str(error))
+    try: result = compare_depths(args.depths,args.seed,args.samples,device=args.device,backend=args.backend)
+    except (ValueError,TypeError,ImportError,RuntimeError) as error: parser.error(str(error))
     args.output.mkdir(parents=True,exist_ok=True)
     report = args.output/'glued_trees.html'
     report.write_text(render_glued_trees(result),encoding='utf-8')
@@ -30,7 +32,7 @@ def main():
         print(f"depth {row['depth']:2}: implied vertices {row['vertices']:,}; simulated columns {row['columns']}; "
               f"uniform-time exit: quantum {100*row['uniform_quantum_exit']:.6g}%, classical {100*row['uniform_classical_exit']:.6g}%")
     print('Full-graph checks:',result['verification'])
-    print('CPU column simulation, not a coherent hidden-name oracle or a QPU benchmark.')
+    print(result['results'][0]['timing']['scope'])
     print('Open',report.resolve())
     if args.open: webbrowser.open(report.resolve().as_uri())
 

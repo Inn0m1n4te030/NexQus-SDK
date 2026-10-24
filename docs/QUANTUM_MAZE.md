@@ -378,6 +378,30 @@ oracular access assumptions; it is not a blanket claim about ordinary mazes.
 
 ## Verification
 
+### CPU and GPU circuit execution
+
+Both walk examples accept `--device cpu`, `--device cuda` or `--device cuda:0`.
+CUDA selects the optional Torch backend and fails if CUDA is unavailable.
+Install a CUDA-enabled PyTorch build for your machine, then install the checkout:
+
+```bash
+python -m pip install -e .
+python examples/glued_trees.py --device cuda --open
+python examples/quantum_maze_walk.py --device cuda --steps 128 --open
+```
+
+Use `--backend torch --device cpu` to check the Torch path without CUDA.
+Device selection applies to quantum circuit execution. Graph construction,
+eigendecomposition, analytic success calculations, classical baselines and maze
+exit-detector bookkeeping remain on CPU. Maze monitoring transfers each state
+back to the host. Reports record the actual device and include transfers and
+CUDA synchronization in wall times. These are hybrid execution paths; GPU
+acceleration is not guaranteed for the small reduced registers.
+
+The editable Grover maze example retains its CPU-only workflow. Existing saved
+previews retain their original CPU measurements; generate a fresh report to
+measure your selected device.
+
 ```bash
 python -m unittest discover -s tests -p test_maze.py -v
 python examples/quantum_maze.py --export .release-artifacts/maze/lesson.html
