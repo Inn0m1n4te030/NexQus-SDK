@@ -30,7 +30,7 @@ class WalkDeviceTests(unittest.TestCase):
 
     def test_torch_cpu_parity(self): self.check_device('cpu')
 
-    @unittest.skipUnless(torch is not None and torch.cuda.is_available(), 'CUDA hardware unavailable')
+    @unittest.skipUnless(torch is not None and torch.cuda.is_available(), 'CUDA GPU unavailable')
     def test_cuda_parity(self): self.check_device('cuda')
 
     def test_cuda_unavailable_is_an_error(self):
