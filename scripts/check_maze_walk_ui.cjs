@@ -7,6 +7,21 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2]||'.release-artifacts/maze-wa
  runScripts:'dangerously',virtualConsole:vc,beforeParse(w){w.setInterval=fn=>{tick=fn;return 1;};w.clearInterval=()=>{tick=null;};}
 });
 const w=dom.window,$=id=>w.document.getElementById(id),d=w.walkLesson.data;
+const run=w.mazeRun;
+assert.equal(run.step,0);assert.match($('run-c-status').textContent,/Walker at/);
+for(const [a,b] of run.trail.slice(1).map((b,i)=>[run.trail[i],b])){
+ assert(a===b||Math.abs(Math.floor(a/d.rows[0].length)-Math.floor(b/d.rows[0].length))+Math.abs(a%d.rows[0].length-b%d.rows[0].length)===1);
+ assert.notEqual(d.rows[Math.floor(b/d.rows[0].length)][b%d.rows[0].length],'#');
+}
+const quantumExit=run.quantumExit;
+let ticks=0;$('run-play').click();while(tick&&ticks++<=d.steps)tick();
+assert(ticks<=d.steps+1);assert($('run-play').disabled);
+assert.match($('run-status').textContent,/Run finished/);
+if(quantumExit!==null){assert.match($('run-q-status').textContent,/collapsed onto G/);assert($('run-quantum').querySelector('rect[stroke="#51e3a3"]'));}
+else assert.match($('run-q-status').textContent,/No exit/);
+$('run-reset').click();assert.equal(run.step,0);assert(!($('run-play').disabled));
+$('run-seed').value='-1';$('run-reset').click();assert.match($('run-status').textContent,/integer seed/);
+$('run-seed').value='7';$('run-reset').click();assert.equal(run.quantumExit,quantumExit);
 assert.equal($('qhit').textContent,'0.000%');assert($('back').disabled);
 $('next').click();assert.equal(w.walkLesson.step,1);
 assert.equal($('qhit').textContent,$('chit').textContent);
