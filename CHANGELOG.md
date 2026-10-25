@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Add `nexqus.nlp`: masked feature pooling, training-fitted angle scaling,
+  feature-reuploading sentence encoders, compute/uncompute sentence-pair
+  fidelity circuits, and validated dependency-tree adapters with token/wire
+  annotations. Optional spaCy support accepts parsed Docs/Spans without loading
+  a model. Add an offline lesson, independent overlap/gradient tests, and parser
+  integration CI. Core dependencies remain NumPy-only.
+
 ## 1.3.0 — 2026-10-24
 
 Promote the CI-validated 1.3.0rc1 candidate to a production release with no
