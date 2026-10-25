@@ -1,5 +1,9 @@
 # NexQus public API reference
 
+Development addition: see [NLP building blocks](NLP.md) for `nexqus.nlp` feature
+pooling/scaling, sentence encoders, sentence-pair fidelity and dependency adapters.
+These interfaces are not in the published 1.3.0 wheel.
+
 Applies to NexQus SDK 1.2.0; additions for 1.1 and 1.2 are marked below. Read API_STABILITY.md for the supported 1.x
 contract. Internal tensor adapters and direct operation-list mutation are not
 supported public APIs.

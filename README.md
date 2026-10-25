@@ -19,6 +19,11 @@ and export dependencies with `python -m pip install -e ".[tutorial,visualization
 
 ## Install
 
+Development checkout: [NLP building blocks](docs/NLP.md) add sentence encoders,
+sentence-pair overlap circuits and a syntax-guided dependency adapter. These
+additions are not yet in the published 1.3.0 wheel. Run
+`python examples/nlp_building_blocks.py` after installing the checkout.
+
 In an activated Python 3.10+ virtual environment:
 
 ```bash
