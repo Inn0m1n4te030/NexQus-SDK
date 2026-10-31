@@ -5,54 +5,41 @@ with noise channels, reusable algorithms, analytic gradients and Burmese/English
 tutorials. NexQus implements its own circuit representation and evolution kernels;
 other quantum SDKs are not execution dependencies.
 
-**Release candidate 1.4.0rc1 · stable 1.3.0 · MIT license.**
+**Version 1.4.0 · MIT license.**
 
-Version 1.3.0 adds circuit/QNN explanations, QGANs, molecular views and visual
-quantum walks. The release candidate passed CI and fresh TestPyPI installation
-checks before production promotion. CUDA hardware validation and recognizable
-pet-image quality remain unvalidated; see the feature guides for limitations.
+Version 1.4.0 adds reusable NLP helpers, exact P0 explanations, prediction
+comparisons, training playback and reproducible sentence-pair studies. Example
+projects stay separate from the NumPy-only runtime SDK. The release candidate
+passed CI and fresh TestPyPI installation checks before production promotion.
+CUDA hardware validation and recognizable pet-image quality remain unvalidated;
+see the feature guides for limitations.
 
-Version 1.2 adds numerical circuit angles, depth/counts, optional PNG/PDF export,
-reusable QML templates and independent simulator benchmarks. Install tutorial
-and export dependencies with `python -m pip install -e ".[tutorial,visualization]"`.
+Version 1.3 adds circuit/QNN explanations, QGANs, molecular views and visual
+quantum walks. Version 1.2 adds numerical circuit angles, depth/counts, optional
+PNG/PDF export, reusable QML templates and independent simulator benchmarks.
 [Source and issue tracking](https://github.com/Inn0m1n4te030/NexQus-SDK).
 
-## Release candidate 1.4.0rc1
-
-This candidate adds NLP helpers, exact P0 explanations, prediction comparisons,
-training playback and reproducible sentence-pair studies. Example projects stay
-separate from the NumPy-only runtime SDK. The matching notebooks target the
-candidate; CUDA hardware validation remains pending.
-
-After the candidate upload, install dependencies from normal PyPI and only the
-SDK from TestPyPI:
-
-```bash
-python -m pip install numpy
-python -m pip install --index-url https://test.pypi.org/simple/ --no-deps nexqus-sdk==1.4.0rc1
-```
-
-For examples and notebooks, use this candidate's source checkout and
-`python -m pip install -e ".[tutorial]"`. Begin with
-[00_start_here.ipynb](notebooks/00_start_here.ipynb).
-
-## Install stable 1.3.0
-
-Candidate: [NLP building blocks](docs/NLP.md) add sentence encoders,
-sentence-pair overlap circuits and a syntax-guided dependency adapter. These
-additions are included in 1.4.0rc1 and absent from the stable 1.3.0 wheel. Run
-`python examples/nlp_building_blocks.py` after installing the checkout.
-The [sentence-pair laboratory](docs/NLP_SIMILARITY.md) adds a local interactive
-text-to-circuit example with classical cosine baselines: `python examples/nlp_similarity.py`.
+## Install 1.4.0
 
 In an activated Python 3.10+ virtual environment:
 
 ```bash
-python -m pip install nexqus-sdk==1.3.0
+python -m pip install --upgrade nexqus-sdk==1.4.0
 ```
 
 The distribution name is **nexqus-sdk**; the Python import is **nexqus**.
-For editable development from a source checkout, use `python -m pip install -e .`.
+For tutorials and PNG/PDF export, install `"nexqus-sdk[tutorial,visualization]==1.4.0"`.
+For examples and notebooks, use the matching source checkout and
+`python -m pip install -e ".[tutorial]"`. Begin with
+[00_start_here.ipynb](notebooks/00_start_here.ipynb).
+
+[NLP building blocks](docs/NLP.md) add sentence encoders, sentence-pair overlap
+circuits and a syntax-guided dependency adapter. Run
+`python examples/nlp_building_blocks.py` from the checkout.
+The [sentence-pair laboratory](docs/NLP_SIMILARITY.md) adds a local interactive
+text-to-circuit example with classical cosine baselines:
+`python examples/nlp_similarity.py`.
+
 Examples and notebooks are available in the source repository and source archive.
 
 ## Your first circuit
@@ -255,7 +242,7 @@ measurement/reset and an end-to-end experiment. Start with
 Lesson 04 includes quantum versus classical sine predictions, loss curves and
 held-out errors. A [rendered comparison and terminal instructions](docs/LEARNING.md)
 are available without executing a notebook.
-All thirteen lessons in this checkout target SDK 1.4.0rc1. Lesson 07 covers inspection, binary export
+All thirteen lessons in this checkout target SDK 1.4.0. Lesson 07 covers inspection, binary export
 and reusable QML building blocks.
 The source distribution includes tutorials, tests, examples and documentation;
 the small runtime wheel contains the importable SDK and package metadata.

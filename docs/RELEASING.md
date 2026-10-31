@@ -4,13 +4,14 @@ This guide is for maintainers. Public changes belong in CHANGELOG.md and
 RELEASE_NOTES.md. Generated test reports and audit outputs belong in
 .release-artifacts/ or CI artifacts; keep them out of the source distribution.
 
-## Candidate 1.4.0rc1
+## Stable 1.4.0
 
-Source/notebooks currently target 1.4.0rc1 for TestPyPI. Do not promote this
-candidate to stable PyPI until remaining CUDA hardware checks and candidate
-installation checks are reviewed. Keep stable 1.3.0 instructions available.
+Version 1.4.0 is promoted from the CI-validated 1.4.0rc1 candidate after fresh
+TestPyPI installation and API checks. The maintainer authorized stable publication
+with CUDA hardware validation still outstanding. Retain that limitation in public
+notes; CPU checks and skipped CUDA tests are not CUDA hardware evidence.
 
-CPU validation from the candidate checkout:
+CPU validation from the release checkout:
 
 ```bash
 python -m pip install -e '.[tutorial,release]'
@@ -27,7 +28,7 @@ not be inferred from CPU parity or skips. Keep generated reports as CI artifacts
 
 ## Prepare a release
 
-The current stable version is **1.3.0**, promoted from **1.3.0rc1** after
+The current stable version is **1.4.0**, promoted from **1.4.0rc1** after
 passing CI and fresh TestPyPI installation checks. Production promotion updates
 the version, regenerates notebooks and repeats package validation and CI.
 CUDA hardware validation remains pending; do not copy CPU reports as evidence

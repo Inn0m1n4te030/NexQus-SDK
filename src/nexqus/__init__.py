@@ -11,7 +11,7 @@ from .hamiltonian import PauliHamiltonian, HamiltonianFunction
 from .molecules import Molecule, MolecularView, molecule, molecular_gallery
 from . import algorithms, templates, nlp
 
-__version__ = "1.4.0rc1"
+__version__ = "1.4.0"
 __all__ = ["Circuit", "circuit", "Parameter", "Noise", "NoiseModel", "Simulator", "Result", "CompiledCircuit", "QuantumFunction", "QuantumRegressor", "QuantumBinaryClassifier", "Adam", "SGD", "algorithms", "templates"]
 __all__ += ["QuantumDistribution", "QGAN", "distribution_metrics", "PauliHamiltonian", "HamiltonianFunction"]
 __all__ += ["Molecule", "MolecularView", "molecule", "molecular_gallery"]

@@ -1,7 +1,7 @@
-# Sentence-pair similarity laboratory (1.4.0rc1)
+# Sentence-pair similarity laboratory (1.4.0)
 
 This example connects classical text features to the existing NexQus sentence
-encoders and offline circuit explorer. It is included in 1.4.0rc1 and absent from stable 1.3.0.
+encoders and offline circuit explorer. It is included in 1.4.0 and absent from 1.3.0.
 There are no accounts, model downloads or QPU calls, and no new dependencies
 beyond the SDK's NumPy requirement.
 

@@ -2,10 +2,11 @@
 
 ## Unreleased
 
-## 1.4.0rc1 — 2026-11-01
+## 1.4.0 — 2026-11-01
 
-Candidate for TestPyPI validation. Stable PyPI remains 1.3.0; CUDA hardware
-validation is outstanding.
+Stable promotion from 1.4.0rc1 after CI and fresh TestPyPI installation/API
+checks. No runtime changes beyond the version identifier. CUDA hardware
+validation remains outstanding.
 
 - Add a controlled unigram/bigram QNLP feature study, optional external vectors,
   training-prior baseline and overlapping error-group reports. Add pinned MRPC
