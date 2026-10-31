@@ -1,4 +1,39 @@
-# NexQus SDK 1.3.0
+# NexQus SDK 1.4.0rc1
+
+Release candidate for TestPyPI validation. Stable PyPI remains 1.3.0. This is
+not a stable promotion; actual CUDA hardware validation remains outstanding.
+
+## Changes since 1.3.0
+
+- Local final-output sensitivities with shared-parameter chain rules.
+- Exact all-zero probability (`P0`) readout, independent block interventions,
+  synchronized prediction comparison and recorded training-checkpoint playback.
+- NumPy-only NLP helpers: pooling, training-fitted scaling, sentence encoders,
+  fidelity circuits and syntax-guided parser adapters.
+- Offline/local sentence-pair laboratories, optional externally supplied vectors,
+  trainable reuploading experiments and controlled unigram/bigram comparisons.
+- Pinned public-data preparation, sentence-disjoint subsets, classical baselines,
+  majority baseline, explicit error groups and measured CPU evidence. No broad
+  quantum-advantage or semantic-benchmark claim is implied.
+- A refreshed start-here notebook mapping reusable APIs to example projects.
+
+## Install and verify the candidate
+
+```bash
+python -m pip install numpy
+python -m pip install --index-url https://test.pypi.org/simple/ --no-deps nexqus-sdk==1.4.0rc1
+python -c "import nexqus; print(nexqus.__version__)"
+```
+
+For tutorials, install this candidate's source checkout with
+`python -m pip install -e ".[tutorial]"`. See RELEASING.md for CPU/CUDA checks.
+The runtime wheel contains the SDK; examples and notebooks are in the sdist
+and matching source checkout. Text models, dataset tooling and web demos are
+project code; core runtime dependencies remain NumPy-only.
+
+## Previous stable release
+
+## NexQus SDK 1.3.0
 
 Production release promoted from 1.3.0rc1 after passing CI and fresh TestPyPI
 installation checks. CUDA hardware validation remains pending.

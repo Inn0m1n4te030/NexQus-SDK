@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.4.0rc1 — 2026-11-01
+
+Candidate for TestPyPI validation. Stable PyPI remains 1.3.0; CUDA hardware
+validation is outstanding.
+
 - Add a controlled unigram/bigram QNLP feature study, optional external vectors,
   training-prior baseline and overlapping error-group reports. Add pinned MRPC
   preparation with source integrity checks and sentence-disjoint subset sampling.
