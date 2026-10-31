@@ -32,7 +32,13 @@ _HTML=r'''<!doctype html>
 <h2>What if I change this circuit?</h2>
 <label for="variant">Calculated alternative</label> <select id="variant"><option value="original">Original circuit</option></select>
 <p id="variant-summary" class="caption" aria-live="polite"></p>
-<p class="caption">Each option is one independent edit of the original bound circuit, recomputed by NexQus before export. Choices do not accumulate. Parameter chips retain the original binding as context; the edited gate label shows its actual angle. Add angle presets or gate removals with the Python interventions option.</p>
+<p class="caption">Each option is one independent edit of the original bound circuit, recomputed by NexQus before export. Choices do not accumulate. Parameter chips retain the original binding as context; the edited gate label shows its actual angle. Add angle presets or gate/block removals with the Python interventions option.</p>
+</section>
+<section class="card circuit-card" id="sensitivity-panel" hidden>
+<h2>Original prediction: input and parameter sensitivity</h2>
+<p id="sensitivity-scope" class="caption"></p>
+<div class="scroll"><table><thead><tr><th>Parameter / role</th><th>Value</th><th>Signed derivative</th><th>Local magnitude</th></tr></thead><tbody id="sensitivity-rows"></tbody></table></div>
+<p id="sensitivity-note" class="caption"></p>
 </section>
 <div class="layout"><div class="stack">
 <section class="card"><h2>Before → after the selected gate</h2><p class="caption" id="transition-label"></p>
@@ -48,7 +54,7 @@ _HTML=r'''<!doctype html>
  <section class="card"><h2>Inside each qubit</h2><p class="caption">Projected Bloch spheres describe reduced states. Entropy below is qubit-versus-rest entanglement entropy because the global state is pure.</p><div id="qubits" class="qubits"></div></section>
  <section class="card"><h2>Z-basis correlation</h2><p class="caption">Covariance ⟨ZᵢZⱼ⟩ − ⟨Zᵢ⟩⟨Zⱼ⟩. Correlation depends on measurement basis; it does not certify entanglement.</p><svg id="correlation" class="plot covariance" viewBox="0 0 340 340" role="img" aria-label="Z-basis covariance heatmap"></svg><div class="legend"><span>−1 · opposite</span><span>0</span><span>+1 · same</span></div></section>
 </div></div>
-<details><summary>How to read this report</summary><ul id="notes"></ul><p class="caption">Block boundaries and feature/weight roles are annotations supplied by the report author. Highlighting shows where a parameter occurs, not how important it is. This report does not calculate feature attribution or causal explanations. Basis views show at most 16 states; the downloadable trace contains every basis state. Playback follows recorded operations, not hardware timing or the critical-path schedule.</p></details><footer id="footer"></footer></main>
+<details><summary>How to read this report</summary><ul id="notes"></ul><p class="caption">Block boundaries and feature/weight roles are annotations supplied by the report author. Highlighting shows where a parameter occurs, not how important it is. Opt-in sensitivity reports calculate local derivatives of the final expectation, not global feature attribution or real-world causal effects. Basis views show at most 16 states; the downloadable trace contains every basis state. Playback follows recorded operations, not hardware timing or the critical-path schedule.</p></details><footer id="footer"></footer></main>
 <script type="application/json" id="trace-data">__TRACE_DATA__</script>
 <script>
 'use strict';
@@ -112,7 +118,18 @@ function variantSummary(){
  const tv=current.probabilities.reduce((sum,p,i)=>sum+Math.abs(p-base.probabilities[i]),0)/2;
  text('variant-summary',d===original?(original.alternatives?.length?'Original circuit selected. Choose an alternative to inspect its full recalculated trace.':'No alternatives were exported. Add interventions when calling circuit.explain().'):`Final output versus original: probability total variation ${fmt(tv,6)}; observable expectation ${fmt(base.expectation,6)} → ${fmt(current.expectation,6)}. A difference on this input is not a general gate-importance score.`);
 }
-function render(){let f=d.frames[step],op=step?d.operations[step-1]:null;text('step-title',step?`${step}. ${op.label}`:'Initial state');text('status',`Step ${step} / ${last}`);text('explanation',f.explanation);text('tv',fmt(f.probability_change,6));text('fidelity',fmt(f.fidelity_to_previous,6));text('phase-change',f.phase_change===null?'Relative-phase change: not defined across fewer than two shared nonzero basis amplitudes.':`Largest relative-phase change on shared nonzero amplitudes: ${fmt(f.phase_change,6)} radians.`);let block=op&&op.block!==null?d.blocks[op.block]:null;text('block-label',block?`Author annotation: ${block.name} · ${block.role}`:'No block annotation at this step.');$('step').value=step;$('back').disabled=step===0;$('next').disabled=step===last;$('play').disabled=last===0;circuit();parameters();let indices=basis(f);probabilities(f,indices);phase(f,indices);qubits(f);covariance(f);readout(f);transition(f);variantSummary();for(let b of $('blocks').children)b.classList.toggle('active',Number(b.dataset.stop)===step);}
+function sensitivity(){
+ const info=original.sensitivity,panel=$('sensitivity-panel');panel.hidden=!info;
+ if(!info)return;
+ text('sensitivity-scope',info.scope+' · output '+fmt(info.output,6)+'. These values remain for the original circuit when an alternative is selected.');
+ text('sensitivity-note',info.method+'. '+info.interpretation);
+ const root=$('sensitivity-rows');root.replaceChildren();
+ const ranked=[...info.parameters].sort((a,b)=>Math.abs(b.derivative)-Math.abs(a.derivative)||a.name.localeCompare(b.name));
+ const scale=Math.max(1e-15,...ranked.map(p=>Math.abs(p.derivative)));
+ for(const p of ranked){const row=document.createElement('tr');for(const v of [p.name+' / '+p.role,fmt(p.value,6),fmt(p.derivative,6)]){const cell=document.createElement('td');cell.textContent=v;row.append(cell);}
+ const cell=document.createElement('td'),bar=document.createElement('progress');bar.max=scale;bar.value=Math.abs(p.derivative);bar.setAttribute('aria-label',p.name+' absolute local derivative');cell.append(bar);row.append(cell);root.append(row);}
+}
+function render(){sensitivity();let f=d.frames[step],op=step?d.operations[step-1]:null;text('step-title',step?`${step}. ${op.label}`:'Initial state');text('status',`Step ${step} / ${last}`);text('explanation',f.explanation);text('tv',fmt(f.probability_change,6));text('fidelity',fmt(f.fidelity_to_previous,6));text('phase-change',f.phase_change===null?'Relative-phase change: not defined across fewer than two shared nonzero basis amplitudes.':`Largest relative-phase change on shared nonzero amplitudes: ${fmt(f.phase_change,6)} radians.`);let block=op&&op.block!==null?d.blocks[op.block]:null;text('block-label',block?`Author annotation: ${block.name} · ${block.role}`:'No block annotation at this step.');$('step').value=step;$('back').disabled=step===0;$('next').disabled=step===last;$('play').disabled=last===0;circuit();parameters();let indices=basis(f);probabilities(f,indices);phase(f,indices);qubits(f);covariance(f);readout(f);transition(f);variantSummary();for(let b of $('blocks').children)b.classList.toggle('active',Number(b.dataset.stop)===step);}
 for(const [i,item] of (original.alternatives||[]).entries()){const option=document.createElement('option');option.value=String(i);option.textContent=item.label;$('variant').append(option);}
 $('variant').disabled=!(original.alternatives||[]).length;
 $('variant').onchange=()=>{stop();d=$('variant').value==='original'?original:original.alternatives[Number($('variant').value)].trace;render();text('depth',d.depth);};
