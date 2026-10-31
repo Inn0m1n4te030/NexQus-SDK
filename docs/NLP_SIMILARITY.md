@@ -120,3 +120,7 @@ on CPU and opens no remote service. Output is
 `.release-artifacts/qnlp-training/report.html`; the linked `training.html` has
 checkpoint playback, and `results.json` / `held_out.csv` contain every seed's
 scores and errors. Full guide: see the training section in `docs/NLP.md`.
+
+The [larger feature study](NLP.md#larger-controlled-feature-study) adds frozen
+unigram/bigram conditions and optional local contextual-vector lookup, with
+explicit public-data preparation and sentence-disjoint splits.
