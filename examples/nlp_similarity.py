@@ -37,12 +37,14 @@ def cosine(a, b):
 
 class SentenceFeatures:
     """Example-only train-fitted TF-IDF/SVD, or external sentence-vector lookup."""
-    def __init__(self, qubits=3, embeddings=None):
+    def __init__(self, qubits=3, embeddings=None, fit_sentences=None):
         if isinstance(qubits,bool) or not isinstance(qubits,int) or not 1<=qubits<=6:
             raise ValueError('qubits must be an integer from 1 to 6')
         self.lookup=None
         if embeddings is None:
-            self.fit_sentences=list(CORPUS)
+            self.fit_sentences=list(CORPUS if fit_sentences is None else fit_sentences)
+            if len(set(self.fit_sentences))<4 or not all(isinstance(s,str) and s.strip() for s in self.fit_sentences):
+                raise ValueError('Provide at least four distinct fit sentences')
             tokens=[self.tokens(s) for s in self.fit_sentences]
             self.vocabulary=sorted({t for row in tokens for t in row})
             self.idf=np.log((1+len(tokens))/(1+np.array([sum(t in row for row in tokens) for t in self.vocabulary])))+1
