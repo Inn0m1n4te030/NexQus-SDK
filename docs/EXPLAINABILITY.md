@@ -202,11 +202,10 @@ Run `python examples/explain_circuits.py` and open
 `.release-artifacts/explanations/laboratory.html` for the complete example.
 
 
-## Local prediction sensitivity (development checkout)
+## Local prediction sensitivity (1.4.0rc1)
 
 Use `sensitivities=True` to compute signed derivatives of the **final Pauli
-expectation** at the supplied bindings. This is opt-in and is not in the
-published 1.3.0 wheel. Install this checkout to use it.
+expectation** at the supplied bindings. This is opt-in, included in 1.4.0rc1, and absent from stable 1.3.0.
 
 ```python
 from nexqus import Circuit, Parameter
@@ -251,7 +250,7 @@ alternative is selected. Omitted layers measure this circuit's response on
 one supplied input, not their global necessity.
 
 
-## Compare predictions and replay training (development checkout)
+## Compare predictions and replay training (1.4.0rc1)
 
 Pass `comparisons=[{'name': 'Input B', 'bindings': complete_bindings}]` to
 `explain()` for a synchronized second prediction. Up to eight comparisons are
