@@ -18,3 +18,5 @@ prune build
 prune dist
 prune .venv
 prune .ipynb_checkpoints
+
+include examples/data/sentence_pairs.csv

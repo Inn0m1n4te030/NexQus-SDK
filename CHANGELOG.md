@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a CPU-trainable sentence-pair reuploading experiment, validation-selected
+  checkpoints, matched-feature classical baselines, pair-disjoint fixture splits,
+  held-out error reports and actual multi-seed results with training playback.
+
 - Add a local sentence-pair similarity laboratory with frozen TF-IDF/SVD
   preprocessing, cosine baselines, optional external-vector lookup and synchronized
   circuit explanations. Add the exact P0 readout and its analytic sensitivities

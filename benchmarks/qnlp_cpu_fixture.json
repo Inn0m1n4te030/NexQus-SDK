@@ -1,0 +1,3543 @@
+{
+  "dataset_sha256": "b11696627b2da913d7adba407ba0488183abd8e0903b90fb3482844710a77445",
+  "epochs": 30,
+  "seeds": [
+    7,
+    13,
+    21
+  ],
+  "learning_rate": 0.05,
+  "device": "NumPy CPU complex128",
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "numpy": "2.3.5",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.39"
+  },
+  "preprocessing": {
+    "description": "Offline word TF-IDF, L2 normalization, training-fitted truncated SVD",
+    "fit_sentences": [
+      "the cat sleeps",
+      "the cat rests",
+      "the dog runs",
+      "the dog plays",
+      "students study science",
+      "students learn science",
+      "the scientist studies molecules",
+      "the researcher studies molecules",
+      "quantum circuits encode data",
+      "quantum computers encode data",
+      "the cat runs",
+      "the cat does not run",
+      "the dog sleeps",
+      "the dog does not sleep",
+      "the cat chases the dog",
+      "the dog chases the cat",
+      "the scientist teaches the student",
+      "the student teaches the scientist",
+      "the dog rests",
+      "the scientist learns science",
+      "the researcher studies science"
+    ],
+    "vocabulary": [
+      "cat",
+      "chases",
+      "circuits",
+      "computers",
+      "data",
+      "does",
+      "dog",
+      "encode",
+      "learn",
+      "learns",
+      "molecules",
+      "not",
+      "plays",
+      "quantum",
+      "researcher",
+      "rests",
+      "run",
+      "runs",
+      "science",
+      "scientist",
+      "sleep",
+      "sleeps",
+      "student",
+      "students",
+      "studies",
+      "study",
+      "teaches",
+      "the"
+    ],
+    "minimum": [
+      -1.5789716559599674e-17,
+      -0.23267542388282048
+    ],
+    "maximum": [
+      0.7940870446289134,
+      0.6530483475293547
+    ],
+    "projection": [
+      [
+        0.3884687428115458,
+        0.21553493059509513,
+        -2.7755575615628914e-17,
+        0.0,
+        7.720864426455404e-19,
+        0.0843754146372274,
+        0.4227381606172289,
+        -9.784423052867017e-19,
+        0.007036337313918882,
+        0.04454083616218172,
+        0.08627635023561148,
+        0.0843754146372274,
+        0.08246533975760073,
+        -9.789665954758553e-19,
+        0.07954009524367295,
+        0.1942326487179344,
+        0.04730288602361632,
+        0.19423264871793433,
+        0.07688821709010905,
+        0.1675300356900493,
+        0.04850513847740598,
+        0.19423264871793447,
+        0.11495712526858619,
+        0.012393406115642552,
+        0.11512720917833266,
+        0.007036337313918883,
+        0.1149571252685862,
+        0.6288493796309478
+      ],
+      [
+        -0.2419504458721107,
+        -0.11831678570708049,
+        -2.220446049250313e-16,
+        -0.0,
+        -1.2884482748689694e-17,
+        -0.060094224020058554,
+        -0.2580943667558725,
+        -2.849303819250184e-17,
+        0.08352114968015838,
+        0.13719487645949419,
+        0.3054196024598294,
+        -0.060094224020058554,
+        -0.04376596345992386,
+        -2.98006365970013e-17,
+        0.29660422573035883,
+        -0.12872799544582333,
+        -0.03380390465678769,
+        -0.12872799544582342,
+        0.3511274057968804,
+        0.4094861031062966,
+        -0.03443290238040601,
+        -0.12872799544582314,
+        0.20866558414683498,
+        0.14710942370314922,
+        0.4165831597562505,
+        0.08352114968015838,
+        0.208665584146835,
+        0.11137962547467445
+      ]
+    ],
+    "qubits": 2
+  },
+  "split_counts": {
+    "train": 18,
+    "validation": 8,
+    "test": 12
+  },
+  "held_out": [
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat rests outside",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "quantum",
+      "seed": 7,
+      "score": 1.0,
+      "correct": true
+    },
+    {
+      "left": "the dog rests quietly",
+      "right": "the dog sleeps quietly",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "quantum",
+      "seed": 7,
+      "score": 1.0,
+      "correct": true
+    },
+    {
+      "left": "students study molecules",
+      "right": "students learn molecules",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 7,
+      "score": 1.0,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies quantum data",
+      "right": "the scientist studies quantum data",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 7,
+      "score": 0.9782977625224181,
+      "correct": true
+    },
+    {
+      "left": "quantum circuits encode science",
+      "right": "quantum circuits encode science",
+      "label": 1,
+      "category": "identity",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 7,
+      "score": 1.0,
+      "correct": true
+    },
+    {
+      "left": "the cat rests outside",
+      "right": "students learn quantum science",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "quantum",
+      "seed": 7,
+      "score": 0.10755909085715451,
+      "correct": true
+    },
+    {
+      "left": "the dog sleeps quietly",
+      "right": "the scientist studies molecules",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "quantum",
+      "seed": 7,
+      "score": 0.0642526106443989,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies data",
+      "right": "the cat runs outside",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "quantum",
+      "seed": 7,
+      "score": 0.09059688132771375,
+      "correct": true
+    },
+    {
+      "left": "the student chases the dog",
+      "right": "the dog chases the student",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 7,
+      "score": 1.0,
+      "correct": false
+    },
+    {
+      "left": "the researcher teaches the scientist",
+      "right": "the scientist teaches the researcher",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 7,
+      "score": 1.0,
+      "correct": false
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat does not sleep outside",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "quantum",
+      "seed": 7,
+      "score": 0.4312514463215698,
+      "correct": true
+    },
+    {
+      "left": "the dog runs quietly",
+      "right": "the dog does not run quietly",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "quantum",
+      "seed": 7,
+      "score": 0.3881063002096987,
+      "correct": true
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat rests outside",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "linear",
+      "seed": 7,
+      "score": 0.4907492633027268,
+      "correct": false
+    },
+    {
+      "left": "the dog rests quietly",
+      "right": "the dog sleeps quietly",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "linear",
+      "seed": 7,
+      "score": 0.481607196801336,
+      "correct": false
+    },
+    {
+      "left": "students study molecules",
+      "right": "students learn molecules",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 7,
+      "score": 0.7255541534734622,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies quantum data",
+      "right": "the scientist studies quantum data",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 7,
+      "score": 0.6986480849923528,
+      "correct": true
+    },
+    {
+      "left": "quantum circuits encode science",
+      "right": "quantum circuits encode science",
+      "label": 1,
+      "category": "identity",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 7,
+      "score": 0.689984629957645,
+      "correct": true
+    },
+    {
+      "left": "the cat rests outside",
+      "right": "students learn quantum science",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "linear",
+      "seed": 7,
+      "score": 0.2612482478747321,
+      "correct": true
+    },
+    {
+      "left": "the dog sleeps quietly",
+      "right": "the scientist studies molecules",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "linear",
+      "seed": 7,
+      "score": 0.18917262350499156,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies data",
+      "right": "the cat runs outside",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "linear",
+      "seed": 7,
+      "score": 0.2450181549694084,
+      "correct": true
+    },
+    {
+      "left": "the student chases the dog",
+      "right": "the dog chases the student",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 7,
+      "score": 0.4599702053727255,
+      "correct": true
+    },
+    {
+      "left": "the researcher teaches the scientist",
+      "right": "the scientist teaches the researcher",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 7,
+      "score": 0.7046604439340468,
+      "correct": false
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat does not sleep outside",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "linear",
+      "seed": 7,
+      "score": 0.4430105193993903,
+      "correct": true
+    },
+    {
+      "left": "the dog runs quietly",
+      "right": "the dog does not run quietly",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "linear",
+      "seed": 7,
+      "score": 0.43282953643854694,
+      "correct": true
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat rests outside",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "mlp",
+      "seed": 7,
+      "score": 0.678009494068912,
+      "correct": true
+    },
+    {
+      "left": "the dog rests quietly",
+      "right": "the dog sleeps quietly",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "mlp",
+      "seed": 7,
+      "score": 0.6527252553932833,
+      "correct": true
+    },
+    {
+      "left": "students study molecules",
+      "right": "students learn molecules",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 7,
+      "score": 0.9694515949008681,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies quantum data",
+      "right": "the scientist studies quantum data",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 7,
+      "score": 0.9481281963971858,
+      "correct": true
+    },
+    {
+      "left": "quantum circuits encode science",
+      "right": "quantum circuits encode science",
+      "label": 1,
+      "category": "identity",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 7,
+      "score": 0.9572746197168143,
+      "correct": true
+    },
+    {
+      "left": "the cat rests outside",
+      "right": "students learn quantum science",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "mlp",
+      "seed": 7,
+      "score": 0.013481711419586347,
+      "correct": true
+    },
+    {
+      "left": "the dog sleeps quietly",
+      "right": "the scientist studies molecules",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "mlp",
+      "seed": 7,
+      "score": 0.00839212604423016,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies data",
+      "right": "the cat runs outside",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "mlp",
+      "seed": 7,
+      "score": 0.014572251386682094,
+      "correct": true
+    },
+    {
+      "left": "the student chases the dog",
+      "right": "the dog chases the student",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 7,
+      "score": 0.5832514437124834,
+      "correct": false
+    },
+    {
+      "left": "the researcher teaches the scientist",
+      "right": "the scientist teaches the researcher",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 7,
+      "score": 0.9432902935731827,
+      "correct": false
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat does not sleep outside",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "mlp",
+      "seed": 7,
+      "score": 0.3574496822894228,
+      "correct": true
+    },
+    {
+      "left": "the dog runs quietly",
+      "right": "the dog does not run quietly",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "mlp",
+      "seed": 7,
+      "score": 0.32080369459963226,
+      "correct": true
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat rests outside",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "quantum",
+      "seed": 13,
+      "score": 1.0,
+      "correct": true
+    },
+    {
+      "left": "the dog rests quietly",
+      "right": "the dog sleeps quietly",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "quantum",
+      "seed": 13,
+      "score": 1.0,
+      "correct": true
+    },
+    {
+      "left": "students study molecules",
+      "right": "students learn molecules",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 13,
+      "score": 1.0,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies quantum data",
+      "right": "the scientist studies quantum data",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 13,
+      "score": 0.9817145865395439,
+      "correct": true
+    },
+    {
+      "left": "quantum circuits encode science",
+      "right": "quantum circuits encode science",
+      "label": 1,
+      "category": "identity",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 13,
+      "score": 1.0,
+      "correct": true
+    },
+    {
+      "left": "the cat rests outside",
+      "right": "students learn quantum science",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "quantum",
+      "seed": 13,
+      "score": 0.03953446349090059,
+      "correct": true
+    },
+    {
+      "left": "the dog sleeps quietly",
+      "right": "the scientist studies molecules",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "quantum",
+      "seed": 13,
+      "score": 0.05507533383165902,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies data",
+      "right": "the cat runs outside",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "quantum",
+      "seed": 13,
+      "score": 0.05127248911295335,
+      "correct": true
+    },
+    {
+      "left": "the student chases the dog",
+      "right": "the dog chases the student",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 13,
+      "score": 1.0,
+      "correct": false
+    },
+    {
+      "left": "the researcher teaches the scientist",
+      "right": "the scientist teaches the researcher",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 13,
+      "score": 1.0,
+      "correct": false
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat does not sleep outside",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "quantum",
+      "seed": 13,
+      "score": 0.45193917679123824,
+      "correct": true
+    },
+    {
+      "left": "the dog runs quietly",
+      "right": "the dog does not run quietly",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "quantum",
+      "seed": 13,
+      "score": 0.4090022340365363,
+      "correct": true
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat rests outside",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "linear",
+      "seed": 13,
+      "score": 0.5154085831726005,
+      "correct": true
+    },
+    {
+      "left": "the dog rests quietly",
+      "right": "the dog sleeps quietly",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "linear",
+      "seed": 13,
+      "score": 0.5106952380522072,
+      "correct": true
+    },
+    {
+      "left": "students study molecules",
+      "right": "students learn molecules",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 13,
+      "score": 0.7121742362115877,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies quantum data",
+      "right": "the scientist studies quantum data",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 13,
+      "score": 0.7058624738558619,
+      "correct": true
+    },
+    {
+      "left": "quantum circuits encode science",
+      "right": "quantum circuits encode science",
+      "label": 1,
+      "category": "identity",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 13,
+      "score": 0.6576004400613723,
+      "correct": true
+    },
+    {
+      "left": "the cat rests outside",
+      "right": "students learn quantum science",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "linear",
+      "seed": 13,
+      "score": 0.22195262689927092,
+      "correct": true
+    },
+    {
+      "left": "the dog sleeps quietly",
+      "right": "the scientist studies molecules",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "linear",
+      "seed": 13,
+      "score": 0.10982974554492098,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies data",
+      "right": "the cat runs outside",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "linear",
+      "seed": 13,
+      "score": 0.17816450857130858,
+      "correct": true
+    },
+    {
+      "left": "the student chases the dog",
+      "right": "the dog chases the student",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 13,
+      "score": 0.5156776418259755,
+      "correct": false
+    },
+    {
+      "left": "the researcher teaches the scientist",
+      "right": "the scientist teaches the researcher",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 13,
+      "score": 0.7626413326691138,
+      "correct": false
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat does not sleep outside",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "linear",
+      "seed": 13,
+      "score": 0.4654975891087085,
+      "correct": true
+    },
+    {
+      "left": "the dog runs quietly",
+      "right": "the dog does not run quietly",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "linear",
+      "seed": 13,
+      "score": 0.45872894681431353,
+      "correct": true
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat rests outside",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "mlp",
+      "seed": 13,
+      "score": 0.7083465671514305,
+      "correct": true
+    },
+    {
+      "left": "the dog rests quietly",
+      "right": "the dog sleeps quietly",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "mlp",
+      "seed": 13,
+      "score": 0.6789835733841159,
+      "correct": true
+    },
+    {
+      "left": "students study molecules",
+      "right": "students learn molecules",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 13,
+      "score": 0.9542036613215602,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies quantum data",
+      "right": "the scientist studies quantum data",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 13,
+      "score": 0.8771835141039623,
+      "correct": true
+    },
+    {
+      "left": "quantum circuits encode science",
+      "right": "quantum circuits encode science",
+      "label": 1,
+      "category": "identity",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 13,
+      "score": 0.959598525688456,
+      "correct": true
+    },
+    {
+      "left": "the cat rests outside",
+      "right": "students learn quantum science",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "mlp",
+      "seed": 13,
+      "score": 0.005526020044969767,
+      "correct": true
+    },
+    {
+      "left": "the dog sleeps quietly",
+      "right": "the scientist studies molecules",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "mlp",
+      "seed": 13,
+      "score": 0.0048405808733371775,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies data",
+      "right": "the cat runs outside",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "mlp",
+      "seed": 13,
+      "score": 0.007696081329453149,
+      "correct": true
+    },
+    {
+      "left": "the student chases the dog",
+      "right": "the dog chases the student",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 13,
+      "score": 0.5370000522856269,
+      "correct": false
+    },
+    {
+      "left": "the researcher teaches the scientist",
+      "right": "the scientist teaches the researcher",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 13,
+      "score": 0.8142509703185357,
+      "correct": false
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat does not sleep outside",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "mlp",
+      "seed": 13,
+      "score": 0.278636290224192,
+      "correct": true
+    },
+    {
+      "left": "the dog runs quietly",
+      "right": "the dog does not run quietly",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "mlp",
+      "seed": 13,
+      "score": 0.23791369663933334,
+      "correct": true
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat rests outside",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "quantum",
+      "seed": 21,
+      "score": 1.0,
+      "correct": true
+    },
+    {
+      "left": "the dog rests quietly",
+      "right": "the dog sleeps quietly",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "quantum",
+      "seed": 21,
+      "score": 1.0,
+      "correct": true
+    },
+    {
+      "left": "students study molecules",
+      "right": "students learn molecules",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 21,
+      "score": 1.0,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies quantum data",
+      "right": "the scientist studies quantum data",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 21,
+      "score": 0.9551682291204789,
+      "correct": true
+    },
+    {
+      "left": "quantum circuits encode science",
+      "right": "quantum circuits encode science",
+      "label": 1,
+      "category": "identity",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 21,
+      "score": 1.0,
+      "correct": true
+    },
+    {
+      "left": "the cat rests outside",
+      "right": "students learn quantum science",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "quantum",
+      "seed": 21,
+      "score": 0.009711988580217575,
+      "correct": true
+    },
+    {
+      "left": "the dog sleeps quietly",
+      "right": "the scientist studies molecules",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "quantum",
+      "seed": 21,
+      "score": 0.24649531636768712,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies data",
+      "right": "the cat runs outside",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "quantum",
+      "seed": 21,
+      "score": 0.14742933438052935,
+      "correct": true
+    },
+    {
+      "left": "the student chases the dog",
+      "right": "the dog chases the student",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 21,
+      "score": 1.0,
+      "correct": false
+    },
+    {
+      "left": "the researcher teaches the scientist",
+      "right": "the scientist teaches the researcher",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "quantum",
+      "seed": 21,
+      "score": 1.0,
+      "correct": false
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat does not sleep outside",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "quantum",
+      "seed": 21,
+      "score": 0.5638404857217183,
+      "correct": false
+    },
+    {
+      "left": "the dog runs quietly",
+      "right": "the dog does not run quietly",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "quantum",
+      "seed": 21,
+      "score": 0.528954846845302,
+      "correct": false
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat rests outside",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "linear",
+      "seed": 21,
+      "score": 0.4606286129312263,
+      "correct": false
+    },
+    {
+      "left": "the dog rests quietly",
+      "right": "the dog sleeps quietly",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "linear",
+      "seed": 21,
+      "score": 0.45366078492380085,
+      "correct": false
+    },
+    {
+      "left": "students study molecules",
+      "right": "students learn molecules",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 21,
+      "score": 0.7188391254141492,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies quantum data",
+      "right": "the scientist studies quantum data",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 21,
+      "score": 0.7175452703132861,
+      "correct": true
+    },
+    {
+      "left": "quantum circuits encode science",
+      "right": "quantum circuits encode science",
+      "label": 1,
+      "category": "identity",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 21,
+      "score": 0.655420833771669,
+      "correct": true
+    },
+    {
+      "left": "the cat rests outside",
+      "right": "students learn quantum science",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "linear",
+      "seed": 21,
+      "score": 0.26694469158218737,
+      "correct": true
+    },
+    {
+      "left": "the dog sleeps quietly",
+      "right": "the scientist studies molecules",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "linear",
+      "seed": 21,
+      "score": 0.2297463062980705,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies data",
+      "right": "the cat runs outside",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "linear",
+      "seed": 21,
+      "score": 0.2682369943589,
+      "correct": true
+    },
+    {
+      "left": "the student chases the dog",
+      "right": "the dog chases the student",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 21,
+      "score": 0.4530957742822922,
+      "correct": true
+    },
+    {
+      "left": "the researcher teaches the scientist",
+      "right": "the scientist teaches the researcher",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "linear",
+      "seed": 21,
+      "score": 0.7635756709804766,
+      "correct": false
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat does not sleep outside",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "linear",
+      "seed": 21,
+      "score": 0.41419639522622453,
+      "correct": true
+    },
+    {
+      "left": "the dog runs quietly",
+      "right": "the dog does not run quietly",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "linear",
+      "seed": 21,
+      "score": 0.40589561296667803,
+      "correct": true
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat rests outside",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "mlp",
+      "seed": 21,
+      "score": 0.6895310861752488,
+      "correct": true
+    },
+    {
+      "left": "the dog rests quietly",
+      "right": "the dog sleeps quietly",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "mlp",
+      "seed": 21,
+      "score": 0.664256400659994,
+      "correct": true
+    },
+    {
+      "left": "students study molecules",
+      "right": "students learn molecules",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 21,
+      "score": 0.9640973006812437,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies quantum data",
+      "right": "the scientist studies quantum data",
+      "label": 1,
+      "category": "paraphrase",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 21,
+      "score": 0.92743021112993,
+      "correct": true
+    },
+    {
+      "left": "quantum circuits encode science",
+      "right": "quantum circuits encode science",
+      "label": 1,
+      "category": "identity",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 21,
+      "score": 0.9550031767534568,
+      "correct": true
+    },
+    {
+      "left": "the cat rests outside",
+      "right": "students learn quantum science",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "mlp",
+      "seed": 21,
+      "score": 0.00589576333998014,
+      "correct": true
+    },
+    {
+      "left": "the dog sleeps quietly",
+      "right": "the scientist studies molecules",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "mlp",
+      "seed": 21,
+      "score": 0.0034591262352517754,
+      "correct": true
+    },
+    {
+      "left": "the researcher studies data",
+      "right": "the cat runs outside",
+      "label": 0,
+      "category": "unrelated",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "mlp",
+      "seed": 21,
+      "score": 0.006271757825871932,
+      "correct": true
+    },
+    {
+      "left": "the student chases the dog",
+      "right": "the dog chases the student",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 21,
+      "score": 0.579449662427385,
+      "correct": false
+    },
+    {
+      "left": "the researcher teaches the scientist",
+      "right": "the scientist teaches the researcher",
+      "label": 0,
+      "category": "word_order",
+      "unknown_words": [],
+      "model": "mlp",
+      "seed": 21,
+      "score": 0.9275795777273523,
+      "correct": false
+    },
+    {
+      "left": "the cat sleeps outside",
+      "right": "the cat does not sleep outside",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "outside"
+      ],
+      "model": "mlp",
+      "seed": 21,
+      "score": 0.3117100357257905,
+      "correct": true
+    },
+    {
+      "left": "the dog runs quietly",
+      "right": "the dog does not run quietly",
+      "label": 0,
+      "category": "negation",
+      "unknown_words": [
+        "quietly"
+      ],
+      "model": "mlp",
+      "seed": 21,
+      "score": 0.2739058300974872,
+      "correct": true
+    }
+  ],
+  "protocol": "Full-batch MSE, Adam, same split/features/update budget; checkpoint selected by validation MSE; threshold fixed at 0.5. Parameter budgets differ. Runtime is training plus validation, not a simulator benchmark.",
+  "limitations": [
+    "Hand-authored educational fixture, not a semantic benchmark.",
+    "Pair-disjoint splits; individual sentences and vocabulary may recur across splits.",
+    "Word-order information is lost before any model sees the data.",
+    "No hyperparameter tuning, confidence intervals over datasets or quantum advantage claim."
+  ],
+  "results": [
+    {
+      "kind": "quantum",
+      "seed": 7,
+      "parameters": 4,
+      "selected_epoch": 30,
+      "fit_seconds": 5.432763471000044,
+      "metrics": {
+        "train": {
+          "mse": 0.19693028236585858,
+          "accuracy": 0.8333333333333334,
+          "f1": 0.8571428571428571,
+          "samples": 18
+        },
+        "validation": {
+          "mse": 0.1955043474443709,
+          "accuracy": 0.75,
+          "f1": 0.8,
+          "samples": 8
+        },
+        "test": {
+          "mse": 0.19674837068628218,
+          "accuracy": 0.8333333333333334,
+          "f1": 0.8333333333333334,
+          "samples": 12
+        }
+      },
+      "predictions": {
+        "train": [
+          1.0,
+          0.6643953466398179,
+          1.0,
+          0.9351541443695187,
+          1.0,
+          0.9949949570692125,
+          0.18138296128053763,
+          0.1278938285525027,
+          0.04313551916809234,
+          0.18426612415958168,
+          1.0,
+          1.0,
+          0.42792289903848846,
+          0.3913862926792438,
+          1.0,
+          1.0,
+          1.0,
+          0.8714615836696405
+        ],
+        "validation": [
+          1.0,
+          0.6643953466398179,
+          1.0,
+          0.18426612415958166,
+          0.03448745021747764,
+          1.0,
+          0.645182848084682,
+          1.0
+        ],
+        "test": [
+          1.0,
+          1.0,
+          1.0,
+          0.9782977625224181,
+          1.0,
+          0.10755909085715451,
+          0.0642526106443989,
+          0.09059688132771375,
+          1.0,
+          1.0,
+          0.4312514463215698,
+          0.3881063002096987
+        ]
+      },
+      "loss_history": [
+        {
+          "epoch": 0,
+          "train_loss": 0.24945231366800982,
+          "validation_loss": 0.2517550820292955
+        },
+        {
+          "epoch": 1,
+          "train_loss": 0.24542001831945295,
+          "validation_loss": 0.250386205034849
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.24061474581441405,
+          "validation_loss": 0.24835757405112177
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.2354563196163639,
+          "validation_loss": 0.24587811161943063
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.23049667299741922,
+          "validation_loss": 0.24312470916273554
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.2262677093307441,
+          "validation_loss": 0.24031942173822712
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.22318030808299916,
+          "validation_loss": 0.23770386099143626
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.22141291794067255,
+          "validation_loss": 0.23550305007129402
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.22082208947447074,
+          "validation_loss": 0.23387025901275765
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.22096469318489034,
+          "validation_loss": 0.23282541621860092
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.2213017899361774,
+          "validation_loss": 0.23224425955404615
+        },
+        {
+          "epoch": 11,
+          "train_loss": 0.22143873198877506,
+          "validation_loss": 0.23193175232999083
+        },
+        {
+          "epoch": 12,
+          "train_loss": 0.2211952683954902,
+          "validation_loss": 0.23170577592492014
+        },
+        {
+          "epoch": 13,
+          "train_loss": 0.22053995711059826,
+          "validation_loss": 0.23142586096510404
+        },
+        {
+          "epoch": 14,
+          "train_loss": 0.21951214462578744,
+          "validation_loss": 0.23098446959002789
+        },
+        {
+          "epoch": 15,
+          "train_loss": 0.21817502722196766,
+          "validation_loss": 0.23029276312764674
+        },
+        {
+          "epoch": 16,
+          "train_loss": 0.2165936396409881,
+          "validation_loss": 0.229273268220567
+        },
+        {
+          "epoch": 17,
+          "train_loss": 0.21482632759424639,
+          "validation_loss": 0.22786068507833376
+        },
+        {
+          "epoch": 18,
+          "train_loss": 0.2129233584958046,
+          "validation_loss": 0.22600911901323906
+        },
+        {
+          "epoch": 19,
+          "train_loss": 0.21092978923997985,
+          "validation_loss": 0.22370302797014022
+        },
+        {
+          "epoch": 20,
+          "train_loss": 0.20889058920751308,
+          "validation_loss": 0.22096797650861105
+        },
+        {
+          "epoch": 21,
+          "train_loss": 0.20685563147063563,
+          "validation_loss": 0.217876486142097
+        },
+        {
+          "epoch": 22,
+          "train_loss": 0.2048820697694037,
+          "validation_loss": 0.2145453348743886
+        },
+        {
+          "epoch": 23,
+          "train_loss": 0.20303263932981824,
+          "validation_loss": 0.21112372433000307
+        },
+        {
+          "epoch": 24,
+          "train_loss": 0.20137008232985085,
+          "validation_loss": 0.20777495930017287
+        },
+        {
+          "epoch": 25,
+          "train_loss": 0.19994916260967446,
+          "validation_loss": 0.2046557538663258
+        },
+        {
+          "epoch": 26,
+          "train_loss": 0.1988081650298315,
+          "validation_loss": 0.20189686985492628
+        },
+        {
+          "epoch": 27,
+          "train_loss": 0.19796172958644245,
+          "validation_loss": 0.19958780596034023
+        },
+        {
+          "epoch": 28,
+          "train_loss": 0.19739680140550717,
+          "validation_loss": 0.1977677613966629
+        },
+        {
+          "epoch": 29,
+          "train_loss": 0.19707330106648885,
+          "validation_loss": 0.19642484839250307
+        },
+        {
+          "epoch": 30,
+          "train_loss": 0.19693028236585858,
+          "validation_loss": 0.1955043474443709
+        }
+      ]
+    },
+    {
+      "kind": "linear",
+      "seed": 7,
+      "parameters": 5,
+      "selected_epoch": 30,
+      "fit_seconds": 0.016341315999852668,
+      "metrics": {
+        "train": {
+          "mse": 0.16870784040899447,
+          "accuracy": 0.7222222222222222,
+          "f1": 0.6666666666666666,
+          "samples": 18
+        },
+        "validation": {
+          "mse": 0.15029457784445505,
+          "accuracy": 0.75,
+          "f1": 0.6666666666666666,
+          "samples": 8
+        },
+        "test": {
+          "mse": 0.17050832700049157,
+          "accuracy": 0.75,
+          "f1": 0.6666666666666666,
+          "samples": 12
+        }
+      },
+      "predictions": {
+        "train": [
+          0.4907492633027268,
+          0.43759947282993944,
+          0.7279200647518784,
+          0.7540882345083237,
+          0.6661823020942805,
+          0.4779753319690828,
+          0.32129207392106457,
+          0.25046071840165685,
+          0.2841112994278175,
+          0.33719748138679534,
+          0.4907492633027268,
+          0.7279200647518784,
+          0.4427761463202521,
+          0.43305958240748504,
+          0.33039274850248085,
+          0.6780268201166448,
+          0.481607196801336,
+          0.7321022521034786
+        ],
+        "validation": [
+          0.4907492633027268,
+          0.43759947282993944,
+          0.7173367249462095,
+          0.3371974813867954,
+          0.22919898543249625,
+          0.33039274850248085,
+          0.45322758427380977,
+          0.7430593412535739
+        ],
+        "test": [
+          0.4907492633027268,
+          0.481607196801336,
+          0.7255541534734622,
+          0.6986480849923528,
+          0.689984629957645,
+          0.2612482478747321,
+          0.18917262350499156,
+          0.2450181549694084,
+          0.4599702053727255,
+          0.7046604439340468,
+          0.4430105193993903,
+          0.43282953643854694
+        ]
+      },
+      "loss_history": [
+        {
+          "epoch": 0,
+          "train_loss": 0.2608013585498367,
+          "validation_loss": 0.2605079098432776
+        },
+        {
+          "epoch": 1,
+          "train_loss": 0.25543157164951885,
+          "validation_loss": 0.2544429489001132
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.2502497348098446,
+          "validation_loss": 0.24853692894412527
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.24527420779265047,
+          "validation_loss": 0.2428033369539661
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.24051712419643842,
+          "validation_loss": 0.23725292179878538
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.2359821955830927,
+          "validation_loss": 0.23189186112360471
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.23166279041369636,
+          "validation_loss": 0.2267201185796222
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.2275415806906978,
+          "validation_loss": 0.2217311881584913
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.2235932622123431,
+          "validation_loss": 0.21691431328030586
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.2197907903589755,
+          "validation_loss": 0.21225932099415967
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.21611318189116877,
+          "validation_loss": 0.2077622633938958
+        },
+        {
+          "epoch": 11,
+          "train_loss": 0.21255116777729754,
+          "validation_loss": 0.20342873835144376
+        },
+        {
+          "epoch": 12,
+          "train_loss": 0.20910796053090178,
+          "validation_loss": 0.19927276167753505
+        },
+        {
+          "epoch": 13,
+          "train_loss": 0.20579530125536497,
+          "validation_loss": 0.1953116106385831
+        },
+        {
+          "epoch": 14,
+          "train_loss": 0.20262710836604156,
+          "validation_loss": 0.19155892577029354
+        },
+        {
+          "epoch": 15,
+          "train_loss": 0.19961338378961216,
+          "validation_loss": 0.1880186854780966
+        },
+        {
+          "epoch": 16,
+          "train_loss": 0.19675632332911155,
+          "validation_loss": 0.18468208015636833
+        },
+        {
+          "epoch": 17,
+          "train_loss": 0.1940496053279918,
+          "validation_loss": 0.1815283418207973
+        },
+        {
+          "epoch": 18,
+          "train_loss": 0.19148072384165069,
+          "validation_loss": 0.17852925764199074
+        },
+        {
+          "epoch": 19,
+          "train_loss": 0.18903510676570404,
+          "validation_loss": 0.1756556608085446
+        },
+        {
+          "epoch": 20,
+          "train_loss": 0.18670014899511975,
+          "validation_loss": 0.17288345579201142
+        },
+        {
+          "epoch": 21,
+          "train_loss": 0.18446763907034877,
+          "validation_loss": 0.17019727097622991
+        },
+        {
+          "epoch": 22,
+          "train_loss": 0.18233407703356697,
+          "validation_loss": 0.16759118515679416
+        },
+        {
+          "epoch": 23,
+          "train_loss": 0.1802993271812683,
+          "validation_loss": 0.16506714700278477
+        },
+        {
+          "epoch": 24,
+          "train_loss": 0.17836447843353354,
+          "validation_loss": 0.1626321734352652
+        },
+        {
+          "epoch": 25,
+          "train_loss": 0.17652976062438702,
+          "validation_loss": 0.1602953229197959
+        },
+        {
+          "epoch": 26,
+          "train_loss": 0.17479312969410463,
+          "validation_loss": 0.15806514090621798
+        },
+        {
+          "epoch": 27,
+          "train_loss": 0.1731498378884604,
+          "validation_loss": 0.1559479647717962
+        },
+        {
+          "epoch": 28,
+          "train_loss": 0.17159298796552905,
+          "validation_loss": 0.15394719061153797
+        },
+        {
+          "epoch": 29,
+          "train_loss": 0.17011476603843215,
+          "validation_loss": 0.15206334135139496
+        },
+        {
+          "epoch": 30,
+          "train_loss": 0.16870784040899447,
+          "validation_loss": 0.15029457784445505
+        }
+      ]
+    },
+    {
+      "kind": "mlp",
+      "seed": 7,
+      "parameters": 49,
+      "selected_epoch": 27,
+      "fit_seconds": 0.0564295410001705,
+      "metrics": {
+        "train": {
+          "mse": 0.12584773882240632,
+          "accuracy": 0.8333333333333334,
+          "f1": 0.8421052631578947,
+          "samples": 18
+        },
+        "validation": {
+          "mse": 0.09118977990867079,
+          "accuracy": 0.875,
+          "f1": 0.8571428571428571,
+          "samples": 8
+        },
+        "test": {
+          "mse": 0.14090463554561264,
+          "accuracy": 0.8333333333333334,
+          "f1": 0.8333333333333334,
+          "samples": 12
+        }
+      },
+      "predictions": {
+        "train": [
+          0.678009494068912,
+          0.38372183204795207,
+          0.9701159295888158,
+          0.955273816918147,
+          0.9449519198495661,
+          0.6294299701303668,
+          0.029240919048678714,
+          0.011956412799018937,
+          0.0244344310946951,
+          0.03477190334869855,
+          0.6780094940689122,
+          0.9701159295888158,
+          0.35603187211253035,
+          0.3221394432614999,
+          0.23536714742493076,
+          0.929212282135483,
+          0.6527252553932833,
+          0.9516648660177555
+        ],
+        "validation": [
+          0.678009494068912,
+          0.38372183204795207,
+          0.967185330498003,
+          0.03477190334869858,
+          0.012850363695245146,
+          0.23536714742493076,
+          0.43279925637268746,
+          0.9703746220706184
+        ],
+        "test": [
+          0.678009494068912,
+          0.6527252553932833,
+          0.9694515949008681,
+          0.9481281963971858,
+          0.9572746197168143,
+          0.013481711419586347,
+          0.00839212604423016,
+          0.014572251386682094,
+          0.5832514437124834,
+          0.9432902935731827,
+          0.3574496822894228,
+          0.32080369459963226
+        ]
+      },
+      "loss_history": [
+        {
+          "epoch": 0,
+          "train_loss": 0.26583426398373206,
+          "validation_loss": 0.2656383921783541
+        },
+        {
+          "epoch": 1,
+          "train_loss": 0.25036917349141397,
+          "validation_loss": 0.2505674877188546
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.24036629642113005,
+          "validation_loss": 0.24023354396207625
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.2322873261297821,
+          "validation_loss": 0.23093635835069698
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.2246024699437895,
+          "validation_loss": 0.2213654647103524
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.21641180097719787,
+          "validation_loss": 0.21102440821676272
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.20764063447427514,
+          "validation_loss": 0.20011589054696
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.1988260313616886,
+          "validation_loss": 0.1893029925718372
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.19046040490338537,
+          "validation_loss": 0.17903463421693594
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.18267084867804773,
+          "validation_loss": 0.16930462437959468
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.17541652594259668,
+          "validation_loss": 0.15996363932199892
+        },
+        {
+          "epoch": 11,
+          "train_loss": 0.16864116984470887,
+          "validation_loss": 0.1508810895595476
+        },
+        {
+          "epoch": 12,
+          "train_loss": 0.16241158603682135,
+          "validation_loss": 0.14215661245064135
+        },
+        {
+          "epoch": 13,
+          "train_loss": 0.1568577888638973,
+          "validation_loss": 0.13403843864236273
+        },
+        {
+          "epoch": 14,
+          "train_loss": 0.1520857899196612,
+          "validation_loss": 0.12677218161064727
+        },
+        {
+          "epoch": 15,
+          "train_loss": 0.14814596059555035,
+          "validation_loss": 0.12051945974644733
+        },
+        {
+          "epoch": 16,
+          "train_loss": 0.1449617547316659,
+          "validation_loss": 0.11529606746153798
+        },
+        {
+          "epoch": 17,
+          "train_loss": 0.14226951515021177,
+          "validation_loss": 0.11095105266403302
+        },
+        {
+          "epoch": 18,
+          "train_loss": 0.13979613624197362,
+          "validation_loss": 0.10732841007999112
+        },
+        {
+          "epoch": 19,
+          "train_loss": 0.13751868737982412,
+          "validation_loss": 0.10445943232061788
+        },
+        {
+          "epoch": 20,
+          "train_loss": 0.13558543186210262,
+          "validation_loss": 0.10240530010385983
+        },
+        {
+          "epoch": 21,
+          "train_loss": 0.13398553980801065,
+          "validation_loss": 0.10085541153361505
+        },
+        {
+          "epoch": 22,
+          "train_loss": 0.13247543553610205,
+          "validation_loss": 0.09916433039806302
+        },
+        {
+          "epoch": 23,
+          "train_loss": 0.13094570347021586,
+          "validation_loss": 0.0970284912197803
+        },
+        {
+          "epoch": 24,
+          "train_loss": 0.1295486812353168,
+          "validation_loss": 0.09476473382395673
+        },
+        {
+          "epoch": 25,
+          "train_loss": 0.12834579954919964,
+          "validation_loss": 0.09288156707456847
+        },
+        {
+          "epoch": 26,
+          "train_loss": 0.12714370126862085,
+          "validation_loss": 0.0916601929435166
+        },
+        {
+          "epoch": 27,
+          "train_loss": 0.12584773882240632,
+          "validation_loss": 0.09118977990867079
+        },
+        {
+          "epoch": 28,
+          "train_loss": 0.12458429787673984,
+          "validation_loss": 0.09138419040786891
+        },
+        {
+          "epoch": 29,
+          "train_loss": 0.12337539812822795,
+          "validation_loss": 0.09173097827147551
+        },
+        {
+          "epoch": 30,
+          "train_loss": 0.12206386371638045,
+          "validation_loss": 0.09154342986900005
+        }
+      ]
+    },
+    {
+      "kind": "quantum",
+      "seed": 13,
+      "parameters": 4,
+      "selected_epoch": 29,
+      "fit_seconds": 5.286398734999921,
+      "metrics": {
+        "train": {
+          "mse": 0.19601358625628212,
+          "accuracy": 0.8333333333333334,
+          "f1": 0.8571428571428571,
+          "samples": 18
+        },
+        "validation": {
+          "mse": 0.194020415548546,
+          "accuracy": 0.75,
+          "f1": 0.8,
+          "samples": 8
+        },
+        "test": {
+          "mse": 0.19825761147092158,
+          "accuracy": 0.8333333333333334,
+          "f1": 0.8333333333333334,
+          "samples": 12
+        }
+      },
+      "predictions": {
+        "train": [
+          1.0,
+          0.6747618815489529,
+          1.0,
+          0.9287378014504214,
+          1.0,
+          0.9951458329220544,
+          0.15036983695753856,
+          0.06457287306241269,
+          0.026794981219979242,
+          0.11198912318221516,
+          1.0,
+          1.0,
+          0.4487243518803207,
+          0.4121800582421753,
+          1.0,
+          1.0,
+          1.0,
+          0.8743617642576782
+        ],
+        "validation": [
+          1.0,
+          0.6747618815489529,
+          1.0,
+          0.11198912318221522,
+          0.01617343392732713,
+          1.0,
+          0.6584681822371279,
+          1.0
+        ],
+        "test": [
+          1.0,
+          1.0,
+          1.0,
+          0.9817145865395439,
+          1.0,
+          0.03953446349090059,
+          0.05507533383165902,
+          0.05127248911295335,
+          1.0,
+          1.0,
+          0.45193917679123824,
+          0.4090022340365363
+        ]
+      },
+      "loss_history": [
+        {
+          "epoch": 0,
+          "train_loss": 0.23138700693398398,
+          "validation_loss": 0.23820435142020807
+        },
+        {
+          "epoch": 1,
+          "train_loss": 0.22983268338331125,
+          "validation_loss": 0.23612904973297752
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.22882076459845901,
+          "validation_loss": 0.23507401056645766
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.2278649432570483,
+          "validation_loss": 0.2345985606099156
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.2270092204538,
+          "validation_loss": 0.234445828767276
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.2262831759084295,
+          "validation_loss": 0.23446386613795597
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.2255929718802584,
+          "validation_loss": 0.2344857464314255
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.2247814423489721,
+          "validation_loss": 0.2343313098705106
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.22372128237524203,
+          "validation_loss": 0.2338541108399524
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.2223223741860362,
+          "validation_loss": 0.23292769469131164
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.2205117324993346,
+          "validation_loss": 0.23141670787147
+        },
+        {
+          "epoch": 11,
+          "train_loss": 0.2182457881450478,
+          "validation_loss": 0.22919910776013855
+        },
+        {
+          "epoch": 12,
+          "train_loss": 0.21552696380418998,
+          "validation_loss": 0.22619898803361166
+        },
+        {
+          "epoch": 13,
+          "train_loss": 0.21242410361170364,
+          "validation_loss": 0.2224284121988849
+        },
+        {
+          "epoch": 14,
+          "train_loss": 0.20908795791284673,
+          "validation_loss": 0.21802591629410067
+        },
+        {
+          "epoch": 15,
+          "train_loss": 0.20574723279118334,
+          "validation_loss": 0.21326000318945293
+        },
+        {
+          "epoch": 16,
+          "train_loss": 0.2026810724354705,
+          "validation_loss": 0.20849210289460918
+        },
+        {
+          "epoch": 17,
+          "train_loss": 0.20016880860725694,
+          "validation_loss": 0.20410929897277563
+        },
+        {
+          "epoch": 18,
+          "train_loss": 0.19842394115355097,
+          "validation_loss": 0.20044353113034835
+        },
+        {
+          "epoch": 19,
+          "train_loss": 0.19752724774781316,
+          "validation_loss": 0.19769826012375322
+        },
+        {
+          "epoch": 20,
+          "train_loss": 0.1973815159978639,
+          "validation_loss": 0.19590242766432236
+        },
+        {
+          "epoch": 21,
+          "train_loss": 0.19772054508541273,
+          "validation_loss": 0.19491041335650436
+        },
+        {
+          "epoch": 22,
+          "train_loss": 0.19820029686865334,
+          "validation_loss": 0.19446538397859534
+        },
+        {
+          "epoch": 23,
+          "train_loss": 0.19853482164869385,
+          "validation_loss": 0.1943063395733481
+        },
+        {
+          "epoch": 24,
+          "train_loss": 0.19857896146946616,
+          "validation_loss": 0.1942490971701216
+        },
+        {
+          "epoch": 25,
+          "train_loss": 0.1983210902815869,
+          "validation_loss": 0.19420162527231694
+        },
+        {
+          "epoch": 26,
+          "train_loss": 0.19783230414514824,
+          "validation_loss": 0.19413872219013206
+        },
+        {
+          "epoch": 27,
+          "train_loss": 0.19721760874818192,
+          "validation_loss": 0.1940711610019006
+        },
+        {
+          "epoch": 28,
+          "train_loss": 0.19658258789791055,
+          "validation_loss": 0.19402342839661002
+        },
+        {
+          "epoch": 29,
+          "train_loss": 0.19601358625628212,
+          "validation_loss": 0.194020415548546
+        },
+        {
+          "epoch": 30,
+          "train_loss": 0.19556765780371188,
+          "validation_loss": 0.1940800254908195
+        }
+      ]
+    },
+    {
+      "kind": "linear",
+      "seed": 13,
+      "parameters": 5,
+      "selected_epoch": 30,
+      "fit_seconds": 0.017161579000003258,
+      "metrics": {
+        "train": {
+          "mse": 0.17166201912978074,
+          "accuracy": 0.8333333333333334,
+          "f1": 0.8421052631578947,
+          "samples": 18
+        },
+        "validation": {
+          "mse": 0.1544542149789963,
+          "accuracy": 0.875,
+          "f1": 0.8571428571428571,
+          "samples": 8
+        },
+        "test": {
+          "mse": 0.1773816352462192,
+          "accuracy": 0.8333333333333334,
+          "f1": 0.8333333333333334,
+          "samples": 12
+        }
+      },
+      "predictions": {
+        "train": [
+          0.5154085831726005,
+          0.45583543476891514,
+          0.7152532125912305,
+          0.8014936099022274,
+          0.6208377601965918,
+          0.506996602179527,
+          0.2678035816968863,
+          0.20562886498601815,
+          0.17889904484194763,
+          0.3473328194170651,
+          0.5154085831726005,
+          0.7152532125912305,
+          0.46521812915182525,
+          0.4590078950643812,
+          0.4305619248652633,
+          0.735525293008898,
+          0.5106952380522072,
+          0.7505917026396167
+        ],
+        "validation": [
+          0.5154085831726005,
+          0.45583543476891514,
+          0.6992250965623783,
+          0.34733281941706523,
+          0.15935700609964046,
+          0.4305619248652633,
+          0.4746787718527709,
+          0.7602375935440386
+        ],
+        "test": [
+          0.5154085831726005,
+          0.5106952380522072,
+          0.7121742362115877,
+          0.7058624738558619,
+          0.6576004400613723,
+          0.22195262689927092,
+          0.10982974554492098,
+          0.17816450857130858,
+          0.5156776418259755,
+          0.7626413326691138,
+          0.4654975891087085,
+          0.45872894681431353
+        ]
+      },
+      "loss_history": [
+        {
+          "epoch": 0,
+          "train_loss": 0.25780652514251,
+          "validation_loss": 0.2603891907281051
+        },
+        {
+          "epoch": 1,
+          "train_loss": 0.25035660093169637,
+          "validation_loss": 0.2517158692347955
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.2434805054121257,
+          "validation_loss": 0.24369026027624863
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.23724229683894618,
+          "validation_loss": 0.23639117427653886
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.23168641944736912,
+          "validation_loss": 0.22987410033485084
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.22682849299502436,
+          "validation_loss": 0.22416074128313612
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.2226454533950627,
+          "validation_loss": 0.21922785337052136
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.2190683022995284,
+          "validation_loss": 0.21499898446232568
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.21598329373518804,
+          "validation_loss": 0.21134558118829946
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.21324700550176692,
+          "validation_loss": 0.2081035792367386
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.21071371414942783,
+          "validation_loss": 0.20510387522636297
+        },
+        {
+          "epoch": 11,
+          "train_loss": 0.20826362875213478,
+          "validation_loss": 0.20220413524410746
+        },
+        {
+          "epoch": 12,
+          "train_loss": 0.20581907559398457,
+          "validation_loss": 0.19930762029948035
+        },
+        {
+          "epoch": 13,
+          "train_loss": 0.20334508163406786,
+          "validation_loss": 0.19636489949121116
+        },
+        {
+          "epoch": 14,
+          "train_loss": 0.20084000511007177,
+          "validation_loss": 0.19336447570551385
+        },
+        {
+          "epoch": 15,
+          "train_loss": 0.1983234811066737,
+          "validation_loss": 0.19032023005691123
+        },
+        {
+          "epoch": 16,
+          "train_loss": 0.19582589555115062,
+          "validation_loss": 0.18726030807985589
+        },
+        {
+          "epoch": 17,
+          "train_loss": 0.1933806028219185,
+          "validation_loss": 0.18421880175479255
+        },
+        {
+          "epoch": 18,
+          "train_loss": 0.19101866349143762,
+          "validation_loss": 0.18123000126174077
+        },
+        {
+          "epoch": 19,
+          "train_loss": 0.18876553239375324,
+          "validation_loss": 0.1783246072605905
+        },
+        {
+          "epoch": 20,
+          "train_loss": 0.1866392096309283,
+          "validation_loss": 0.17552738829858588
+        },
+        {
+          "epoch": 21,
+          "train_loss": 0.18464952461462178,
+          "validation_loss": 0.17285594989484082
+        },
+        {
+          "epoch": 22,
+          "train_loss": 0.18279833461335596,
+          "validation_loss": 0.17032041505419077
+        },
+        {
+          "epoch": 23,
+          "train_loss": 0.18108046542501277,
+          "validation_loss": 0.1679238752023558
+        },
+        {
+          "epoch": 24,
+          "train_loss": 0.17948521768375542,
+          "validation_loss": 0.1656634691283435
+        },
+        {
+          "epoch": 25,
+          "train_loss": 0.1779982324753545,
+          "validation_loss": 0.16353191100200704
+        },
+        {
+          "epoch": 26,
+          "train_loss": 0.17660348041033783,
+          "validation_loss": 0.16151924587421998
+        },
+        {
+          "epoch": 27,
+          "train_loss": 0.17528513144518387,
+          "validation_loss": 0.1596145887166251
+        },
+        {
+          "epoch": 28,
+          "train_loss": 0.17402909156311736,
+          "validation_loss": 0.15780761823467604
+        },
+        {
+          "epoch": 29,
+          "train_loss": 0.17282405652889007,
+          "validation_loss": 0.15608965218666865
+        },
+        {
+          "epoch": 30,
+          "train_loss": 0.17166201912978074,
+          "validation_loss": 0.1544542149789963
+        }
+      ]
+    },
+    {
+      "kind": "mlp",
+      "seed": 13,
+      "parameters": 49,
+      "selected_epoch": 30,
+      "fit_seconds": 0.04902030299990656,
+      "metrics": {
+        "train": {
+          "mse": 0.1126816839015984,
+          "accuracy": 0.8333333333333334,
+          "f1": 0.8421052631578947,
+          "samples": 18
+        },
+        "validation": {
+          "mse": 0.0889614258389688,
+          "accuracy": 0.875,
+          "f1": 0.8571428571428571,
+          "samples": 8
+        },
+        "test": {
+          "mse": 0.1077212291589024,
+          "accuracy": 0.8333333333333334,
+          "f1": 0.8333333333333334,
+          "samples": 12
+        }
+      },
+      "predictions": {
+        "train": [
+          0.7083465671514305,
+          0.32992627767118876,
+          0.9542226049823453,
+          0.7784765399111568,
+          0.9620154716691689,
+          0.6464620108220909,
+          0.012920150060592602,
+          0.004967001865671896,
+          0.015642013499593092,
+          0.012870611984612425,
+          0.7083465671514307,
+          0.9542226049823453,
+          0.27703640831452364,
+          0.23934620095419415,
+          0.16884678108108958,
+          0.797951519032366,
+          0.6789835733841159,
+          0.8166881955006126
+        ],
+        "validation": [
+          0.7083465671514305,
+          0.32992627767118876,
+          0.9560068979564927,
+          0.012870611984612437,
+          0.007026747924302603,
+          0.16884678108108958,
+          0.37562625474542044,
+          0.9233439574356396
+        ],
+        "test": [
+          0.7083465671514305,
+          0.6789835733841159,
+          0.9542036613215602,
+          0.8771835141039623,
+          0.959598525688456,
+          0.005526020044969767,
+          0.0048405808733371775,
+          0.007696081329453149,
+          0.5370000522856269,
+          0.8142509703185357,
+          0.278636290224192,
+          0.23791369663933334
+        ]
+      },
+      "loss_history": [
+        {
+          "epoch": 0,
+          "train_loss": 0.25296037233186763,
+          "validation_loss": 0.2526912679101647
+        },
+        {
+          "epoch": 1,
+          "train_loss": 0.23775966783840063,
+          "validation_loss": 0.23518534419231663
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.22738656475810448,
+          "validation_loss": 0.22311072404969554
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.218948068421759,
+          "validation_loss": 0.21336478125671138
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.20961608543197302,
+          "validation_loss": 0.20252370552887838
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.19921027982883244,
+          "validation_loss": 0.19006213062397836
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.1886677786304055,
+          "validation_loss": 0.17672115022334448
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.17902978053421514,
+          "validation_loss": 0.16359835244943854
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.17060990585091726,
+          "validation_loss": 0.15149973872172204
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.16291356329519624,
+          "validation_loss": 0.14069883229641322
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.15594377051868868,
+          "validation_loss": 0.13166372118637493
+        },
+        {
+          "epoch": 11,
+          "train_loss": 0.15029414157055324,
+          "validation_loss": 0.1249196621567184
+        },
+        {
+          "epoch": 12,
+          "train_loss": 0.1459593483950041,
+          "validation_loss": 0.11985129361928273
+        },
+        {
+          "epoch": 13,
+          "train_loss": 0.14213094593811643,
+          "validation_loss": 0.11497006836325031
+        },
+        {
+          "epoch": 14,
+          "train_loss": 0.1384992633180272,
+          "validation_loss": 0.10981967394215342
+        },
+        {
+          "epoch": 15,
+          "train_loss": 0.135541189231818,
+          "validation_loss": 0.10520096600568023
+        },
+        {
+          "epoch": 16,
+          "train_loss": 0.1334737137629328,
+          "validation_loss": 0.10189278899304649
+        },
+        {
+          "epoch": 17,
+          "train_loss": 0.1315692573033697,
+          "validation_loss": 0.09959125374717723
+        },
+        {
+          "epoch": 18,
+          "train_loss": 0.12948287093578068,
+          "validation_loss": 0.09802439156508946
+        },
+        {
+          "epoch": 19,
+          "train_loss": 0.12770013638162994,
+          "validation_loss": 0.09749452739718598
+        },
+        {
+          "epoch": 20,
+          "train_loss": 0.12639682933453766,
+          "validation_loss": 0.09754319707370582
+        },
+        {
+          "epoch": 21,
+          "train_loss": 0.12504208308850792,
+          "validation_loss": 0.09677821942200593
+        },
+        {
+          "epoch": 22,
+          "train_loss": 0.1234626996312542,
+          "validation_loss": 0.09477922024756885
+        },
+        {
+          "epoch": 23,
+          "train_loss": 0.12205571206022531,
+          "validation_loss": 0.09245986646796389
+        },
+        {
+          "epoch": 24,
+          "train_loss": 0.12086352571307561,
+          "validation_loss": 0.090755257496533
+        },
+        {
+          "epoch": 25,
+          "train_loss": 0.11949863026021353,
+          "validation_loss": 0.08996239432583755
+        },
+        {
+          "epoch": 26,
+          "train_loss": 0.11797657167405119,
+          "validation_loss": 0.09017737429115594
+        },
+        {
+          "epoch": 27,
+          "train_loss": 0.11660229054404499,
+          "validation_loss": 0.09111268462517226
+        },
+        {
+          "epoch": 28,
+          "train_loss": 0.11533601449722407,
+          "validation_loss": 0.09165792246922105
+        },
+        {
+          "epoch": 29,
+          "train_loss": 0.11397924838498574,
+          "validation_loss": 0.09085538622061631
+        },
+        {
+          "epoch": 30,
+          "train_loss": 0.1126816839015984,
+          "validation_loss": 0.0889614258389688
+        }
+      ]
+    },
+    {
+      "kind": "quantum",
+      "seed": 21,
+      "parameters": 4,
+      "selected_epoch": 30,
+      "fit_seconds": 5.262707166000155,
+      "metrics": {
+        "train": {
+          "mse": 0.21422061275870224,
+          "accuracy": 0.7222222222222222,
+          "f1": 0.782608695652174,
+          "samples": 18
+        },
+        "validation": {
+          "mse": 0.2093972054714842,
+          "accuracy": 0.75,
+          "f1": 0.8,
+          "samples": 8
+        },
+        "test": {
+          "mse": 0.22352574028079233,
+          "accuracy": 0.6666666666666666,
+          "f1": 0.7142857142857143,
+          "samples": 12
+        }
+      },
+      "predictions": {
+        "train": [
+          1.0,
+          0.7271721965224281,
+          1.0,
+          0.925593047688996,
+          1.0,
+          0.9959019009621864,
+          0.12588799341481371,
+          0.04525865166449845,
+          0.3154873155168736,
+          0.21164660331155571,
+          1.0,
+          1.0,
+          0.5613941050593947,
+          0.5313406000906833,
+          1.0,
+          1.0,
+          1.0,
+          0.8435704934102587
+        ],
+        "validation": [
+          1.0,
+          0.7271721965224281,
+          1.0,
+          0.21164660331155594,
+          0.19554493524359334,
+          1.0,
+          0.7195210400181059,
+          1.0
+        ],
+        "test": [
+          1.0,
+          1.0,
+          1.0,
+          0.9551682291204789,
+          1.0,
+          0.009711988580217575,
+          0.24649531636768712,
+          0.14742933438052935,
+          1.0,
+          1.0,
+          0.5638404857217183,
+          0.528954846845302
+        ]
+      },
+      "loss_history": [
+        {
+          "epoch": 0,
+          "train_loss": 0.24843496877939794,
+          "validation_loss": 0.24801624532037586
+        },
+        {
+          "epoch": 1,
+          "train_loss": 0.24369663228123203,
+          "validation_loss": 0.24200630001677598
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.2385034408590191,
+          "validation_loss": 0.23596135914130767
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.23336830726258295,
+          "validation_loss": 0.230249756926999
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.2287992199438706,
+          "validation_loss": 0.22519362600439083
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.22522020033534534,
+          "validation_loss": 0.22105959945488446
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.2228539221740925,
+          "validation_loss": 0.21800336664346964
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.22161460473058764,
+          "validation_loss": 0.21600093945018498
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.22112783823663495,
+          "validation_loss": 0.21483047616530215
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.2209352573595706,
+          "validation_loss": 0.21417300836518144
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.22071006564539625,
+          "validation_loss": 0.2137630547416216
+        },
+        {
+          "epoch": 11,
+          "train_loss": 0.22031106668498462,
+          "validation_loss": 0.21345577617879177
+        },
+        {
+          "epoch": 12,
+          "train_loss": 0.21972815145208985,
+          "validation_loss": 0.21320724545922115
+        },
+        {
+          "epoch": 13,
+          "train_loss": 0.21902031439108888,
+          "validation_loss": 0.21303316883514534
+        },
+        {
+          "epoch": 14,
+          "train_loss": 0.21827633894583803,
+          "validation_loss": 0.2129763345932199
+        },
+        {
+          "epoch": 15,
+          "train_loss": 0.21759073608723448,
+          "validation_loss": 0.2130820059395487
+        },
+        {
+          "epoch": 16,
+          "train_loss": 0.21704433018492877,
+          "validation_loss": 0.21337565662782476
+        },
+        {
+          "epoch": 17,
+          "train_loss": 0.21668514378532033,
+          "validation_loss": 0.21384299143027208
+        },
+        {
+          "epoch": 18,
+          "train_loss": 0.21651280671690085,
+          "validation_loss": 0.2144185331773864
+        },
+        {
+          "epoch": 19,
+          "train_loss": 0.2164755250018081,
+          "validation_loss": 0.2149916623166213
+        },
+        {
+          "epoch": 20,
+          "train_loss": 0.2164870739985821,
+          "validation_loss": 0.21543338071835744
+        },
+        {
+          "epoch": 21,
+          "train_loss": 0.21645932681820856,
+          "validation_loss": 0.21563377448350746
+        },
+        {
+          "epoch": 22,
+          "train_loss": 0.2163334911954647,
+          "validation_loss": 0.21553149661345647
+        },
+        {
+          "epoch": 23,
+          "train_loss": 0.21609488809076638,
+          "validation_loss": 0.21512345453627058
+        },
+        {
+          "epoch": 24,
+          "train_loss": 0.2157688500062861,
+          "validation_loss": 0.21445672139144953
+        },
+        {
+          "epoch": 25,
+          "train_loss": 0.21540466062073538,
+          "validation_loss": 0.2136110297997468
+        },
+        {
+          "epoch": 26,
+          "train_loss": 0.21505562158592173,
+          "validation_loss": 0.21267839038309774
+        },
+        {
+          "epoch": 27,
+          "train_loss": 0.21476123060985045,
+          "validation_loss": 0.21174358229841042
+        },
+        {
+          "epoch": 28,
+          "train_loss": 0.21453582376148322,
+          "validation_loss": 0.21086877142586552
+        },
+        {
+          "epoch": 29,
+          "train_loss": 0.21436653107586567,
+          "validation_loss": 0.2100856939874478
+        },
+        {
+          "epoch": 30,
+          "train_loss": 0.21422061275870224,
+          "validation_loss": 0.2093972054714842
+        }
+      ]
+    },
+    {
+      "kind": "linear",
+      "seed": 21,
+      "parameters": 5,
+      "selected_epoch": 30,
+      "fit_seconds": 0.015068939000002501,
+      "metrics": {
+        "train": {
+          "mse": 0.17600008726217134,
+          "accuracy": 0.7222222222222222,
+          "f1": 0.6666666666666666,
+          "samples": 18
+        },
+        "validation": {
+          "mse": 0.15447385399537353,
+          "accuracy": 0.75,
+          "f1": 0.6666666666666666,
+          "samples": 8
+        },
+        "test": {
+          "mse": 0.1823018626526182,
+          "accuracy": 0.75,
+          "f1": 0.6666666666666666,
+          "samples": 12
+        }
+      },
+      "predictions": {
+        "train": [
+          0.4606286129312263,
+          0.41456472866801114,
+          0.7224663175003349,
+          0.8260292942167973,
+          0.6121979177633488,
+          0.45000958519219947,
+          0.3283556518588572,
+          0.25977139557996465,
+          0.32536626964811194,
+          0.31586124798802323,
+          0.46062861293122637,
+          0.7224663175003349,
+          0.4139856782173292,
+          0.4061033808165416,
+          0.3390483999576252,
+          0.7304729343125186,
+          0.45366078492380085,
+          0.7951975610618431
+        ],
+        "validation": [
+          0.4606286129312263,
+          0.41456472866801114,
+          0.7039733878143539,
+          0.31586124798802323,
+          0.25765968193661093,
+          0.3390483999576252,
+          0.42483250557342184,
+          0.7699786710955249
+        ],
+        "test": [
+          0.4606286129312263,
+          0.45366078492380085,
+          0.7188391254141492,
+          0.7175452703132861,
+          0.655420833771669,
+          0.26694469158218737,
+          0.2297463062980705,
+          0.2682369943589,
+          0.4530957742822922,
+          0.7635756709804766,
+          0.41419639522622453,
+          0.40589561296667803
+        ]
+      },
+      "loss_history": [
+        {
+          "epoch": 0,
+          "train_loss": 0.25413173303779274,
+          "validation_loss": 0.24749373387344492
+        },
+        {
+          "epoch": 1,
+          "train_loss": 0.2502284922132301,
+          "validation_loss": 0.24331002525861334
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.24607674763778414,
+          "validation_loss": 0.23854233636548688
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.24218543689709504,
+          "validation_loss": 0.2339884257822971
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.23844553671554797,
+          "validation_loss": 0.2295954328285491
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.23472475070929233,
+          "validation_loss": 0.22531273402316748
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.23109340827038027,
+          "validation_loss": 0.22120881362042524
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.22762284531769905,
+          "validation_loss": 0.21731076740439353
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.22429793574500367,
+          "validation_loss": 0.21352997542698587
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.2210633648546101,
+          "validation_loss": 0.2097577659525479
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.2179094177315808,
+          "validation_loss": 0.20598191826931886
+        },
+        {
+          "epoch": 11,
+          "train_loss": 0.21486454778081956,
+          "validation_loss": 0.20225551152159454
+        },
+        {
+          "epoch": 12,
+          "train_loss": 0.2119529393667826,
+          "validation_loss": 0.19863921967835632
+        },
+        {
+          "epoch": 13,
+          "train_loss": 0.20917173567996228,
+          "validation_loss": 0.19517369652233135
+        },
+        {
+          "epoch": 14,
+          "train_loss": 0.20649865983318189,
+          "validation_loss": 0.1918765670617979
+        },
+        {
+          "epoch": 15,
+          "train_loss": 0.2039197079857026,
+          "validation_loss": 0.1887537871179658
+        },
+        {
+          "epoch": 16,
+          "train_loss": 0.20144076978170078,
+          "validation_loss": 0.18580431858768948
+        },
+        {
+          "epoch": 17,
+          "train_loss": 0.19907311011988668,
+          "validation_loss": 0.18301050842883274
+        },
+        {
+          "epoch": 18,
+          "train_loss": 0.19681607826344621,
+          "validation_loss": 0.18033151919856322
+        },
+        {
+          "epoch": 19,
+          "train_loss": 0.19465619391737085,
+          "validation_loss": 0.1777184219254608
+        },
+        {
+          "epoch": 20,
+          "train_loss": 0.19258038059040739,
+          "validation_loss": 0.17514182549164667
+        },
+        {
+          "epoch": 21,
+          "train_loss": 0.1905853851893585,
+          "validation_loss": 0.17260411786699473
+        },
+        {
+          "epoch": 22,
+          "train_loss": 0.1886746703964707,
+          "validation_loss": 0.17013037821323695
+        },
+        {
+          "epoch": 23,
+          "train_loss": 0.1868497499716767,
+          "validation_loss": 0.16775221535946758
+        },
+        {
+          "epoch": 24,
+          "train_loss": 0.18510525817994383,
+          "validation_loss": 0.16549520607448592
+        },
+        {
+          "epoch": 25,
+          "train_loss": 0.183431726803142,
+          "validation_loss": 0.16337316034031063
+        },
+        {
+          "epoch": 26,
+          "train_loss": 0.18182228439021927,
+          "validation_loss": 0.16138773088920333
+        },
+        {
+          "epoch": 27,
+          "train_loss": 0.1802754622953667,
+          "validation_loss": 0.1595292253491976
+        },
+        {
+          "epoch": 28,
+          "train_loss": 0.17879169110612655,
+          "validation_loss": 0.1577768152151683
+        },
+        {
+          "epoch": 29,
+          "train_loss": 0.17736853431391578,
+          "validation_loss": 0.15610134666368908
+        },
+        {
+          "epoch": 30,
+          "train_loss": 0.17600008726217134,
+          "validation_loss": 0.15447385399537353
+        }
+      ]
+    },
+    {
+      "kind": "mlp",
+      "seed": 21,
+      "parameters": 49,
+      "selected_epoch": 30,
+      "fit_seconds": 0.04819890900012069,
+      "metrics": {
+        "train": {
+          "mse": 0.12299822690254336,
+          "accuracy": 0.8333333333333334,
+          "f1": 0.8421052631578947,
+          "samples": 18
+        },
+        "validation": {
+          "mse": 0.09245130751324857,
+          "accuracy": 0.875,
+          "f1": 0.8571428571428571,
+          "samples": 8
+        },
+        "test": {
+          "mse": 0.13217784984084444,
+          "accuracy": 0.8333333333333334,
+          "f1": 0.8333333333333334,
+          "samples": 12
+        }
+      },
+      "predictions": {
+        "train": [
+          0.6895310861752488,
+          0.33980574236998723,
+          0.9647279487171698,
+          0.9272280579514877,
+          0.9472892388270703,
+          0.6359825708824106,
+          0.013323845311900912,
+          0.005113792107502566,
+          0.010254113237598183,
+          0.019203433865089437,
+          0.689531086175249,
+          0.9647279487171698,
+          0.3101501514715844,
+          0.27534638155806324,
+          0.21811346661074654,
+          0.911614927995323,
+          0.664256400659994,
+          0.9208285311187268
+        ],
+        "validation": [
+          0.6895310861752488,
+          0.33980574236998723,
+          0.9623207150232653,
+          0.01920343386508947,
+          0.0054423720129729465,
+          0.21811346661074654,
+          0.3956398057744536,
+          0.9620448183389547
+        ],
+        "test": [
+          0.6895310861752488,
+          0.664256400659994,
+          0.9640973006812437,
+          0.92743021112993,
+          0.9550031767534568,
+          0.00589576333998014,
+          0.0034591262352517754,
+          0.006271757825871932,
+          0.579449662427385,
+          0.9275795777273523,
+          0.3117100357257905,
+          0.2739058300974872
+        ]
+      },
+      "loss_history": [
+        {
+          "epoch": 0,
+          "train_loss": 0.2666234645674225,
+          "validation_loss": 0.269828664301135
+        },
+        {
+          "epoch": 1,
+          "train_loss": 0.25531771513313567,
+          "validation_loss": 0.2566800053810364
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.24853463345278679,
+          "validation_loss": 0.24852654701851706
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.24338967096339037,
+          "validation_loss": 0.2423473122537472
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.23796993255733412,
+          "validation_loss": 0.2359078526768052
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.2315166087664526,
+          "validation_loss": 0.22817075883078647
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.22405656616597314,
+          "validation_loss": 0.21895377310007724
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.2158256096190234,
+          "validation_loss": 0.20842940299116672
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.20658206712235339,
+          "validation_loss": 0.1965753505388842
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.19644010495879266,
+          "validation_loss": 0.18383826818641258
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.18638020193629887,
+          "validation_loss": 0.17147649462780806
+        },
+        {
+          "epoch": 11,
+          "train_loss": 0.17751518497006508,
+          "validation_loss": 0.16057780879515748
+        },
+        {
+          "epoch": 12,
+          "train_loss": 0.16995491540734164,
+          "validation_loss": 0.15069875447161335
+        },
+        {
+          "epoch": 13,
+          "train_loss": 0.16323155831189742,
+          "validation_loss": 0.1409813433741271
+        },
+        {
+          "epoch": 14,
+          "train_loss": 0.15720385962812877,
+          "validation_loss": 0.13145425944088812
+        },
+        {
+          "epoch": 15,
+          "train_loss": 0.15211929556496434,
+          "validation_loss": 0.12287517772528658
+        },
+        {
+          "epoch": 16,
+          "train_loss": 0.14826746058310533,
+          "validation_loss": 0.11612532851936772
+        },
+        {
+          "epoch": 17,
+          "train_loss": 0.14521410116513678,
+          "validation_loss": 0.11127250721914651
+        },
+        {
+          "epoch": 18,
+          "train_loss": 0.14223574521756602,
+          "validation_loss": 0.10766781540829022
+        },
+        {
+          "epoch": 19,
+          "train_loss": 0.1395389177742181,
+          "validation_loss": 0.10530131961688297
+        },
+        {
+          "epoch": 20,
+          "train_loss": 0.13755848451513245,
+          "validation_loss": 0.10415173943036865
+        },
+        {
+          "epoch": 21,
+          "train_loss": 0.13591754925034522,
+          "validation_loss": 0.10305332641333625
+        },
+        {
+          "epoch": 22,
+          "train_loss": 0.13411920690029688,
+          "validation_loss": 0.10101970920931423
+        },
+        {
+          "epoch": 23,
+          "train_loss": 0.13246607186827344,
+          "validation_loss": 0.09858187490943393
+        },
+        {
+          "epoch": 24,
+          "train_loss": 0.13118998012023841,
+          "validation_loss": 0.09665349475678327
+        },
+        {
+          "epoch": 25,
+          "train_loss": 0.1298502482613253,
+          "validation_loss": 0.09544093122223346
+        },
+        {
+          "epoch": 26,
+          "train_loss": 0.1283576793143054,
+          "validation_loss": 0.09502212081451417
+        },
+        {
+          "epoch": 27,
+          "train_loss": 0.12706665156308855,
+          "validation_loss": 0.09533435697538348
+        },
+        {
+          "epoch": 28,
+          "train_loss": 0.12585856304736812,
+          "validation_loss": 0.09536318363852035
+        },
+        {
+          "epoch": 29,
+          "train_loss": 0.12444297141376855,
+          "validation_loss": 0.09423732267191579
+        },
+        {
+          "epoch": 30,
+          "train_loss": 0.12299822690254336,
+          "validation_loss": 0.09245130751324857
+        }
+      ]
+    }
+  ]
+}

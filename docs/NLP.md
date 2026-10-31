@@ -126,3 +126,53 @@ shows computed states. It does not report NLP accuracy on any dataset.
 See [Sentence-pair similarity laboratory](NLP_SIMILARITY.md) for an offline
 TF-IDF/SVD example, classical cosine baselines, optional external vectors and
 P0 circuit explanations. Run `python examples/nlp_similarity.py` from this checkout.
+
+
+## Reproducible trainable sentence-pair experiment
+
+```bash
+python examples/train_sentence_pairs.py --epochs 30 --seeds 7 13 21
+```
+
+Open `.release-artifacts/qnlp-training/report.html`. NumPy CPU is sufficient;
+no Torch, GPU, external text model or downloaded dataset is required. The
+included hand-authored CSV has 18 train, 8 validation and 12 test pairs, with
+paraphrase, identity, unrelated, negation and word-order cases. It is a software
+and learning fixture, not a semantic benchmark. Exact/reversed duplicate pairs
+are rejected, but individual sentences/vocabulary may occur across splits.
+
+Vocabulary/IDF, two-component SVD and angle ranges are fitted on **training
+sentences only**. Validation selects the minimum-MSE checkpoint; the fixed 0.5
+threshold and declared seeds never use test performance for selection. Unknown
+words are recorded. Every model gets the same two encoded components per
+sentence, same full-batch MSE/Adam learning rate and update budget. The classical
+sigmoid linear model uses absolute differences and elementwise products of
+normalized angles (5 parameters); an eight-hidden-unit tanh MLP uses the same
+pair features (49 parameters). The shared quantum encoder uses four weights:
+RY feature upload -> trainable RZ -> CX -> feature upload -> trainable RX -> CX
+-> feature upload. Trainable noncommuting rotations are between data uploads,
+so this is not a shared terminal-unitary-only kernel. Gate-local probability
+Jacobians handle shared weights in both encoders and the inverse chain rule.
+
+The fixed first seed supplies the playback example; it is not chosen by its test
+score. Checkpoints record actual pre-update parameters and training losses.
+The displayed word-order failure is intentional evidence: bag-of-words features
+cannot distinguish reversed text with identical token counts. No downstream
+model can recover the lost order. All model/seed predictions and category-tagged
+errors are exported, including cases where NexQus loses. Repeated seeds measure
+initialization variability, not uncertainty across datasets. Fit seconds include
+training and validation, exclude preprocessing/export and are **not** a warmed
+simulator benchmark or a matched-parameter-budget comparison.
+
+Use `--data PATH` for a larger CSV with columns
+`split,left,right,label,category`; split is train/validation/test and label is
+0 or 1. Every split needs both labels, and each sentence pair must be unique
+including reversed order. Start with at least four distinct training sentences
+with enough vocabulary for two SVD components. Examples with no known words
+are rejected. Shared sentences across splits are allowed and should be reported
+when interpreting generalization. Hyperparameters are fixed, not tuned to this
+fixture; domain datasets should use separately justified splits and budgets.
+
+The checked-in `benchmarks/qnlp_cpu_fixture.json` records an actual three-seed,
+30-update CPU run, the dataset hash, losses, held-out predictions and environment.
+Reproduce before making task-performance claims; no quantum advantage is claimed.

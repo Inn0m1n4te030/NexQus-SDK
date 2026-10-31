@@ -111,3 +111,12 @@ python examples/nlp_similarity.py --export .release-artifacts/nlp-similarity.htm
 npm install --no-save --no-package-lock jsdom@26.1.0
 node scripts/check_nlp_similarity_ui.cjs .release-artifacts/nlp-similarity.html
 ```
+
+
+## Train a small labelled experiment
+
+Run `python examples/train_sentence_pairs.py` from the checkout. This trains
+on CPU and opens no remote service. Output is
+`.release-artifacts/qnlp-training/report.html`; the linked `training.html` has
+checkpoint playback, and `results.json` / `held_out.csv` contain every seed's
+scores and errors. Full guide: see the training section in `docs/NLP.md`.
