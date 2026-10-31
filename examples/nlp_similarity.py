@@ -37,19 +37,26 @@ def cosine(a, b):
 
 class SentenceFeatures:
     """Example-only train-fitted TF-IDF/SVD, or external sentence-vector lookup."""
-    def __init__(self, qubits=3, embeddings=None, fit_sentences=None):
+    def __init__(self, qubits=3, embeddings=None, fit_sentences=None, ngrams=1, max_features=None):
         if isinstance(qubits,bool) or not isinstance(qubits,int) or not 1<=qubits<=6:
             raise ValueError('qubits must be an integer from 1 to 6')
+        if ngrams not in (1,2) or isinstance(ngrams,bool):raise ValueError('ngrams must be 1 or 2')
+        if max_features is not None and (isinstance(max_features,bool) or not isinstance(max_features,int) or max_features<qubits):raise ValueError('max_features must cover the component count')
+        self.ngrams=ngrams;self.max_features=max_features
         self.lookup=None
         if embeddings is None:
             self.fit_sentences=list(CORPUS if fit_sentences is None else fit_sentences)
             if len(set(self.fit_sentences))<4 or not all(isinstance(s,str) and s.strip() for s in self.fit_sentences):
                 raise ValueError('Provide at least four distinct fit sentences')
-            tokens=[self.tokens(s) for s in self.fit_sentences]
-            self.vocabulary=sorted({t for row in tokens for t in row})
+            tokens=[self.terms(s) for s in self.fit_sentences]
+            counts={}
+            for row in tokens:
+                for token in row:counts[token]=counts.get(token,0)+1
+            ranked=sorted(counts,key=lambda t:(-counts[t],t))
+            self.vocabulary=sorted(ranked if max_features is None else ranked[:max_features])
             self.idf=np.log((1+len(tokens))/(1+np.array([sum(t in row for row in tokens) for t in self.vocabulary])))+1
             matrix=np.array([self._tfidf(row) for row in tokens])
-            self.description='Offline word TF-IDF, L2 normalization, training-fitted truncated SVD'
+            self.description='Offline '+('unigram+bigram' if ngrams==2 else 'word')+' TF-IDF, L2 normalization, training-fitted truncated SVD'
         else:
             if not isinstance(embeddings,dict) or set(embeddings)!={'fit_sentences','vectors'}:
                 raise ValueError('Embedding JSON needs fit_sentences and vectors')
@@ -80,6 +87,10 @@ class SentenceFeatures:
     @staticmethod
     def tokens(sentence):return re.findall(r'[^\W_]+',sentence.casefold(),flags=re.UNICODE)
 
+    def terms(self,sentence):
+        words=self.tokens(sentence)
+        return words+[' → '.join(pair) for pair in zip(words,words[1:])] if self.ngrams==2 else words
+
     def _tfidf(self,tokens):
         vector=np.array([tokens.count(t) for t in self.vocabulary],dtype=float)*self.idf
         norm=np.linalg.norm(vector)
@@ -88,7 +99,7 @@ class SentenceFeatures:
     def transform(self,sentence):
         if not isinstance(sentence,str) or not sentence.strip() or len(sentence)>1000:
             raise ValueError('Each sentence must contain 1-1000 characters')
-        tokens=self.tokens(sentence)
+        tokens=self.terms(sentence)
         if self.lookup is None:
             raw=self._tfidf(tokens);unknown=sorted(set(tokens)-set(self.vocabulary))
             if not np.any(raw):raise ValueError('No known words: use the displayed fit vocabulary, or supply external vectors')
@@ -101,7 +112,7 @@ class SentenceFeatures:
                     clipped=((reduced<self.minimum)|(reduced>self.maximum)).tolist())
 
     def metadata(self):
-        return dict(description=self.description,fit_sentences=self.fit_sentences,
+        return dict(ngrams=self.ngrams,max_features=self.max_features,description=self.description,fit_sentences=self.fit_sentences,
                     vocabulary=self.vocabulary,minimum=self.minimum.tolist(),maximum=self.maximum.tolist(),
                     projection=self.projection.tolist(),qubits=self.qubits)
 

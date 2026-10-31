@@ -70,6 +70,10 @@ def classical_value_grad(x,params,kind):
 
 
 def fit_model(kind,splits,seed,epochs,lr):
+    if kind=='majority':
+        p=float(np.mean([r['label'] for r in splits['train']]))
+        predictions={s:[p]*len(rows) for s,rows in splits.items()}
+        return dict(kind=kind,seed=seed,parameters=1,selected_epoch=0,selected_parameters={'prior':p},history=[],fit_seconds=0.,metrics={s:metrics([r['label'] for r in splits[s]],v) for s,v in predictions.items()},predictions=predictions)
     rng=np.random.default_rng(seed);q=pair_template();distribution=QuantumDistribution(q)
     size=4 if kind=='quantum' else 5 if kind=='linear' else 49
     params={('w' if kind=='quantum' else 'p')+str(i):float(v) for i,v in enumerate(rng.normal(0,.3,size))}
@@ -104,12 +108,13 @@ def fit_model(kind,splits,seed,epochs,lr):
                 predictions=predictions)
 
 
-def run(dataset,output,epochs=30,seeds=(7,13,21),lr=.05):
+def run(dataset,output,epochs=30,seeds=(7,13,21),lr=.05,feature_options=None,embeddings=None,include_majority=False):
     if epochs<1 or len(seeds)!=len(set(seeds)) or not seeds:raise ValueError('Use positive epochs and distinct seeds')
     output=Path(output);output.mkdir(parents=True,exist_ok=True)
     rows=load_pairs(dataset)
     training_texts=list(dict.fromkeys(r[k] for r in rows if r['split']=='train' for k in ('left','right')))
-    features=SentenceFeatures(2,fit_sentences=training_texts)
+    if embeddings is not None:embeddings=dict(embeddings,fit_sentences=training_texts)
+    features=SentenceFeatures(2,fit_sentences=training_texts,embeddings=embeddings,**(feature_options or {}))
     splits={s:[] for s in ('train','validation','test')}
     for row in rows:
         a,b=[features.transform(row[k]) for k in ('left','right')]
@@ -119,17 +124,17 @@ def run(dataset,output,epochs=30,seeds=(7,13,21),lr=.05):
         splits[row['split']].append(item)
     results=[]
     for seed in seeds:
-        for kind in ('quantum','linear','mlp'):
+        for kind in (('quantum','linear','mlp','majority') if include_majority else ('quantum','linear','mlp')):
             result=fit_model(kind,splits,seed,epochs,lr);results.append(result)
             print(kind,seed,'epoch',result['selected_epoch'],'test',result['metrics']['test'],flush=True)
     # Fixed first seed for diagnostic examples; never select a seed using test performance.
-    quantum=results[0];q=pair_template();test=splits['test'];diagnostic=next(i for i in test if i['category']=='word_order')
-    other=next(i for i in test if i['category']=='paraphrase')
+    quantum=results[0];q=pair_template();test=splits['test'];diagnostic=next((i for i in test if i['category']=='word_order'),test[0])
+    other=next((i for i in test if i['category']=='paraphrase'),test[-1])
     checkpoints=quantum['history'][::max(1,epochs//4)]
     if checkpoints[-1]['epoch']!=epochs:checkpoints.append(quantum['history'][-1])
     checkpoints=checkpoints[:31]
     q.explain(bindings=dict(diagnostic['bindings'],**quantum['selected_parameters']),observable='P0',sensitivities=True,
-        title='Trained sentence pairs: word-order failure versus paraphrase',
+        title='Trained sentence pairs: two held-out examples',
         parameter_roles={name:'weight' if name.startswith('w') else 'feature' for name in q.parameters},
         comparisons=[dict(name='Held-out paraphrase',bindings=dict(other['bindings'],**quantum['selected_parameters']))],
         training_history=[dict(epoch=r['epoch'],bindings=dict(diagnostic['bindings'],**r['parameters']),loss=r['train_loss']) for r in checkpoints]
@@ -139,22 +144,32 @@ def run(dataset,output,epochs=30,seeds=(7,13,21),lr=.05):
     for result in results:
         for item,score in zip(test,result['predictions']['test']):
             errors.append({k:item[k] for k in ('left','right','label','category','unknown_words')}|
-                          dict(model=result['kind'],seed=result['seed'],score=score,correct=bool((score>=.5)==item['label'])))
+                          dict(model=result['kind'],seed=result['seed'],score=score,correct=bool((score>=.5)==item['label']),error_groups=error_groups(item)))
     data=dict(dataset_sha256=hashlib.sha256(Path(dataset).read_bytes()).hexdigest(),epochs=epochs,seeds=list(seeds),
               learning_rate=lr,device='NumPy CPU complex128',
               environment=dict(python=sys.version,numpy=np.__version__,platform=platform.platform()),
               preprocessing=preprocessing,
               split_counts={s:len(v) for s,v in splits.items()},results=results,held_out=errors,
               protocol='Full-batch MSE, Adam, same split/features/update budget; checkpoint selected by validation MSE; threshold fixed at 0.5. Parameter budgets differ. Runtime is training plus validation, not a simulator benchmark.',
-              limitations=['Hand-authored educational fixture, not a semantic benchmark.',
-                           'Pair-disjoint splits; individual sentences and vocabulary may recur across splits.',
-                           'Word-order information is lost before any model sees the data.',
+              limitations=['Inspect dataset provenance: fixture results are educational; public-data subsets are not official benchmark submissions.',
+                           'Pair-disjoint splits are required; consult preparation metadata for sentence-disjointness.',
+                           'Two-component reduction can lose word-order/context information even with bigrams or embeddings.',
                            'No hyperparameter tuning, confidence intervals over datasets or quantum advantage claim.'])
     (output/'results.json').write_text(json.dumps(data,indent=2,allow_nan=False))
     with (output/'held_out.csv').open('w',newline='') as f:
         writer=csv.DictWriter(f,fieldnames=errors[0]);writer.writeheader();writer.writerows(errors)
     render_report(data,output)
     return data
+
+
+def error_groups(item):
+    from collections import Counter
+    a=SentenceFeatures.tokens(item['left']);b=SentenceFeatures.tokens(item['right'])
+    neg={'not','no','never'};groups=[item['category']]
+    if bool(set(a)&neg)!=bool(set(b)&neg):groups.append('negation_marker_mismatch')
+    if a!=b and Counter(a)==Counter(b):groups.append('same_tokens_different_order')
+    if item['unknown_words']:groups.append('unknown_words')
+    return groups
 
 
 def render_report(data,output):
@@ -164,13 +179,18 @@ def render_report(data,output):
     for r in data['results']:
         m=r['metrics']['test'];content+='<tr>'+''.join('<td>'+esc(str(v))+'</td>' for v in [r['kind'],r['seed'],r['parameters'],r['selected_epoch'],round(m['mse'],5),round(m['accuracy'],4),round(m['f1'],4),round(r['fit_seconds'],3)])+'</tr>'
     content+='</table><h2>Mean held-out scores across declared seeds</h2><table><tr><th>Model</th><th>Mean MSE</th><th>Mean accuracy</th><th>Mean F1</th></tr>'
-    for kind in ('quantum','linear','mlp'):
+    for kind in dict.fromkeys(r['kind'] for r in data['results']):
         group=[r for r in data['results'] if r['kind']==kind]
         content+='<tr><td>'+kind+'</td>'+''.join('<td>'+str(round(float(np.mean([r['metrics']['test'][metric] for r in group])),5))+'</td>' for metric in ('mse','accuracy','f1'))+'</tr>'
+    content+='</table><h2>Error groups (overlapping heuristics, not gold syntax labels)</h2><table><tr><th>Model</th><th>Group</th><th>Cases across seeds</th><th>Errors</th></tr>'
+    for kind in dict.fromkeys(r['model'] for r in data['held_out']):
+        for group in sorted({g for r in data['held_out'] for g in r['error_groups']}):
+            cases=[r for r in data['held_out'] if r['model']==kind and group in r['error_groups']]
+            content+='<tr>'+''.join('<td>'+esc(str(v))+'</td>' for v in [kind,group,len(cases),sum(not r['correct'] for r in cases)])+'</tr>'
     content+='</table><h2>Held-out errors and successes</h2><table><tr><th>Model / seed</th><th>Category</th><th>Left</th><th>Right</th><th>Label / score</th><th>Correct?</th></tr>'
     for r in data['held_out']:
         content+='<tr>'+''.join('<td>'+esc(str(v))+'</td>' for v in [r['model']+' / '+str(r['seed']),r['category'],r['left'],r['right'],str(r['label'])+' / '+str(round(r['score'],4)),r['correct']])+'</tr>'
-    content+='</table><h2>Training playback</h2><p>First declared seed, validation-selected checkpoint. The left word-order example loses word order during preprocessing; no downstream model can recover it. Recorded training loss is over the full training set, not this one example.</p><iframe title="Training checkpoints" src="training.html"></iframe><h2>Limitations</h2><ul>'+''.join('<li>'+esc(s)+'</li>' for s in data['limitations'])+'</ul>'
+    content+='</table><h2>Training playback</h2><p>First declared seed, validation-selected checkpoint. Inspect preprocessing when diagnosing errors; two-component compression can erase distinctions. Recorded training loss is over the full training set, not this one example.</p><iframe title="Training checkpoints" src="training.html"></iframe><h2>Limitations</h2><ul>'+''.join('<li>'+esc(s)+'</li>' for s in data['limitations'])+'</ul>'
     (output/'report.html').write_text('<!doctype html><meta charset="utf-8"><title>QNLP training results</title><style>body{font:15px/1.5 system-ui;max-width:1200px;margin:30px auto;padding:16px;color:#20314b}table{border-collapse:collapse;width:100%;font-size:12px}th,td{padding:8px;border-bottom:1px solid #ddd;text-align:left}iframe{width:100%;height:1200px;border:1px solid #ddd}</style>'+content)
 
 
