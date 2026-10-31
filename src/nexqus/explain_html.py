@@ -21,6 +21,21 @@ _HTML=r'''<!doctype html>
 <header><div class="brand">NEXQUS / INSIGHT</div><div class="badge">Exact · Local simulation</div></header>
 <noscript><div class="noscript">Enable JavaScript to explore this offline report. No network connection is required.</div></noscript>
 <main><div class="intro"><div><h1 id="title"></h1><div class="muted">Follow the state. Inspect the evidence. Understand the measurement.</div></div><div class="stats"><div><strong id="qubit-count"></strong>qubits</div><div><strong id="gate-count"></strong>operations</div><div><strong id="depth"></strong>logical depth</div></div></div>
+<section class="card circuit-card" id="training-panel" hidden>
+<h2>Training checkpoint playback</h2><label for="checkpoint">Recorded checkpoint</label>
+<select id="checkpoint"><option value="final">Supplied final bindings</option></select>
+<button id="training-play">Play checkpoints</button><p id="training-summary" class="caption" aria-live="polite"></p>
+<svg id="training-loss" class="plot" viewBox="0 0 640 120" role="img" aria-label="Recorded training losses"></svg>
+<p class="caption">Only supplied checkpoints are replayed, without interpolation. Loss is caller-supplied training metadata; predictions and sensitivities are recomputed for the recorded bindings. Circuit steps remain independently selectable. Layer interventions belong to the supplied final bindings only.</p>
+</section>
+<section class="card circuit-card" id="comparison-panel" hidden>
+<h2>Compare two predictions at the selected circuit step</h2><label for="comparison">Right-hand input</label><select id="comparison"></select>
+<p id="comparison-summary" class="caption" aria-live="polite"></p>
+<div class="two"><div><h3>Selected checkpoint / circuit</h3><p id="compare-left"></p></div><div><h3>Comparison input (fixed bindings)</h3><p id="compare-right"></p></div></div>
+<div class="scroll"><table><thead><tr><th>Binding / role</th><th>Left value</th><th>Right value</th><th>Left derivative</th><th>Right derivative</th></tr></thead><tbody id="comparison-parameters"></tbody></table></div>
+<div class="scroll"><table><thead><tr><th>Basis</th><th>Left P</th><th>Right P</th><th>Difference</th></tr></thead><tbody id="comparison-probabilities"></tbody></table></div>
+<p id="comparison-coverage" class="caption"></p><p class="caption">Comparisons use one circuit topology and observable. The same selected layer/gate intervention is applied to both inputs. Both feature and weight bindings may differ; inspect them before attributing a prediction difference to inputs alone. Derivatives describe final outputs, not intermediate steps. Full amplitudes, phases and reduced states are in the downloaded JSON.</p>
+</section>
 <section class="card circuit-card" aria-label="Circuit execution explorer">
  <div class="toolbar"><button id="reset" aria-label="Go to initial state">Reset</button><button id="back" aria-label="Previous step">← Back</button><button id="play" aria-label="Play execution">Play</button><button id="next" aria-label="Next step">Next →</button><label for="granularity">Navigate by</label><select id="granularity"><option value="gate">Gate</option><option value="block">Annotated block</option></select><button id="download">Download trace JSON</button></div>
  <div id="circuit" aria-label="Clickable circuit diagram"></div><input id="step" type="range" min="0" value="0" aria-label="Execution step">
@@ -59,7 +74,7 @@ _HTML=r'''<!doctype html>
 <script>
 'use strict';
 (()=>{
-const original=JSON.parse(document.getElementById('trace-data').textContent); let d=original; const $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg';
+const suite=JSON.parse(document.getElementById('trace-data').textContent); let original=suite,d=original; const $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg';
 let step=0,highlight=null,timer=null; const last=d.frames.length-1;
 function text(id,value){$(id).textContent=value;}
 function svg(tag,attributes={},value){let e=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attributes))e.setAttribute(k,String(v));if(value!==undefined)e.textContent=value;return e;}
@@ -129,17 +144,57 @@ function sensitivity(){
  for(const p of ranked){const row=document.createElement('tr');for(const v of [p.name+' / '+p.role,fmt(p.value,6),fmt(p.derivative,6)]){const cell=document.createElement('td');cell.textContent=v;row.append(cell);}
  const cell=document.createElement('td'),bar=document.createElement('progress');bar.max=scale;bar.value=Math.abs(p.derivative);bar.setAttribute('aria-label',p.name+' absolute local derivative');cell.append(bar);row.append(cell);root.append(row);}
 }
-function render(){sensitivity();let f=d.frames[step],op=step?d.operations[step-1]:null;text('step-title',step?`${step}. ${op.label}`:'Initial state');text('status',`Step ${step} / ${last}`);text('explanation',f.explanation);text('tv',fmt(f.probability_change,6));text('fidelity',fmt(f.fidelity_to_previous,6));text('phase-change',f.phase_change===null?'Relative-phase change: not defined across fewer than two shared nonzero basis amplitudes.':`Largest relative-phase change on shared nonzero amplitudes: ${fmt(f.phase_change,6)} radians.`);let block=op&&op.block!==null?d.blocks[op.block]:null;text('block-label',block?`Author annotation: ${block.name} · ${block.role}`:'No block annotation at this step.');$('step').value=step;$('back').disabled=step===0;$('next').disabled=step===last;$('play').disabled=last===0;circuit();parameters();let indices=basis(f);probabilities(f,indices);phase(f,indices);qubits(f);covariance(f);readout(f);transition(f);variantSummary();for(let b of $('blocks').children)b.classList.toggle('active',Number(b.dataset.stop)===step);}
-for(const [i,item] of (original.alternatives||[]).entries()){const option=document.createElement('option');option.value=String(i);option.textContent=item.label;$('variant').append(option);}
-$('variant').disabled=!(original.alternatives||[]).length;
+function comparison(){
+ const cases=suite.comparisons||[];$('comparison-panel').hidden=!cases.length;if(!cases.length)return;
+ const item=cases[Number($('comparison').value)||0],variant=$('variant').value,
+ right=variant==='original'?item.trace:item.trace.alternatives[Number(variant)].trace,left=d,a=left.frames[step],b=right.frames[step];
+ const tv=a.probabilities.reduce((v,p,i)=>v+Math.abs(p-b.probabilities[i]),0)/2;
+ text('comparison-summary',item.name+' · step '+step+' · probability total variation '+fmt(tv,6)+' · final readout difference '+fmt(right.frames[last].expectation-left.frames[last].expectation,6));
+ const describe=(trace,f)=>'Gate: '+(step?trace.operations[step-1].label:'Initial state')+'; step expectation '+fmt(f.expectation,6)+'; final prediction '+fmt(trace.frames[last].expectation,6);
+ text('compare-left',describe(left,a));text('compare-right',describe(right,b));
+ const parameters=$('comparison-parameters');parameters.replaceChildren();
+ const derivatives=trace=>Object.fromEntries((trace.sensitivity?.parameters||[]).map(p=>[p.name,p.derivative]));const ga=derivatives(left),gb=derivatives(right);
+ const rightParams=Object.fromEntries(right.parameters.map(p=>[p.name,p]));
+ function row(root,values){const tr=document.createElement('tr');for(const v of values){const td=document.createElement('td');td.textContent=v;tr.append(td);}root.append(tr);}
+ for(const p of left.parameters)row(parameters,[p.name+' / '+p.role,fmt(p.value,6),fmt(rightParams[p.name].value,6),ga[p.name]===undefined?'not computed':fmt(ga[p.name],6),gb[p.name]===undefined?'not computed':fmt(gb[p.name],6)]);
+ const indices=Array.from({length:a.probabilities.length},(_,i)=>i).sort((i,j)=>Math.max(a.probabilities[j],b.probabilities[j])-Math.max(a.probabilities[i],b.probabilities[i])||i-j).slice(0,16);
+ const body=$('comparison-probabilities');body.replaceChildren();for(const i of indices)row(body,[label(i),fmt(a.probabilities[i],6),fmt(b.probabilities[i],6),fmt(b.probabilities[i]-a.probabilities[i],6)]);
+ text('comparison-coverage',`Showing ${indices.length} of ${a.probabilities.length} states; displayed mass left ${fmt(indices.reduce((v,i)=>v+a.probabilities[i],0),6)}, right ${fmt(indices.reduce((v,i)=>v+b.probabilities[i],0),6)}.`);
+}
+function render(){sensitivity();comparison();let f=d.frames[step],op=step?d.operations[step-1]:null;text('step-title',step?`${step}. ${op.label}`:'Initial state');text('status',`Step ${step} / ${last}`);text('explanation',f.explanation);text('tv',fmt(f.probability_change,6));text('fidelity',fmt(f.fidelity_to_previous,6));text('phase-change',f.phase_change===null?'Relative-phase change: not defined across fewer than two shared nonzero basis amplitudes.':`Largest relative-phase change on shared nonzero amplitudes: ${fmt(f.phase_change,6)} radians.`);let block=op&&op.block!==null?d.blocks[op.block]:null;text('block-label',block?`Author annotation: ${block.name} · ${block.role}`:'No block annotation at this step.');$('step').value=step;$('back').disabled=step===0;$('next').disabled=step===last;$('play').disabled=last===0;circuit();parameters();let indices=basis(f);probabilities(f,indices);phase(f,indices);qubits(f);covariance(f);readout(f);transition(f);variantSummary();for(let b of $('blocks').children)b.classList.toggle('active',Number(b.dataset.stop)===step);}
+function variants(){
+ const select=$('variant');select.replaceChildren();const base=document.createElement('option');base.value='original';base.textContent='Original circuit';select.append(base);
+ for(const [i,item] of (original.alternatives||[]).entries()){const option=document.createElement('option');option.value=String(i);option.textContent=item.label;select.append(option);}
+ select.disabled=!(original.alternatives||[]).length;
+}
+variants();
 $('variant').onchange=()=>{stop();d=$('variant').value==='original'?original:original.alternatives[Number($('variant').value)].trace;render();text('depth',d.depth);};
 text('title',d.title);document.title=d.title+' · NexQus';text('qubit-count',d.n_qubits);text('gate-count',last);text('depth',d.depth);text('footer',`NexQus SDK ${d.sdk_version} · schema ${d.schema_version} · ${d.execution.backend} / ${d.execution.device} · double precision · offline report · no external assets`);$('step').max=last;
 for(let note of d.notes){let li=document.createElement('li');li.textContent=note;$('notes').append(li);}
 for(let b of d.blocks){let button=document.createElement('button');button.className='chip';button.textContent=b.name;button.dataset.stop=b.stop;button.onclick=()=>{stop();step=b.stop;render();};$('blocks').append(button);}
 $('granularity').querySelector('option[value="block"]').disabled=d.blocks.length===0;
-$('step').oninput=e=>{stop();step=Number(e.target.value);render();};$('back').onclick=()=>{stop();move(-1);};$('next').onclick=()=>{stop();move(1);};$('reset').onclick=()=>{stop();step=0;render();};$('basis-order').onchange=render;$('granularity').onchange=()=>stop();
-$('play').onclick=()=>{if(timer!==null){stop();return;}if(step===last)step=0;text('play','Pause');$('play').setAttribute('aria-label','Pause execution');render();timer=setInterval(()=>{if(!move(1)||step===last)stop();},850);};
-$('download').onclick=()=>{let url=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));let a=document.createElement('a');a.href=url;a.download='nexqus-explanation.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+$('step').oninput=e=>{stopTraining();stop();step=Number(e.target.value);render();};$('back').onclick=()=>{stopTraining();stop();move(-1);};$('next').onclick=()=>{stopTraining();stop();move(1);};$('reset').onclick=()=>{stopTraining();stop();step=0;render();};$('basis-order').onchange=render;$('granularity').onchange=()=>stop();
+$('play').onclick=()=>{stopTraining();if(timer!==null){stop();return;}if(step===last)step=0;text('play','Pause');$('play').setAttribute('aria-label','Pause execution');render();timer=setInterval(()=>{if(!move(1)||step===last)stop();},850);};
+$('download').onclick=()=>{let url=URL.createObjectURL(new Blob([JSON.stringify(suite.comparisons||suite.training_history?suite:d,null,2)],{type:'application/json'}));let a=document.createElement('a');a.href=url;a.download='nexqus-explanation.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+let trainingTimer=null;
+function stopTraining(){if(trainingTimer!==null)clearInterval(trainingTimer);trainingTimer=null;text('training-play','Play checkpoints');}
+function selectCheckpoint(){
+ stop();const index=$('checkpoint').value,record=index==='final'?null:suite.training_history[Number(index)];
+ original=record?record.trace:suite;d=original;variants();highlight=null;
+ text('training-summary',record?`Epoch ${record.epoch} · recorded loss ${record.loss===undefined?'not supplied':fmt(record.loss,8)} · prediction ${fmt(d.frames[last].expectation,6)}`:'Supplied final bindings selected.');
+ render();text('depth',d.depth);
+}
+for(const [i,item] of (suite.comparisons||[]).entries()){const option=document.createElement('option');option.value=String(i);option.textContent=item.name;$('comparison').append(option);}
+$('comparison').onchange=render;
+const history=suite.training_history||[];$('training-panel').hidden=!history.length;
+for(const [i,record] of history.entries()){const option=document.createElement('option');option.value=String(i);option.textContent='Epoch '+record.epoch;$('checkpoint').append(option);}
+$('checkpoint').onchange=()=>{stopTraining();selectCheckpoint();};
+$('training-play').onclick=()=>{if(trainingTimer!==null){stopTraining();return;}stop();let index=0;const advance=()=>{if(index>=history.length){stopTraining();return;}$('checkpoint').value=String(index++);selectCheckpoint();};advance();text('training-play','Pause checkpoints');trainingTimer=setInterval(advance,1000);};
+const lossPlot=$('training-loss'),known=history.filter(r=>r.loss!==undefined);
+if(known.length){const minEpoch=history[0].epoch,maxEpoch=history[history.length-1].epoch,maxLoss=Math.max(1e-15,...known.map(r=>r.loss));
+ for(const r of known)add(lossPlot,'circle',{cx:20+600*(r.epoch-minEpoch)/Math.max(1,maxEpoch-minEpoch),cy:95-75*(r.loss/maxLoss),r:4,fill:'#6150c8'});
+ add(lossPlot,'text',{x:20,y:115,fill:'#626779','font-size':11},'Recorded loss by epoch (missing losses omitted)');}
+text('training-summary','Supplied final bindings selected.');
 render();
 })();
 </script></body></html>'''
