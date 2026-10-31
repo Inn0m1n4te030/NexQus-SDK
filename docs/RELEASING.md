@@ -4,6 +4,27 @@ This guide is for maintainers. Public changes belong in CHANGELOG.md and
 RELEASE_NOTES.md. Generated test reports and audit outputs belong in
 .release-artifacts/ or CI artifacts; keep them out of the source distribution.
 
+## Candidate 1.4.0rc1
+
+Source/notebooks currently target 1.4.0rc1 for TestPyPI. Do not promote this
+candidate to stable PyPI until remaining CUDA hardware checks and candidate
+installation checks are reviewed. Keep stable 1.3.0 instructions available.
+
+CPU validation from the candidate checkout:
+
+```bash
+python -m pip install -e '.[tutorial,release]'
+python scripts/check_release.py --public
+python scripts/run_notebooks.py --engine python
+python -m build
+python -m twine check --strict dist/*
+python scripts/check_distribution.py
+```
+
+Torch CPU validation adds `--require-torch`; actual CUDA validation uses
+`bash scripts/validate_cuda_release.sh` on a compatible GPU machine and must
+not be inferred from CPU parity or skips. Keep generated reports as CI artifacts.
+
 ## Prepare a release
 
 The current stable version is **1.3.0**, promoted from **1.3.0rc1** after
