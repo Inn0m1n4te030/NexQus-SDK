@@ -42,6 +42,27 @@ function replaceData(source,data){return source.replace(/(<script type="applicat
  assert.equal(predictionUI.get('sensitivity-rows').textContent,originalSensitivity);
  assert.match(predictionUI.get('variant-summary').textContent,/Final output versus original/);
  assert.equal(bell.get('sensitivity-panel').hidden,true);
+
+ assert.equal(predictionUI.get('comparison-panel').hidden,false);
+ assert.match(predictionUI.get('compare-right').textContent,/Gate:/);
+ assert.equal(predictionUI.get('training-panel').hidden,false);
+ assert.equal(predictionUI.get('checkpoint').options.length,6);
+ setStep(predictionUI,3);
+ assert.match(predictionUI.get('comparison-summary').textContent,/step 3/);
+ assert.equal(predictionUI.get('comparison-parameters').children.length,5);
+ predictionUI.get('checkpoint').value='0';predictionUI.get('checkpoint').dispatchEvent(new predictionUI.w.Event('change'));
+ assert.match(predictionUI.get('training-summary').textContent,/Epoch 0/);
+ assert.equal(predictionUI.get('step').value,'3');
+ assert.equal(predictionUI.get('variant').options.length,1);
+ assert.notEqual(predictionUI.get('sensitivity-rows').textContent,originalSensitivity);
+ predictionUI.get('checkpoint').value='final';predictionUI.get('checkpoint').dispatchEvent(new predictionUI.w.Event('change'));
+ assert.equal(predictionUI.get('sensitivity-rows').textContent,originalSensitivity);
+ assert.equal(predictionUI.get('variant').options.length,5);
+ predictionUI.get('training-play').click();predictionUI.tick();
+ assert.match(predictionUI.get('training-summary').textContent,/Epoch 10/);
+ predictionUI.get('training-play').click();
+ predictionUI.get('download').click();const series=await predictionUI.payload();
+ assert.equal(series.training_history.length,5);assert.equal(series.comparisons.length,1);
  checkSVG(predictionUI);predictionUI.dom.window.close();
 
  const lab=open(fs.readFileSync(path.join(directory,'laboratory.html'),'utf8'));
