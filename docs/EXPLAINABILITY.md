@@ -77,10 +77,9 @@ guessing from gate names. Bindings must contain exactly the required names.
 
 The example generator trains a small two-qubit variational model on synthetic
 cosine values using 40 Adam updates. The QNN report shows one input and the
-learned parameters. Its output is the ZZ expectation itself. No classifier
-probability, attribution, feature importance or counterfactual is fabricated.
-These prediction-explanation methods are future extensions, not part of this
-first circuit-execution explorer. Templates work as ordinary circuits; supply
+learned parameters. Its output is the ZZ expectation itself. The trained example now opts into local prediction sensitivity and independent
+block removals. The explained output remains the ZZ expectation; no classifier
+probability mapping or global feature importance is inferred. Templates work as ordinary circuits; supply
 block ranges when you want layer annotations.
 
 ## Mathematical meanings
@@ -201,3 +200,52 @@ feature-attribution score. Noise and dynamic circuits remain unsupported.
 
 Run `python examples/explain_circuits.py` and open
 `.release-artifacts/explanations/laboratory.html` for the complete example.
+
+
+## Local prediction sensitivity (development checkout)
+
+Use `sensitivities=True` to compute signed derivatives of the **final Pauli
+expectation** at the supplied bindings. This is opt-in and is not in the
+published 1.3.0 wheel. Install this checkout to use it.
+
+```python
+from nexqus import Circuit, Parameter
+x, w = Parameter('x'), Parameter('w')
+q = Circuit(2).ry(x, 0).ry(w, 1).cx(0, 1)
+report = q.explain(
+    bindings={'x': .7, 'w': .3}, observable='ZZ',
+    parameter_roles={'x': 'feature', 'w': 'weight'},
+    blocks=[{'name': 'Encoding', 'start': 0, 'stop': 1},
+            {'name': 'Learned layer', 'start': 1, 'stop': 3}],
+    sensitivities=True,
+    interventions=[{'block': 1, 'skip': True}],
+)
+report.to_html(filename='prediction.html')
+```
+
+The offline explorer ranks derivative magnitudes and shows signed values and
+roles. JSON stores them under `sensitivity.parameters`. Derivatives use
+**gate-local parameter shift and the arithmetic chain rule**: shared parameters
+sum contributions from every occurrence. The supplied initial state is retained.
+For a rotation angle a, the gate derivative is
+`(f(a + pi/2) - f(a - pi/2))/2`; chain factors map this to binding derivatives.
+This costs two state evolutions per active symbolic gate occurrence; at most
+32 symbolic parameters are accepted, alongside the existing trace limits.
+CUDA execution uses the selected simulator; derivative scalars and UI data are
+exported to the CPU. CUDA performance has not been measured for this feature.
+
+Feature sensitivities concern **encoded circuit bindings**, not raw words or
+features before preprocessing. Units and scaling affect magnitude comparisons.
+For a small change h, `f(v+h) - f(v)` is approximately `h * df/dv`.
+A zero derivative at one input can be a stationary point, not irrelevance.
+These are not global importance, Shapley values, calibrated classifier scores,
+or real-world causal effects. No output-transform derivative is implied.
+
+A block intervention uses its zero-based index in the **start-sorted** block
+list. It replaces every operation in the half-open range with identity,
+preserving stage navigation. Each edit is independent of all other choices;
+the existing limit of 16 alternatives and aggregate report size limit apply.
+The selector shows the recomputed trace and final output difference. The
+sensitivity panel always describes the original circuit, even while an
+alternative is selected. Omitted layers measure this circuit's response on
+one supplied input, not their global necessity.
