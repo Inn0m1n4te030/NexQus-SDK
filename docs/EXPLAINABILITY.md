@@ -288,3 +288,13 @@ python examples/explain_circuits.py
 Series JSON downloads retain the complete comparison/checkpoint collection;
 ordinary reports retain the existing selected-intervention download behavior. Reports
 export the parameter values supplied by you; review them before sharing.
+
+
+## All-zero probability readout
+
+`observable='P0'` selects `P(00...0)` instead of a Pauli expectation. It is
+the expectation of the all-zero projector, so gate-local parameter-shift rules
+and expression chain rules apply unchanged. Frame `expectation` fields, local
+sensitivities, comparisons and interventions all use this chosen probability.
+It works with any supported initial pure state, and is not a sampled estimate.
+The [NLP laboratory](NLP_SIMILARITY.md) uses it to explain squared state overlap.

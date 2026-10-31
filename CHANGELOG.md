@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add a local sentence-pair similarity laboratory with frozen TF-IDF/SVD
+  preprocessing, cosine baselines, optional external-vector lookup and synchronized
+  circuit explanations. Add the exact P0 readout and its analytic sensitivities
+  so the explorer explains the actual overlap score; include offline export and CI.
+
 - Add synchronized prediction comparisons and recorded training-checkpoint playback
   to the offline explorer, including bound angles, outputs, sensitivities and
   supplied loss metadata. Bound all additional traces by an aggregate budget.

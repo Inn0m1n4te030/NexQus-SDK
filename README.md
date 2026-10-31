@@ -23,6 +23,8 @@ Development checkout: [NLP building blocks](docs/NLP.md) add sentence encoders,
 sentence-pair overlap circuits and a syntax-guided dependency adapter. These
 additions are not yet in the published 1.3.0 wheel. Run
 `python examples/nlp_building_blocks.py` after installing the checkout.
+The [sentence-pair laboratory](docs/NLP_SIMILARITY.md) adds a local interactive
+text-to-circuit example with classical cosine baselines: `python examples/nlp_similarity.py`.
 
 In an activated Python 3.10+ virtual environment:
 

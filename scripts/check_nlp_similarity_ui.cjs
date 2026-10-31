@@ -1,0 +1,30 @@
+/* Offline example controls and readout contract; no external resources. */
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const {JSDOM,VirtualConsole}=require('jsdom');
+const html=fs.readFileSync(process.argv[2]||'.release-artifacts/nlp-similarity.html','utf8');
+const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>errors.push(String(e)));
+const dom=new JSDOM(html,{runScripts:'dangerously',virtualConsole:vc,url:'file:///nlp-similarity.html'});
+const w=dom.window,d=w.document,$=id=>d.getElementById(id);
+assert.equal($('run').disabled,true);assert.equal($('s0').readOnly,true);
+assert.equal($('sample').options.length,3);assert.equal($('features').querySelectorAll('tr').length,5);
+const data=JSON.parse($('initial').textContent);
+const nested=new JSDOM(data[0].report,{runScripts:'dangerously',virtualConsole:vc});
+assert.match(nested.window.document.getElementById('observable').textContent,/All-zero/);
+assert.equal(nested.window.document.getElementById('comparison-panel').hidden,false);
+assert.equal(nested.window.document.getElementById('sensitivity-rows').children.length,6);
+const trace=JSON.parse(nested.window.document.getElementById('trace-data').textContent);
+assert(Math.abs(trace.frames.at(-1).expectation-data[0].pairs[0].fidelity)<1e-12);
+$('sample').value='1';$('sample').dispatchEvent(new w.Event('change'));
+assert.match($('scores').textContent,/1.000000/);
+assert.equal($('s0').value,$('s1').value);
+assert($('report').srcdoc.includes('P0'));assert.deepEqual(errors,[]);
+nested.window.close();dom.window.close();console.log('NLP offline UI passed: examples, pipeline, P0 score, comparison and sensitivities.');
+(async()=>{
+ let request=null;const live=new JSDOM(html,{runScripts:'dangerously',virtualConsole:vc,url:'http://127.0.0.1:8767/',beforeParse(w){w.fetch=async(url,options)=>{request=JSON.parse(options.body);return {ok:true,json:async()=>data[1]};};}});
+ const get=id=>live.window.document.getElementById(id);
+ assert.equal(get('run').disabled,false);assert.equal(get('s0').readOnly,false);
+ get('s0').value='quantum circuit';await get('run').onclick();assert.equal(request.sentences[0],'quantum circuit');assert.equal(get('s0').value,data[1].sentences[0].sentence);
+ live.window.fetch=async()=>({ok:false,json:async()=>({error:'No known words'})});
+ await get('run').onclick();assert.match(get('status').textContent,/last successful calculation/);assert.equal(get('run').disabled,false);
+ assert.deepEqual(errors,[]);live.window.close();console.log('NLP live UI passed: submitted text, recomputed result and failure state.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

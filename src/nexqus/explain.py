@@ -93,7 +93,7 @@ def _snapshot(psi, n, signs, observable, previous):
     return dict(probabilities=probabilities.tolist(),amplitudes=np.column_stack((psi.real,psi.imag)).tolist(),
         phases=[float(phases[i]) if probabilities[i]>1e-14 else None for i in range(len(psi))],
         phase_reference=format(reference,f'0{n}b'),qubits=qubits,z_covariance=covariance.tolist(),
-        expectation=result.expectation(observable),
+        expectation=float(probabilities[0]) if observable=='P0' else result.expectation(observable),
         probability_change=None if previous is None else float(np.sum(abs(probabilities-abs(previous)**2))/2),
         phase_change=phase_change,
         fidelity_to_previous=None if previous is None else float(np.clip(abs(np.vdot(previous,psi))**2,0,1)))
@@ -129,6 +129,7 @@ def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_r
             max_report_mb=32,backend=None,device=None, interventions=None, sensitivities=False, comparisons=None, training_history=None):
     """Trace operations on CPU/CUDA; export snapshot diagnostics to host JSON.
 
+    observable may be a Pauli string or P0 for all-zero measurement probability.
     No cloud access, sampling, external JS or language model. Rejects noise and
     dynamic circuits. Blocks are caller annotations using half-open op ranges;
     parameter_roles labels parameters as feature/weight/parameter, not attribution.
@@ -164,8 +165,8 @@ def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_r
     if circuit.dynamic or any(op.kind=='noise' for op in circuit.operations):
         raise ValueError('Explainability currently supports static pure-state circuits; noise/dynamic operations are unsupported')
     if observable is None: observable='Z'+'I'*(n-1)
-    if not isinstance(observable,str) or len(observable)!=n or set(observable)-set('IXYZ'):
-        raise ValueError('observable must be a Pauli string in q0-first order')
+    if observable!='P0' and (not isinstance(observable,str) or len(observable)!=n or set(observable)-set('IXYZ')):
+        raise ValueError('observable must be a Pauli string in q0-first order or P0 (all-zero probability)')
     values=bindings_dict({} if bindings is None else bindings)
     cases=[] if comparisons is None else list(comparisons)
     history=[] if training_history is None else list(training_history)
@@ -246,12 +247,12 @@ def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_r
 
         class InitialStateFunction(QuantumFunction):
             def _evaluate(self, candidate):
-                return self.simulator.run(candidate, shots=0, initial_state=initial_state,
-                                          native_result=True).expectation(self.observable)
+                result=self.simulator.run(candidate, shots=0, initial_state=initial_state, native_result=True)
+                return float(result.probabilities[0]) if observable=='P0' else result.expectation(self.observable)
 
-        gradients=InitialStateFunction(circuit,observable,sim).gradient(values)
+        gradients=InitialStateFunction(circuit,'I'*n if observable=='P0' else observable,sim).gradient(values)
         data['sensitivity']=dict(
-            scope='Original circuit final Pauli expectation at the supplied bindings',
+            scope='Original circuit final '+('all-zero probability' if observable=='P0' else 'Pauli expectation')+' at the supplied bindings',
             method='Gate-local analytic parameter shift with arithmetic chain rule',
             output=frames[-1]['expectation'],
             parameters=[dict(name=k,role=roles.get(k,'parameter'),value=values[k],
