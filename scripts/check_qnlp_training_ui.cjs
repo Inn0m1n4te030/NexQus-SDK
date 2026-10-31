@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const {JSDOM,VirtualConsole}=require('jsdom');
+const directory=process.argv[2]||'.release-artifacts/qnlp-training';
+const results=JSON.parse(fs.readFileSync(path.join(directory,'results.json'),'utf8'));
+const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>errors.push(String(e)));
+const dom=new JSDOM(fs.readFileSync(path.join(directory,'training.html'),'utf8'),{runScripts:'dangerously',virtualConsole:vc});
+const w=dom.window,$=id=>w.document.getElementById(id);
+assert.match($('observable').textContent,/All-zero/);
+assert.equal($('comparison-panel').hidden,false);assert.equal($('training-panel').hidden,false);
+assert($('checkpoint').options.length>=3);assert.equal($('sensitivity-rows').children.length,8);
+const data=JSON.parse($('trace-data').textContent),first=results.results[0];
+for(const [k,v] of Object.entries(first.selected_parameters))assert.equal(data.parameters.find(p=>p.name===k).value,v);
+$('checkpoint').value='0';$('checkpoint').dispatchEvent(new w.Event('change'));
+assert.match($('training-summary').textContent,/Epoch 0/);
+assert.equal(data.training_history[0].loss,first.history[0].train_loss);
+assert.equal(data.comparisons[0].trace.observable,'P0');
+assert.deepEqual(errors,[]);dom.window.close();console.log('Trained QNLP UI passed: selected weights, actual losses, checkpoint playback and P0 comparison.');
