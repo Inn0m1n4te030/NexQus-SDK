@@ -249,3 +249,42 @@ The selector shows the recomputed trace and final output difference. The
 sensitivity panel always describes the original circuit, even while an
 alternative is selected. Omitted layers measure this circuit's response on
 one supplied input, not their global necessity.
+
+
+## Compare predictions and replay training (development checkout)
+
+Pass `comparisons=[{'name': 'Input B', 'bindings': complete_bindings}]` to
+`explain()` for a synchronized second prediction. Up to eight comparisons are
+accepted. The circuit topology, observable, initial state and backend stay the
+same. Each binding dictionary must contain every parameter. The UI shows both
+bound gate labels, step/final expectations, aligned basis probabilities, binding
+values, and final-output derivatives when `sensitivities=True`. State navigation
+advances both traces together. The full states are in the downloaded JSON.
+Comparisons inherit the same gate/block interventions, allowing matched removal
+effects on both inputs. Their bindings stay fixed; choosing a training checkpoint
+changes the left trace only. Different weights are displayed explicitly, so a
+readout difference is not silently attributed to input changes alone.
+
+Pass `training_history=[{'epoch': 0, 'bindings': complete_bindings, 'loss': .2},
+...]` to replay recorded training checkpoints. Epochs must be nonnegative,
+strictly increasing integers no larger than `2**53-1`; loss is optional, finite, nonnegative caller
+metadata. Supply up to 32 checkpoints. The epoch selector/play button updates
+weights, the entire trace, prediction and sensitivities. It retains the current
+gate step. Missing epochs are not interpolated and missing losses are omitted
+from the loss scatterplot. Layer interventions are available only for the
+original supplied final bindings. Comparison interventions add further traces. All alternate traces share an aggregate
+`max_report_mb` budget, conservatively checked before evolution and after
+serialization. Each checkpoint/comparison adds full trace and, optionally,
+gradient computations; export is bounded, not a live training dashboard.
+
+`examples/explain_circuits.py` now records five actual optimizer checkpoints
+(epoch 0/10/20/30/40, losses measured before the next update), compares two
+encoded inputs, and exports everything to `qnn.html`. Open it offline after:
+
+```bash
+python examples/explain_circuits.py
+```
+
+Series JSON downloads retain the complete comparison/checkpoint collection;
+ordinary reports retain the existing selected-intervention download behavior. Reports
+export the parameter values supplied by you; review them before sharing.
