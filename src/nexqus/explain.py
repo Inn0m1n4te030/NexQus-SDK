@@ -126,7 +126,7 @@ class Explanation:
 
 def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_roles=None,
             initial_state=None, title='Inside the circuit', max_qubits=10, max_steps=256,
-            max_report_mb=32,backend=None,device=None, interventions=None):
+            max_report_mb=32,backend=None,device=None, interventions=None, sensitivities=False):
     """Trace operations on CPU/CUDA; export snapshot diagnostics to host JSON.
 
     No cloud access, sampling, external JS or language model. Rejects noise and
@@ -137,9 +137,16 @@ def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_r
     required for ambiguous matrices (for example a zero-angle rotation). Angle edits require an actual RX/RY/RZ
     matrix with a recorded numerical angle. Alternatives are independent edits
     of the bound circuit, calculated in Python and embedded for offline selection.
+    A block edit uses block=<index in start-sorted annotations>, skip=True.
+    sensitivities=True computes signed local derivatives of the final expectation
+    for up to 32 symbolic bindings (including shared/expression parameters).
+    Feature roles refer to encoded inputs, not raw text or preprocessed features.
     Limits are checked before state/trace allocation and again after serialization.
     """
+    if not isinstance(sensitivities,bool): raise ValueError('sensitivities must be a boolean')
     if not isinstance(circuit,Circuit): raise TypeError('Expected a Circuit')
+    if sensitivities and len(circuit.parameters)>32:
+        raise ValueError('Sensitivity reports support at most 32 symbolic parameters')
     max_qubits=positive_integer(max_qubits,'max_qubits')
     max_steps=positive_integer(max_steps,'max_steps')
     limit=real_scalar(max_report_mb)
@@ -204,12 +211,50 @@ def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_r
                'Bloch vectors describe reduced single-qubit states; they do not describe the full joint state.',
                'Z covariance measures basis-dependent correlation; it is not an entanglement test.',
                'Reduced entropy quantifies qubit-versus-rest entanglement here because the global state is pure.',
-               'Block/parameter roles are caller annotations. No feature attribution or causal importance is computed.'])
+               'Block/parameter roles are caller annotations. Local derivatives and circuit edits are not global feature importance or real-world causal effects.'])
+    if sensitivities:
+        from .gradients import QuantumFunction
+
+        class InitialStateFunction(QuantumFunction):
+            def _evaluate(self, candidate):
+                return self.simulator.run(candidate, shots=0, initial_state=initial_state,
+                                          native_result=True).expectation(self.observable)
+
+        gradients=InitialStateFunction(circuit,observable,sim).gradient(values)
+        data['sensitivity']=dict(
+            scope='Original circuit final Pauli expectation at the supplied bindings',
+            method='Gate-local analytic parameter shift with arithmetic chain rule',
+            output=frames[-1]['expectation'],
+            parameters=[dict(name=k,role=roles.get(k,'parameter'),value=values[k],
+                             derivative=float(gradients[k])) for k in sorted(gradients)],
+            interpretation='Signed local derivative per binding unit; feature derivatives refer to encoded inputs. '
+                           'Magnitudes depend on parameter units and scaling. A zero derivative can be a stationary point, '
+                           'not irrelevance. No classifier transform, global attribution or causal importance is inferred.')
     requests=[] if interventions is None else list(interventions)
     if len(requests)>16: raise ValueError('At most 16 interventions per report')
     alternatives=[]
     for request in requests:
         if not isinstance(request,dict): raise ValueError('Each intervention must be a dictionary')
+        if set(request)=={'block','skip'} and request['skip'] is True:
+            block_index=request['block']
+            if (isinstance(block_index,bool) or not isinstance(block_index,numbers.Integral)
+                    or not 0<=block_index<len(annotations)):
+                raise ValueError('Intervention block must index the sorted explanation blocks')
+            block=annotations[block_index]
+            edited=copy.deepcopy(bound)
+            for index in range(block['start'],block['stop']):
+                wires=bound.operations[index].wires
+                edited.operations[index]=Circuit(n).diagonal(np.ones(2**len(wires)),wires).operations[0]
+            variant=explain(edited,observable=observable,blocks=annotations,initial_state=initial_state,
+                title=title,max_qubits=max_qubits,max_steps=max_steps,max_report_mb=limit,
+                backend=backend.name,device=backend.device).to_dict()
+            for a,b in zip(variant['operations'],operations): a['parameters']=b['parameters']
+            variant['parameters']=copy.deepcopy(data['parameters'])
+            variant['intervention']=dict(request)
+            alternatives.append(dict(label=f'Skip block {block_index+1}: {block["name"]}',trace=variant))
+            if len(json.dumps(dict(data,alternatives=alternatives),ensure_ascii=False,allow_nan=False).encode('utf-8'))>limit*1024**2:
+                raise ValueError('Combined intervention traces exceed max_report_mb')
+            continue
         index=request.get('operation')
         if isinstance(index,bool) or not isinstance(index,numbers.Integral) or not 0<=index<count:
             raise ValueError('Intervention operation must be a valid zero-based index')
