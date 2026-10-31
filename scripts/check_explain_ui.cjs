@@ -31,6 +31,19 @@ function replaceData(source,data){return source.replace(/(<script type="applicat
  (_,a,b)=>a+JSON.stringify(data).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026')+b);}
 (async()=>{
  const source=fs.readFileSync(path.join(directory,'bell.html'),'utf8'),bell=open(source);
+ const predictionUI=open(fs.readFileSync(path.join(directory,'qnn.html'),'utf8'));
+ assert.equal(predictionUI.get('sensitivity-panel').hidden,false);
+ assert.equal(predictionUI.get('sensitivity-rows').children.length,5);
+ assert.match(predictionUI.get('sensitivity-rows').textContent,/x \/ feature/);
+ assert.match(predictionUI.get('sensitivity-rows').textContent,/w0 \/ weight/);
+ assert.equal(predictionUI.get('variant').options.length,5);
+ const originalSensitivity=predictionUI.get('sensitivity-rows').textContent;
+ predictionUI.get('variant').value='1';predictionUI.get('variant').dispatchEvent(new predictionUI.w.Event('change'));
+ assert.equal(predictionUI.get('sensitivity-rows').textContent,originalSensitivity);
+ assert.match(predictionUI.get('variant-summary').textContent,/Final output versus original/);
+ assert.equal(bell.get('sensitivity-panel').hidden,true);
+ checkSVG(predictionUI);predictionUI.dom.window.close();
+
  const lab=open(fs.readFileSync(path.join(directory,'laboratory.html'),'utf8'));
  setStep(lab,2);
  assert.match(lab.get('qubit-transition').textContent,/0 → 0.332/);

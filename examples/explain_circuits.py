@@ -43,7 +43,8 @@ def generate(output,device=None):
     after=loss(params)
     if not after<before: raise RuntimeError('Example QNN training failed to reduce its loss')
     q.explain(**execution,title='Trained QNN · trace one input through encoding and learned layers',
-        bindings=dict(params,x=.7),observable='ZZ',
+        bindings=dict(params,x=.7),observable='ZZ',sensitivities=True,
+        interventions=[dict(block=i,skip=True) for i in range(4)],
         parameter_roles=dict(x='feature',**{k:'weight' for k in params}),
         blocks=[dict(name='Angle encoding',start=0,stop=2,role='encoding'),
                 dict(name='Trainable rotations',start=2,stop=4,role='trainable'),
