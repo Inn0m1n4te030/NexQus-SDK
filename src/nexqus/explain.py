@@ -126,7 +126,7 @@ class Explanation:
 
 def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_roles=None,
             initial_state=None, title='Inside the circuit', max_qubits=10, max_steps=256,
-            max_report_mb=32,backend=None,device=None, interventions=None, sensitivities=False):
+            max_report_mb=32,backend=None,device=None, interventions=None, sensitivities=False, comparisons=None, training_history=None):
     """Trace operations on CPU/CUDA; export snapshot diagnostics to host JSON.
 
     No cloud access, sampling, external JS or language model. Rejects noise and
@@ -141,6 +141,10 @@ def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_r
     sensitivities=True computes signed local derivatives of the final expectation
     for up to 32 symbolic bindings (including shared/expression parameters).
     Feature roles refer to encoded inputs, not raw text or preprocessed features.
+    comparisons contains up to 8 named complete binding dictionaries.
+    training_history contains up to 32 ordered epoch/bindings/optional loss records.
+    Additional traces use the same circuit, observable, initial state and backend.
+    Comparisons inherit interventions; checkpoints omit them. Neither nests series.
     Limits are checked before state/trace allocation and again after serialization.
     """
     if not isinstance(sensitivities,bool): raise ValueError('sensitivities must be a boolean')
@@ -163,6 +167,31 @@ def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_r
     if not isinstance(observable,str) or len(observable)!=n or set(observable)-set('IXYZ'):
         raise ValueError('observable must be a Pauli string in q0-first order')
     values=bindings_dict({} if bindings is None else bindings)
+    cases=[] if comparisons is None else list(comparisons)
+    history=[] if training_history is None else list(training_history)
+    if len(cases)>8 or len(history)>32:
+        raise ValueError('At most 8 comparisons and 32 training checkpoints per report')
+    for case in cases:
+        if (not isinstance(case,dict) or set(case)!={'name','bindings'}
+                or not isinstance(case['name'],str) or not case['name'].strip()):
+            raise ValueError('Each comparison needs exactly a nonempty name and complete bindings')
+        circuit.bind(bindings_dict(case['bindings']))
+    previous_epoch=-1
+    for record in history:
+        if (not isinstance(record,dict) or set(record)-{'epoch','bindings','loss'}
+                or not {'epoch','bindings'}<=set(record)):
+            raise ValueError('Each training checkpoint needs epoch, complete bindings and optional loss')
+        epoch=record['epoch']
+        if isinstance(epoch,bool) or not isinstance(epoch,numbers.Integral) or epoch<=previous_epoch or epoch>2**53-1:
+            raise ValueError('Checkpoint epochs must be nonnegative strictly increasing safe integers')
+        previous_epoch=epoch
+        circuit.bind(bindings_dict(record['bindings']))
+        if 'loss' in record and real_scalar(record['loss'])<0:
+            raise ValueError('Checkpoint loss must be nonnegative')
+    estimated=(count+1)*((2**n)*160+n*n*32+n*256)
+    if estimated*(1+len(cases)+len(history))>limit*1024**2:
+        raise ValueError('Estimated comparison/checkpoint traces exceed max_report_mb')
+
     annotations=_blocks(blocks,count)
     roles={} if parameter_roles is None else dict(parameter_roles)
     if set(roles)-set(circuit.parameters) or any(v not in ('feature','weight','parameter') for v in roles.values()):
@@ -293,6 +322,30 @@ def explain(circuit, *, bindings=None, observable=None, blocks=None, parameter_r
         if len(json.dumps(dict(data,alternatives=alternatives),ensure_ascii=False,allow_nan=False).encode('utf-8'))>limit*1024**2:
             raise ValueError('Combined intervention traces exceed max_report_mb')
     data['alternatives']=alternatives
+    def extra_trace(bindings, include_interventions=False):
+        return explain(circuit,bindings=bindings,observable=observable,blocks=annotations,
+            parameter_roles=roles,initial_state=initial_state,title=title,max_qubits=max_qubits,
+            max_steps=max_steps,max_report_mb=limit,backend=backend.name,device=backend.device,
+            sensitivities=sensitivities,
+            interventions=requests if include_interventions else None).to_dict()
+
+    def check_series_size():
+        if len(json.dumps(data,ensure_ascii=False,allow_nan=False).encode('utf-8'))>limit*1024**2:
+            raise ValueError('Combined comparison/checkpoint traces exceed max_report_mb')
+
+    if cases:
+        data['comparisons']=[]
+        for case in cases:
+            data['comparisons'].append(dict(name=case['name'],trace=extra_trace(case['bindings'],True)))
+            check_series_size()
+    if history:
+        data['training_history']=[]
+        for record in history:
+            checkpoint=dict(epoch=int(record['epoch']),trace=extra_trace(record['bindings']))
+            if 'loss' in record: checkpoint['loss']=real_scalar(record['loss'])
+            data['training_history'].append(checkpoint)
+            check_series_size()
+
     if len(json.dumps(data,ensure_ascii=False,allow_nan=False).encode('utf-8'))>limit*1024**2:
         raise ValueError('Serialized trace exceeds max_report_mb')
     return Explanation(data)
