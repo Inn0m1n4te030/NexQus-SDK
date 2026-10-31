@@ -1,0 +1,39 @@
+split,left,right,label,category
+train,the cat sleeps,the cat rests,1,paraphrase
+train,the dog runs,the dog plays,1,paraphrase
+train,students study science,students learn science,1,paraphrase
+train,the scientist studies molecules,the researcher studies molecules,1,paraphrase
+train,quantum circuits encode data,quantum computers encode data,1,paraphrase
+train,the cat sleeps,the dog runs,0,unrelated
+train,the dog plays,students study science,0,unrelated
+train,students learn science,the cat rests,0,unrelated
+train,the researcher studies molecules,the dog plays,0,unrelated
+train,quantum computers encode data,the cat sleeps,0,unrelated
+train,the cat sleeps,the cat sleeps,1,identity
+train,students study science,students study science,1,identity
+train,the cat runs,the cat does not run,0,negation
+train,the dog sleeps,the dog does not sleep,0,negation
+train,the cat chases the dog,the dog chases the cat,0,word_order
+train,the scientist teaches the student,the student teaches the scientist,0,word_order
+train,the dog rests,the dog sleeps,1,paraphrase
+train,the scientist learns science,the researcher studies science,1,paraphrase
+validation,the cat rests,the cat sleeps quietly,1,paraphrase
+validation,the dog runs outside,the dog plays outside,1,paraphrase
+validation,students learn quantum science,students study quantum science,1,paraphrase
+validation,the cat sleeps quietly,quantum circuits encode data,0,unrelated
+validation,the scientist studies data,the dog runs outside,0,unrelated
+validation,the dog chases the cat,the cat chases the dog quietly,0,word_order
+validation,the cat rests quietly,the cat does not rest quietly,0,negation
+validation,the researcher learns science,the researcher learns science,1,identity
+test,the cat sleeps outside,the cat rests outside,1,paraphrase
+test,the dog rests quietly,the dog sleeps quietly,1,paraphrase
+test,students study molecules,students learn molecules,1,paraphrase
+test,the researcher studies quantum data,the scientist studies quantum data,1,paraphrase
+test,quantum circuits encode science,quantum circuits encode science,1,identity
+test,the cat rests outside,students learn quantum science,0,unrelated
+test,the dog sleeps quietly,the scientist studies molecules,0,unrelated
+test,the researcher studies data,the cat runs outside,0,unrelated
+test,the student chases the dog,the dog chases the student,0,word_order
+test,the researcher teaches the scientist,the scientist teaches the researcher,0,word_order
+test,the cat sleeps outside,the cat does not sleep outside,0,negation
+test,the dog runs quietly,the dog does not run quietly,0,negation
