@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add opt-in analytic final-output sensitivities for encoded features and weights,
+  with shared-parameter chain rules and original-state preservation. Add whole-block
+  interventions, offline derivative ranking, independent correctness checks and
+  a trained QNN example; keep local effects distinct from global importance.
+
 - Add `nexqus.nlp`: masked feature pooling, training-fitted angle scaling,
   feature-reuploading sentence encoders, compute/uncompute sentence-pair
   fidelity circuits, and validated dependency-tree adapters with token/wire
