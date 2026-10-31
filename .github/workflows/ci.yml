@@ -152,6 +152,8 @@ jobs:
       - run: npm install --no-save --no-package-lock jsdom@26.1.0
       - run: python examples/nlp_similarity.py --export .release-artifacts/nlp-similarity.html
       - run: node scripts/check_nlp_similarity_ui.cjs .release-artifacts/nlp-similarity.html
+      - run: python examples/train_sentence_pairs.py --epochs 2 --seeds 7
+      - run: node scripts/check_qnlp_training_ui.cjs
       - run: node scripts/check_explain_ui.cjs
       - run: python -m unittest discover -s tests -p test_molecules.py -v
       - run: python examples/molecular_viewer.py
@@ -168,6 +170,7 @@ jobs:
           include-hidden-files: true
           name: circuit-explanation-examples
           path: |
+            .release-artifacts/qnlp-training
             .release-artifacts/nlp-similarity.html
             .release-artifacts/explanations
             .release-artifacts/molecules
