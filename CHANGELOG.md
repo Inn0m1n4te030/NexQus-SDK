@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add synchronized prediction comparisons and recorded training-checkpoint playback
+  to the offline explorer, including bound angles, outputs, sensitivities and
+  supplied loss metadata. Bound all additional traces by an aggregate budget.
+
 - Add opt-in analytic final-output sensitivities for encoded features and weights,
   with shared-parameter chain rules and original-state preservation. Add whole-block
   interventions, offline derivative ranking, independent correctness checks and
