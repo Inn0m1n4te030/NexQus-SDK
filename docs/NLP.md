@@ -176,3 +176,80 @@ fixture; domain datasets should use separately justified splits and budgets.
 The checked-in `benchmarks/qnlp_cpu_fixture.json` records an actual three-seed,
 30-update CPU run, the dataset hash, losses, held-out predictions and environment.
 Reproduce before making task-performance claims; no quantum advantage is claimed.
+
+
+## Larger controlled feature study
+
+The unigram and unigram+bigram conditions preserve the same two-qubit model,
+encoded-component count, pair features, optimizer, update count, seed list and
+CSV splits. Only the feature pipeline changes. A training-label-prior baseline
+is included to reveal majority-class performance. The word vocabulary is capped
+at 512 terms, selected by training-corpus frequency with deterministic lexical
+tie breaks. IDF, SVD and angle ranges remain training-fitted. Bigrams add adjacent
+word pairs; they are order-sensitive features, not a guarantee that the final
+**two-dimensional** representation preserves every distinction. The report
+measures a training-sentence reversal before and after compression.
+
+Prepare public data explicitly (requires optional `pyarrow` only at this step):
+
+```bash
+python -m pip install pyarrow
+python examples/prepare_mrpc.py --download
+python examples/qnlp_feature_study.py --data .release-artifacts/mrpc.csv
+```
+
+Preparation fetches MRPC from the NYU GLUE dataset mirror at pinned revision
+`68d3d763fc36f89a8d047f4b8e51b98ea36b98d0` and verifies source SHA-256 checksums.
+See the [original Microsoft dataset](https://www.microsoft.com/en-us/download/details.aspx?id=52398)
+and [mirror](https://huggingface.co/datasets/nyu-mll/glue/tree/68d3d763fc36f89a8d047f4b8e51b98ea36b98d0/mrpc)
+for provenance and terms. Third-party sentences are downloaded locally; they
+are not bundled with the SDK.
+
+Defaults are 256 train / 64 validation / 128 test pairs. Test is sampled from
+**labelled GLUE validation**; our train and validation subsets come from GLUE
+train. This is a custom subset study, not an official GLUE test submission.
+Sampling is stratified with seed 17, fixed before fitting. Duplicate/reversed
+pairs are removed; conflicting-label duplicate groups are excluded. Training
+candidates sharing a case-folded, whitespace-normalized sentence with selected
+test pairs are excluded. Validation is then sampled, and training candidates
+sharing validation sentences are excluded. The three selected splits are
+exact-sentence-disjoint. Near-duplicates, shared news topics and paraphrased
+sentences can remain; no article-level grouping is claimed. Metadata records
+source counts/checksums, filtering counts, class counts, selected CSV hash and
+split protocol. Cache files are not silently re-downloaded or trusted after a
+checksum mismatch.
+
+`--sizes TRAIN VALIDATION TEST` on the preparer changes subset sizes;
+`--epochs` / `--seeds` on the study changes the declared training budget.
+The original tiny fixture remains available through
+`python examples/train_sentence_pairs.py`. The study runs on NumPy CPU and has
+no claimed CUDA validation. Larger classical workloads may need more memory;
+quantum state size remains bounded to two qubits in this controlled comparison.
+
+For optional context-aware representations, export local sentence vectors using
+your chosen external model, then pass:
+
+```bash
+python examples/qnlp_feature_study.py --data .release-artifacts/mrpc.csv \
+  --representations embeddings --embeddings vectors.json
+```
+
+Use the `fit_sentences` / `vectors` JSON format described in
+[NLP_SIMILARITY.md](NLP_SIMILARITY.md). The runner overrides fit sentences with
+**only the CSV training sentences**, regardless of an external file's fit list.
+Every used sentence needs a vector. No model is downloaded/imported automatically;
+model dependencies stay in the user's project. Embedding results must be reported
+separately with model/version/provenance; the checked-in measured study covers
+unigrams and bigrams only.
+
+Open `.release-artifacts/qnlp-features/report.html` for all conditions. Each links
+to a per-condition error report and training playback. `comparison.json` records
+all aggregate scores and preparation provenance; condition `results.json` files
+retain complete per-seed data. Error groups overlap: provided class/category,
+`negation_marker_mismatch` (presence of no/not/never differs),
+`same_tokens_different_order` (equal token multisets, different sequences), and
+`unknown_words` (at least one term outside the fitted vocabulary). These are
+transparent token heuristics, not gold negation/syntax annotations or reliable
+semantic error diagnoses. Category counts include repeated seeds; they are not
+independent extra test samples. Missing groups must not be interpreted as proof
+that a linguistic behavior is handled correctly.
