@@ -1,7 +1,8 @@
-# NexQus SDK 1.4.0rc1
+# NexQus SDK 1.4.0
 
-Release candidate for TestPyPI validation. Stable PyPI remains 1.3.0. This is
-not a stable promotion; actual CUDA hardware validation remains outstanding.
+Stable release promoted from the CI-validated 1.4.0rc1 candidate after fresh
+TestPyPI installation and API checks. Actual CUDA hardware validation remains
+outstanding. This promotion changes the version and documentation only.
 
 ## Changes since 1.3.0
 
@@ -17,15 +18,14 @@ not a stable promotion; actual CUDA hardware validation remains outstanding.
   quantum-advantage or semantic-benchmark claim is implied.
 - A refreshed start-here notebook mapping reusable APIs to example projects.
 
-## Install and verify the candidate
+## Install and verify
 
 ```bash
-python -m pip install numpy
-python -m pip install --index-url https://test.pypi.org/simple/ --no-deps nexqus-sdk==1.4.0rc1
+python -m pip install --upgrade nexqus-sdk==1.4.0
 python -c "import nexqus; print(nexqus.__version__)"
 ```
 
-For tutorials, install this candidate's source checkout with
+For tutorials, install the matching source checkout with
 `python -m pip install -e ".[tutorial]"`. See RELEASING.md for CPU/CUDA checks.
 The runtime wheel contains the SDK; examples and notebooks are in the sdist
 and matching source checkout. Text models, dataset tooling and web demos are

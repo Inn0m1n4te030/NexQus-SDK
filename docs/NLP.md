@@ -1,7 +1,7 @@
-# NLP building blocks (1.4.0rc1)
+# NLP building blocks (1.4.0)
 
 `from nexqus import nlp` provides NumPy-only helpers for text projects. These
-additions are included in candidate 1.4.0rc1 and absent from stable 1.3.0. Install this checkout with
+additions are included in 1.4.0 and absent from 1.3.0. Install this checkout with
 `python -m pip install -e .`. No text model, parser, dataset or network request
 is loaded by the module. Text processing and task evaluation remain project code.
 
