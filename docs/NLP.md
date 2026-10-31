@@ -120,3 +120,9 @@ python examples/nlp_building_blocks.py
 Open `.release-artifacts/nlp/sentence_pair.html` and `dependency.html`. The
 example uses supplied demonstration features, labels token encoding blocks, and
 shows computed states. It does not report NLP accuracy on any dataset.
+
+## Interactive sentence-pair project
+
+See [Sentence-pair similarity laboratory](NLP_SIMILARITY.md) for an offline
+TF-IDF/SVD example, classical cosine baselines, optional external vectors and
+P0 circuit explanations. Run `python examples/nlp_similarity.py` from this checkout.
