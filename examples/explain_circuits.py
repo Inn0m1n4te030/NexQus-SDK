@@ -33,7 +33,10 @@ def generate(output,device=None):
     def loss(values):
         return float(np.mean([(model(dict(values,x=float(v)))-np.cos(v))**2 for v in train_x]))
     before=loss(params)
-    for _ in range(40):
+    history=[]
+    for epoch in range(40):
+        if epoch%10==0:
+            history.append(dict(epoch=epoch,bindings=dict(params,x=.7),loss=loss(params)))
         gradient=dict.fromkeys(params,0.)
         for v in train_x:
             prediction,derivatives=model.value_and_grad(dict(params,x=float(v)),wrt=list(params))
@@ -41,10 +44,13 @@ def generate(output,device=None):
                 gradient[name]+=2*(prediction-np.cos(v))*derivatives[name]/len(train_x)
         params=optimizer.step(params,gradient)
     after=loss(params)
+    history.append(dict(epoch=40,bindings=dict(params,x=.7),loss=after))
     if not after<before: raise RuntimeError('Example QNN training failed to reduce its loss')
     q.explain(**execution,title='Trained QNN · trace one input through encoding and learned layers',
         bindings=dict(params,x=.7),observable='ZZ',sensitivities=True,
         interventions=[dict(block=i,skip=True) for i in range(4)],
+        comparisons=[dict(name='Second encoded input: x=1.4',bindings=dict(params,x=1.4))],
+        training_history=history,
         parameter_roles=dict(x='feature',**{k:'weight' for k in params}),
         blocks=[dict(name='Angle encoding',start=0,stop=2,role='encoding'),
                 dict(name='Trainable rotations',start=2,stop=4,role='trainable'),
