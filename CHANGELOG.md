@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add a reusable sentence-pair fidelity classifier with train/validation fitting,
+  predictions, validated JSON checkpoints and actual-score explanations. Add a
+  CPU-trained text-to-circuit lesson, training playback and classical baseline.
+
+
 ## 1.4.0 — 2026-11-01
 
 Stable promotion from 1.4.0rc1 after CI and fresh TestPyPI installation/API

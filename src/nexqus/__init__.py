@@ -16,3 +16,5 @@ __all__ = ["Circuit", "circuit", "Parameter", "Noise", "NoiseModel", "Simulator"
 __all__ += ["QuantumDistribution", "QGAN", "distribution_metrics", "PauliHamiltonian", "HamiltonianFunction"]
 __all__ += ["Molecule", "MolecularView", "molecule", "molecular_gallery"]
 __all__ += ["nlp"]
+from .nlp_learning import SentencePairClassifier
+__all__ += ['SentencePairClassifier']

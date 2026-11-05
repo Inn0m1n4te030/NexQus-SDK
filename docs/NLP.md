@@ -253,3 +253,59 @@ transparent token heuristics, not gold negation/syntax annotations or reliable
 semantic error diagnoses. Category counts include repeated seeds; they are not
 independent extra test samples. Missing groups must not be interpreted as proof
 that a linguistic behavior is handled correctly.
+
+## Trainable sentence-pair classifier (development checkout)
+
+`SentencePairClassifier` is a reusable NumPy-core model. It accepts externally
+prepared angle pairs shaped `(samples, 2, n_qubits)`, with binary labels. Fit any
+text vectorizer, dimensionality reduction and angle scaler on training text only.
+
+```python
+from nexqus import SentencePairClassifier
+model = SentencePairClassifier(n_qubits=2, seed=7)
+model.fit(train_pairs, labels, epochs=30,
+          validation_data=(validation_pairs, validation_labels))
+probabilities = model.predict_proba(test_pairs)  # columns: class 0, class 1
+predictions = model.predict(test_pairs)  # threshold P0 >= 0.5
+model.save('model.json')
+restored = SentencePairClassifier.load('model.json')
+model.explain(test_pairs[0], comparison=test_pairs[1]).to_html(filename='prediction.html')
+```
+
+A fit starts fresh from the configured seed and uses full-batch analytic
+parameter-shift gradients with Adam/MSE. Validation selects the minimum-MSE
+checkpoint; without validation the final epoch is retained. Up to 32 recorded
+checkpoints support playback. Save/load includes model weights and history,
+**not** the external text encoder. Keep that preprocessing with your application.
+Use `device='cuda:0', backend='torch'` only with a compatible Torch installation;
+CPU checks do not validate CUDA hardware.
+
+Run the complete text-to-prediction lesson:
+
+```bash
+python examples/sentence_pair_classifier.py --epochs 20
+```
+
+Open `.release-artifacts/sentence-pair-classifier/report.html`. It shows the
+sentences, TF-IDF/SVD features, angles, P0 score and thresholded class, with the
+native circuit explorer embedded below. Step through states/gates, inspect local
+angle derivatives, compare a second held-out pair and replay training. The paired
+`circuit.html` must remain beside the report. A checkpoint and held-out metric
+JSON are also saved. The example compares a linear classical model trained on
+absolute differences/products of the same encoded inputs, with the same update
+budget and validation selection; parameter budgets differ.
+
+This symmetric fidelity classifier always scores identical encodings as one.
+It does not model arbitrary directional relations or calibrated confidence.
+Angle sensitivities are not word attribution or causal effects. The small
+fixture is a functional demonstration; broader evaluation is still required.
+
+CPU smoke evidence (seed 7, 20 epochs, bundled fixture, 12 held-out pairs):
+
+| Model | Test accuracy | Test MSE | Test F1 |
+|---|---:|---:|---:|
+| Quantum fidelity classifier | 0.6667 | 0.2649 | 0.7143 |
+| Classical linear baseline | 0.7500 | 0.1963 | 0.6667 |
+
+Quantum training MSE decreased from 0.2744 to 0.2392; validation selected epoch
+20. These fixture results show the workflow executes, not general superiority.
