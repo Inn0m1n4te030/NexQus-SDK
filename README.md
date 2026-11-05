@@ -42,6 +42,15 @@ text-to-circuit example with classical cosine baselines:
 
 Examples and notebooks are available in the source repository and source archive.
 
+## Explainable sentence-pair learning (development checkout)
+
+`SentencePairClassifier` adds reusable `fit`, `predict_proba`, `predict`, JSON
+checkpoints and prediction explanations. Run
+`python examples/sentence_pair_classifier.py --epochs 20` for a small CPU lesson
+showing text features, encoded angles, circuit evolution, training playback and
+a classical comparison. See [the NLP guide](docs/NLP.md). This addition is not
+in the existing 1.4.0 wheel.
+
 ## Your first circuit
 
 The development checkout includes a [Quantum Maze Explorer](docs/QUANTUM_MAZE.md)
